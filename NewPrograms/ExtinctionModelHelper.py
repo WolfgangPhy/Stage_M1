@@ -112,8 +112,8 @@ class ExtinctionModelHelper:
         return rho/((2*math.pi)**1.5 * s1 * s2 * s3) * math.exp(-0.5 * (xx[0]**2/s1 + xx[1]**2/s2 + xx[2]**2/s3))    
     
     @staticmethod
-    def compute_cloud_density(exctinction_model, x, y, z):
-        """Computes the density of the cloud at a given point in the Galactic plane
+    def compute_extinction_model_density(exctinction_model, x, y, z):
+        """Computes the density of the model at a given point in the Galactic plane
 
         Args:
             extinction_model (ExctinctionModel): Model to use

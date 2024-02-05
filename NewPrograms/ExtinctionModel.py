@@ -26,7 +26,7 @@ class ExtinctionModel:
         Initializes an instance of the ExtinctionModel class.
 
         Args:
-            N (int): Number of models to generate.
+            N (int): Number of clourds to generate.
         """
         self.rho = np.random.rand(N)*0.1 
         self.x0 = np.random.rand(N)*8.-4. 
