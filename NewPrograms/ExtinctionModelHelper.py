@@ -3,7 +3,18 @@ import math
 from scipy.spatial.transform import Rotation as R
 
 class ExtinctionModelHelper:
-    """Utility functions for coordinate change and integration"""
+    """
+    Utility functions for coordinate change and integration
+    
+    Methods:
+        - ConvertGalacticToCartesian3D(ell, b, d): Converts from galactic coordinates to cartesian coordinates
+        - ConvertCartesianToGalactic3D(x, y, z): Converts from cartesian coordinates to galactic coordinates
+        - ConvertCartesianToGalactic2D(x, y): Converts from cartesian coordinates to galactic coordinates
+        - ConvertGalacticToCartesian2D(ell, d): Converts from galactic coordinates to cartesian coordinates
+        - integ_d(func, ell, b, dmax, model, dd=0,01): Integrates a function over a line of sight in the galactic plane
+        - gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2): 3D Gaussian function
+        - compute_extinction_model_density(extiction_model, x, y, z): Computes the density of the model at a given point in the Galactic plane
+    """
     @staticmethod
     def ConvertGalacticToCartesian3D(ell, b, d):
         """Converts from galactic coordinates to cartesian coordinates
@@ -60,6 +71,19 @@ class ExtinctionModelHelper:
         return  ell * 180./math.pi, \
                 R
 
+    @staticmethod
+    def ConvertGalacticToCartesian2D(ell, d):
+        """Converts from galactic coordinates to cartesian coordinates
+
+        Args:
+            l (float): Galactic longitude in degrees (0 to 360)
+            d (float): Distance in kpc
+
+        Returns:
+            tuple[float, float]: Cartesian coordinates (x,y) in kpc
+        """
+        return  d * math.cos(ell*math.pi/180.), \
+                d * math.sin(ell*math.pi/180.)
     @staticmethod
     def integ_d(func, ell, b, dmax, model, dd=0.01):
         """Integrates a function f over a line of sight in the galactic plane

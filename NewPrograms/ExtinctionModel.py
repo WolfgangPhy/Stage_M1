@@ -19,7 +19,8 @@ class ExtinctionModel:
         a2 (numpy.ndarray): Orientation angle along the second axis [-45, 45] degrees for each model.
 
     Methods:
-        __len__(): Returns the total number of samples, which is the length of the 'rho' array.
+        - __init__(N): Initializes an instance of the ExtinctionModel class.
+        - __len__(): Returns the total number of samples, which is the length of the 'rho' array.
     """
     def __init__(self, N):
         """
