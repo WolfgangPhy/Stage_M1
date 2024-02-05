@@ -89,7 +89,7 @@ def integ_d(func, l, b, dmax, model, dd=0.01):
     s = 0.5 * (func(0., 0., 0., model) + func(x, y, z, model))
     for i in range(1, n, 1):
         x, y, z = ConvertGalacticToCartesian3D(l, b, i*dd)
-        s = s + func(x, y, z, model)
+        s += func(x, y, z, model)
     return dd * s
 
 def integ_d_async(idx, f, l, b, dmax, model, dd=0.01):
@@ -149,7 +149,7 @@ def ext_model(x, y, z, model):
     d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
      
     for i in range(len(model.x0)):
-        d = d + gauss3d(x, y, z, model.x0[i], model.y0[i], model.z0[i], model.rho[i], model.s1[i], model.s2[i], model.s3[i], model.a1[i], model.a2[i])
+        d += gauss3d(x, y, z, model.x0[i], model.y0[i], model.z0[i], model.rho[i], model.s1[i], model.s2[i], model.s3[i], model.a1[i], model.a2[i])
     
     return d
 
