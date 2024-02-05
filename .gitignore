@@ -146,6 +146,8 @@ cython_debug/
 
 #Jupyter Notebook
 *.ipynb
+Baseressources/Plot_res.ipynb
+Baseressources/Fiducial_model2D.ipynb
 
 # PyCharm
 #  JetBrains specific template is maintainted in a separate JetBrains.gitignore that can
