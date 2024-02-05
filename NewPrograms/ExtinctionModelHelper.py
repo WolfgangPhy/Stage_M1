@@ -5,11 +5,11 @@ from scipy.spatial.transform import Rotation as R
 class ExtinctionModelHelper:
     """Utility functions for coordinate change and integration"""
     @staticmethod
-    def ConvertGalacticToCartesian3D(l, b, d):
+    def ConvertGalacticToCartesian3D(ell, b, d):
         """Converts from galactic coordinates to cartesian coordinates
 
         Args:
-            l (float): Galactic longitude in degrees (0 to 360)
+            ell (float): Galactic longitude in degrees (0 to 360)
             b (float): Galactic latitude in degrees (-90 to 90)
             d (float): Distance in kpc
 
@@ -17,8 +17,8 @@ class ExtinctionModelHelper:
             tuple[float, float, float] : Cartesian coordinates (x, y, z) in kpc
         """
         return (
-            d * math.cos(b*math.pi/180.) * math.cos(l*math.pi/180.),
-            d * math.cos(b*math.pi/180.) * math.sin(l*math.pi/180.),
+            d * math.cos(b*math.pi/180.) * math.cos(ell*math.pi/180.),
+            d * math.cos(b*math.pi/180.) * math.sin(ell*math.pi/180.),
             d * math.sin(b*math.pi/180.)
         )
     
@@ -32,7 +32,7 @@ class ExtinctionModelHelper:
             z (float): z coordinate in kpc
 
         Returns:
-            tuple[float, float, float]: Galactic coordinates (l,b,d) in degrees and kpc
+            tuple[float, float, float]: Galactic coordinates (ell,b,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
         ell = math.atan2(y,x)
@@ -51,7 +51,7 @@ class ExtinctionModelHelper:
             y (float): y coordinate in kpc
 
         Returns:
-            tuple[float, float]: Galactic coordinates (l,d) in degrees and kpc
+            tuple[float, float]: Galactic coordinates (ell,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
         ell = math.atan2(y, x)
@@ -61,12 +61,12 @@ class ExtinctionModelHelper:
                 R
 
     @staticmethod
-    def integ_d(func, l, b, dmax, model, dd=0.01):
+    def integ_d(func, ell, b, dmax, model, dd=0.01):
         """Integrates a function f over a line of sight in the galactic plane
         
         Args:
             func (function): Function to integrate
-            l (float): Galactic longitude in degrees (0 to 360)
+            ell (float): Galactic longitude in degrees (0 to 360)
             b (float): Galactic latitude in degrees (-90 to 90)
             dmax (float): Maximum distance in kpc
             model (extmy_model): Model to use
@@ -77,10 +77,10 @@ class ExtinctionModelHelper:
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
         n = int(dmax/dd)
-        x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(l, b, dmax)
+        x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(ell, b, dmax)
         s = 0.5 * (func(0., 0., 0., model) + func(x, y, z, model))
         for i in range(1, n, 1):
-            x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(l, b, i*dd)
+            x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(ell, b, i*dd)
             s = s + func(x, y, z, model)
         return dd * s
 
@@ -110,4 +110,29 @@ class ExtinctionModelHelper:
         r2 = R.from_euler('z', a2, degrees=True)
         xx=r2.apply(r1.apply(v))
         return rho/((2*math.pi)**1.5 * s1 * s2 * s3) * math.exp(-0.5 * (xx[0]**2/s1 + xx[1]**2/s2 + xx[2]**2/s3))    
+    
+    @staticmethod
+    def compute_cloud_density(exctinction_model, x, y, z):
+        """Computes the density of the cloud at a given point in the Galactic plane
+
+        Args:
+            extinction_model (ExctinctionModel): Model to use
+            x (float): x coordinate in kpc
+            y (float): y coordinate in kpc
+            z (float): z coordinate in kpc
+
+        Returns:
+            float : Value of the density
+        """
+        hr = 2.5 #kpc
+        hz = 0.05 #kpc
+        absorp = 0.2 #mag/kpc
+        x_sum = 8. #kpc (Sun x coordinate relative to the Galactic center)
+        R = math.sqrt((x-x_sum)**2 + y**2)
+        d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
+        
+        for i in range(len(exctinction_model.x0)):
+            d += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i], exctinction_model.z0[i], exctinction_model.rho[i], exctinction_model.s1[i], exctinction_model.s2[i], exctinction_model.s3[i], exctinction_model.a1[i], exctinction_model.a2[i])
+        
+        return d
     

@@ -129,7 +129,7 @@ def gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2):
     return rho/((2*math.pi)**1.5 * s1 * s2 * s3) * math.exp(-0.5 * (xx[0]**2/s1 + xx[1]**2/s2 + xx[2]**2/s3))    
       
 def ext_model(x, y, z, model):
-    """Computes the extinction model
+    """Computes the density of the cloud at a given point in the Galaxy
     
     Args:
         x (float): x coordinate in kpc
@@ -138,7 +138,7 @@ def ext_model(x, y, z, model):
         model (extmy_model): Model to use
 
     Returns:
-        float : Value of the extinction model
+        float : Value of the density
     """
     #Assumes a double exponential disk model near the Sun
     hr = 2.5 #kpc
