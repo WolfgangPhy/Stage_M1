@@ -69,7 +69,7 @@ def ConvertCartesianToGalactic2D(x, y):
     return  ell * 180./math.pi, \
             R
 
-def integ_d(func , l, b, dmax, model, dd=0.01):
+def integ_d(func, l, b, dmax, model, dd=0.01):
     """Integrates a function f over a line of sight in the galactic plane
     
     Args:
@@ -92,7 +92,7 @@ def integ_d(func , l, b, dmax, model, dd=0.01):
         s = s + func(x, y, z, model)
     return dd * s
 
-def integ_d_async(idx,f,l,b,dmax,model,dd=0.01):
+def integ_d_async(idx, f, l, b, dmax, model, dd=0.01):
     #uses trapezoidal rule WARNING - dmax/dd might not be an integer
     n = int(dmax/dd)
     x,y,z = ConvertGalacticToCartesian3D(l,b,dmax)
@@ -144,11 +144,9 @@ def ext_model(x, y, z, model):
     hr = 2.5 #kpc
     hz = 0.05 #kpc
     absorp = 0.2 #mag/kpc
-    r_sun = 8.
-    # first assumes a double exponential disk model with hr=2.5kpc hz=0.05 kpc 
-    # with an absoption of 0.2mag/kpc near the Sun radius (-8,0,0)
-    R = math.sqrt((x-r_sun)**2 + y**2)
-    d = absorp * math.exp(-(R - r_sun)/hr) * math.exp(-abs(z)/hz)
+    x_sum = 8. #kpc (Sun x coordinate relative to the Galactic center)
+    R = math.sqrt((x-x_sum)**2 + y**2)
+    d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
      
     for i in range(len(model.x0)):
         d = d + gauss3d(x, y, z, model.x0[i], model.y0[i], model.z0[i], model.rho[i], model.s1[i], model.s2[i], model.s3[i], model.a1[i], model.a2[i])
