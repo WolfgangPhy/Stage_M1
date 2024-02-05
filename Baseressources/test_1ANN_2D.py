@@ -23,9 +23,10 @@ import copy,time
 #
 ############################################################################
 class MyDataset2D(Dataset):
-    'Characterizes a dataset for PyTorch'
+    """ 
+    2D extinction dataset.
+    """
     def __init__(self, ell, dist, K, error):
-        'Initialization'
         #self.list_IDs  = np.arange(len(ell))
         self.ell = ell
         self.cosell = np.cos(self.ell*np.pi/180.)
@@ -35,73 +36,132 @@ class MyDataset2D(Dataset):
         self.error = error # error on absorption
 
     def __len__(self):
-        'Denotes the total number of samples'
+        """
+        Returns the size of the dataset
+        (Mandatory function for torch dataset)
+        Returns:
+            float: size of the dataset
+        """
         return len(self.ell)
 
-    def __getitem__(self, index): ### Not sure this is how I should do it
-        'Generates one sample of data'
+    def __getitem__(self, index): 
+        """
+        Returns the sample at the given index
+
+        Args:
+            index (int): Index of the sample to retrieve.
+
+        Returns:
+            tuple[torch.tensor, torch.tensor]: A tuple containing two torch tensors:
+                - The first tensor contains the 2D coordinates of the sample 
+                as (cos(ell), sin(ell), dist).
+                - The second tensor contains the values associated with the sample 
+                as (total_absorption, error_on_absorption).
+        """
         return torch.tensor((self.cosell[index],self.sinell[index],self.dist[index])), torch.tensor((self.K[index],self.error[index]))
 
-############################################################################
-#
-# Definition of the neural network model to be used :
-# here a simple dense model (perceptron) with one 
-# input layer of size 3, normalized (l,b,d), one hidden layer fully connected  
-# and one output layer of size 1.
-# Using a sigmoid activation -> network has an analitic integral
-#
-############################################################################
-# defines the integration neural network model to be used : here a simple dense model with one 
-# input layer of size 3, one hidden layer fully connected  
-# and one output layer of size 1.
-# Using a sigmoid activation
 class Ext2D(nn.Module):
-    
-    def __init__(self,hidden_size):
-        super(Ext2D,self).__init__()
+    """
+    Neural network model for 2D extinction estimation.
+
+    This model is a simple dense model (perceptron) with one
+    input layer of size 3 (normalized values: l, b, d),
+    one hidden layer fully connected, and one output layer of size 1.
+    It uses a sigmoid activation function, resulting in a network with
+    an analytical integral.
+
+    Args:
+        hidden_size (int): Size of the hidden layer.
+
+    Attributes:
+        hidden_size (int): Size of the hidden layer.
+        lin1 (nn.Linear): First linear layer with input size 3 and output size hidden_size.
+        lin2 (nn.Linear): Second linear layer with input size hidden_size and output size 1.
+        Sigmoid (nn.Sigmoid): Sigmoid activation function.
+
+    Methods:
+        forward(x): Forward pass through the neural network.
+
+    """
+
+    def __init__(self, hidden_size):
+        """
+        Initializes the Ext2D model.
+
+        Args:
+            hidden_size (int): Size of the hidden layer.
+        """
+        super(Ext2D, self).__init__()
         self.hidden_size = hidden_size
         self.lin1 = nn.Linear(3, hidden_size, bias=True)
         self.lin2 = nn.Linear(hidden_size, 1, bias=True)
         self.Sigmoid = nn.Sigmoid()
         
-    def forward(self,x):
+    def forward(self, x):
+        """
+        Forward pass through the neural network.
+
+        Args:
+            x (torch.Tensor): Input tensor of size (batch_size, 3).
+
+        Returns:
+            torch.Tensor: Output tensor of size (batch_size, 1).
+        """
         out = self.lin1(x)
         out = self.Sigmoid(out)
         out = self.lin2(out)
         return out
 
 
-############################################################################
-#
-# Custom analytic integral of the network ext3D to be used in MSE loss
-#
-############################################################################
-def integral(x,net,xmin=0.,debug=0):
+
+def integral(x, net, xmin=0., debug=0):
+    """
+    Custom analytic integral of the network ext3D to be used in MSE loss.
+
+    This function calculates a custom analytic integral of the network ext3D,
+    as specified in the Equation 15a and Equation 15b of Lloyd et al. 2020,
+    to be used in Mean Squared Error (MSE) loss during training.
+
+    Args:
+        x (torch.Tensor): Input tensor of size (batch_size, 3).
+        net (Ext3D): The neural network model (Ext3D) used for the integration.
+        xmin (float, optional): Minimum value for integration. Defaults to 0.
+        debug (int, optional): Debugging flag. Defaults to 0.
+
+    Returns:
+        torch.Tensor: Result of the custom analytic integral for each sample in the batch.
+    """
     # Equation 15b of Lloyd et al 2020 -> Phi_j for each neuron
     # Li_1(x) = -ln(1-x) for x \in C
     batch_size = x.size()[0]
-    n = x.size()[1] #number of coordinates the last one is the distance
-    xmin = x*0. + xmin
+    n = x.size()[1]  # number of coordinates, the last one is the distance
+    xmin = x * 0. + xmin
 
-    a = -torch.log(1.+torch.exp(-1.*(net.lin1.bias.unsqueeze(1).expand(net.hidden_size,batch_size)
-                                    +torch.matmul(net.lin1.weight[:,0:n-1],torch.transpose(x[:,0:n-1],0,1)))
-                               - torch.matmul(net.lin1.weight[:,n-1].unsqueeze(1),torch.transpose(xmin[:,n-1].unsqueeze(1),0,1)) ) )
-    b = torch.log(1.+torch.exp(-1.*(net.lin1.bias.unsqueeze(1).expand(net.hidden_size,batch_size) 
-                                    +torch.matmul(net.lin1.weight[:,0:n-1],torch.transpose(x[:,0:n-1],0,1)))
-                               - torch.matmul(net.lin1.weight[:,n-1].unsqueeze(1),torch.transpose(x[:,n-1].unsqueeze(1),0,1)) ) )
+    a = -torch.log(1. + torch.exp(-1. * (net.lin1.bias.unsqueeze(1).expand(net.hidden_size, batch_size)
+                                        + torch.matmul(net.lin1.weight[:, 0:n - 1], torch.transpose(x[:, 0:n - 1], 0, 1)))
+                                   - torch.matmul(net.lin1.weight[:, n - 1].unsqueeze(1),
+                                                  torch.transpose(xmin[:, n - 1].unsqueeze(1), 0, 1))))
+    b = torch.log(1. + torch.exp(-1. * (net.lin1.bias.unsqueeze(1).expand(net.hidden_size, batch_size)
+                                        + torch.matmul(net.lin1.weight[:, 0:n - 1], torch.transpose(x[:, 0:n - 1], 0, 1)))
+                                   - torch.matmul(net.lin1.weight[:, n - 1].unsqueeze(1),
+                                                  torch.transpose(x[:, n - 1].unsqueeze(1), 0, 1))))
 
     phi_j = a + b
-   
-    # Equation 15a of Lloyd et al 2020 : alpha_1=0, beta_1=x
-    # sum over al neurons of the hidden layer
-    aa = net.lin2.bias * (x[:,n-1] - xmin[:,n-1])
-        
-    bb = torch.matmul(net.lin2.weight[0,:] , (torch.transpose((x[:,n-1]-xmin[:,n-1]).unsqueeze(1),0,1).expand(net.hidden_size,batch_size) 
-        + torch.transpose(torch.div(torch.transpose(phi_j,0,1),net.lin1.weight[:,n-1]),0,1) ) ) 
-    
+
+    # Equation 15a of Lloyd et al 2020: alpha_1=0, beta_1=x
+    # Sum over all neurons of the hidden layer
+    aa = net.lin2.bias * (x[:, n - 1] - xmin[:, n - 1])
+
+    bb = torch.matmul(net.lin2.weight[0, :],
+                      (torch.transpose((x[:, n - 1] - xmin[:, n - 1]).unsqueeze(1), 0, 1).expand(net.hidden_size,
+                                                                                                   batch_size)
+                       + torch.transpose(
+                          torch.div(torch.transpose(phi_j, 0, 1), net.lin1.weight[:, n - 1]), 0, 1)))
+
     res = aa + bb
 
     return res
+
     
     
 ############################################################################
@@ -109,25 +169,55 @@ def integral(x,net,xmin=0.,debug=0):
 # Initialisation and creation functions for the network
 #
 ############################################################################
-#Initialize weights and biases for model m
 def init_weights(m):
+    """
+    Function to initialize weights and biases for the given PyTorch model.
+
+    This function initializes the weights and biases of the linear layers in the model
+    using Xavier (Glorot) uniform initialization for weights and sets bias values to 0.1.
+
+    Args:
+        m (torch.nn.Module): The PyTorch model for which weights and biases need to be initialized.
+    """
     if type(m) == nn.Linear:
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.1)
 
-# Create network and set optimizer
 def create_net_integ(hidden_size,lr=1e-2):
+    """
+    Function to create the neural network and set the optimizer.
+
+    This function creates an instance of the Ext2D neural network with the specified
+    hidden size and initializes an Adam optimizer with the given learning rate.
+
+    Args:
+        hidden_size (int): Size of the hidden layer in the neural network.
+        lr (float, optional): Learning rate for the Adam optimizer. Defaults to 1e-2.
+
+    Returns:
+        tuple[Ext2D, optim.Adam]: A tuple containing the created neural network and the Adam optimizer.
+    """
     network = Ext2D(hidden_size)
     return network, optim.Adam(network.parameters(), lr=lr)
 
-############################################################################
-#
-# Loss function to be used
-#
-############################################################################
-# log likelihood loss function
-# assumes label=(E,sigma) and returns <((x-label(E))/label(sigma))**2> where <.> is either mean or sum
 def loglike_loss(yhat,label,reduction='sum'):
+    """
+    Function to compute the log likelihood loss.
+
+    This function implements the log likelihood loss function. It assumes that 'label' is a pair (E, sigma)
+    and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum, depending on the 'reduction' parameter.
+
+    Args:
+        yhat (torch.Tensor): Model predictions.
+        label (torch.Tensor): Labels in the form (E, sigma).
+        reduction (str, optional): Method for reducing the loss, 'sum' by default.
+
+    Raises:
+        Exception: Raised if the reduction value is unknown. Should be 'sum' or 'mean'.
+
+    Returns:
+        torch.Tensor: Value of the log likelihood loss.
+    """
     if reduction=='sum':
         return (((yhat-label[:,0])/label[:,1])**2).sum()
     elif reduction=='mean':
@@ -135,14 +225,19 @@ def loglike_loss(yhat,label,reduction='sum'):
     else :
         raise Exception('reduction value unkown. Should be sum or mean')
 
-
-############################################################################
-#
-# Function to perform one training step
-# does not return the full loss function to avoid memory glitches
-#
-############################################################################
 def take_step(xb, yb):
+    """
+    Function to perform one training step.
+
+    This function executes one training step for the neural network model.
+    It updates the model's parameters based on the provided input (xb) and target (yb) batches.
+    The loss function is a combination of log likelihood loss for total extinction and
+    mean squared error loss for density estimation.
+
+    Args:
+        xb (torch.Tensor): Input batch for the neural network.
+        yb (torch.Tensor): Target batch for the neural network.
+    """
     global lossint_total
     global lossdens_total
     global nu_ext
@@ -186,13 +281,19 @@ def take_step(xb, yb):
     # do 1 optimisation step after minibatch
     opti.step()
 
-
-############################################################################
-#
-# Function to perform one validation step
-#
-############################################################################
 def validation(x_val,y_val):
+    """
+    Function to perform one validation step.
+
+    This function executes one validation step for the neural network model.
+    It evaluates the model's performance on the validation set based on the provided input (x_val) and target (y_val) batches.
+    The loss function is a combination of log likelihood loss for total extinction and
+    mean squared error loss for density estimation.
+
+    Args:
+        x_val (torch.Tensor): Input batch for the validation set.
+        y_val (torch.Tensor): Target batch for the validation set.
+    """
     global valint_total
     global valdens_total
     global nu_ext
