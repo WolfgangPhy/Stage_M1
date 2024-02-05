@@ -144,9 +144,9 @@ def ext_model(x, y, z, model):
     hr = 2.5 #kpc
     hz = 0.05 #kpc
     absorp = 0.2 #mag/kpc
-    x_sum = 8. #kpc (Sun x coordinate relative to the Galactic center)
-    R = math.sqrt((x-x_sum)**2 + y**2)
-    d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
+    x_sun = 8. #kpc (Sun x coordinate relative to the Galactic center)
+    R = math.sqrt((x-x_sun)**2 + y**2)
+    d = absorp * math.exp(-(R - x_sun)/hr) * math.exp(-abs(z)/hz)
      
     for i in range(len(model.x0)):
         d += gauss3d(x, y, z, model.x0[i], model.y0[i], model.z0[i], model.rho[i], model.s1[i], model.s2[i], model.s3[i], model.a1[i], model.a2[i])
