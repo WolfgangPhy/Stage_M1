@@ -1,4 +1,3 @@
-import numpy as np
 import math
 from scipy.spatial.transform import Rotation as R
 
@@ -6,7 +5,7 @@ class ExtinctionModelHelper:
     """
     Utility functions for coordinate change and integration
     
-    Methods:
+    # Methods:
         - ConvertGalacticToCartesian3D(ell, b, d): Converts from galactic coordinates to cartesian coordinates
         - ConvertCartesianToGalactic3D(x, y, z): Converts from cartesian coordinates to galactic coordinates
         - ConvertCartesianToGalactic2D(x, y): Converts from cartesian coordinates to galactic coordinates
@@ -19,12 +18,12 @@ class ExtinctionModelHelper:
     def ConvertGalacticToCartesian3D(ell, b, d):
         """Converts from galactic coordinates to cartesian coordinates
 
-        Args:
+        # Args:
             ell (float): Galactic longitude in degrees (0 to 360)
             b (float): Galactic latitude in degrees (-90 to 90)
             d (float): Distance in kpc
 
-        Returns:
+        " Returns:
             tuple[float, float, float] : Cartesian coordinates (x, y, z) in kpc
         """
         return (
@@ -37,12 +36,12 @@ class ExtinctionModelHelper:
     def ConvertCartesianToGalactic3D(x, y, z):
         """Converts from cartesian coordinates to galactic coordinates
 
-        Args:
+        # Args:
             x (float): x coordinate in kpc
             y (float): y coordinate in kpc
             z (float): z coordinate in kpc
 
-        Returns:
+        # Returns:
             tuple[float, float, float]: Galactic coordinates (ell,b,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
@@ -57,11 +56,11 @@ class ExtinctionModelHelper:
     def ConvertCartesianToGalactic2D(x, y):
         """Converts from cartesian coordinates to galactic coordinates
 
-        Args:
+        # Args:
             x (float): x coordinate in kpc
             y (float): y coordinate in kpc
 
-        Returns:
+        # Returns:
             tuple[float, float]: Galactic coordinates (ell,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
@@ -75,11 +74,11 @@ class ExtinctionModelHelper:
     def ConvertGalacticToCartesian2D(ell, d):
         """Converts from galactic coordinates to cartesian coordinates
 
-        Args:
+        # Args:
             l (float): Galactic longitude in degrees (0 to 360)
             d (float): Distance in kpc
 
-        Returns:
+        " Returns:
             tuple[float, float]: Cartesian coordinates (x,y) in kpc
         """
         return  d * math.cos(ell*math.pi/180.), \
@@ -88,7 +87,7 @@ class ExtinctionModelHelper:
     def integ_d(func, ell, b, dmax, model, dd=0.01):
         """Integrates a function f over a line of sight in the galactic plane
         
-        Args:
+        # Args:
             func (function): Function to integrate
             ell (float): Galactic longitude in degrees (0 to 360)
             b (float): Galactic latitude in degrees (-90 to 90)
@@ -96,7 +95,7 @@ class ExtinctionModelHelper:
             model (extmy_model): Model to use
             dd (float, optional): Step size in kpc. Defaults to 0.01.
 
-        Returns:
+        # Returns:
             float: Value of the integral
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
@@ -112,7 +111,7 @@ class ExtinctionModelHelper:
     def gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2):
         """3D Gaussian function
 
-        Args:
+        # Args:
             x (float): x coordinate in kpc
             y (float): y coordinate in kpc
             z (float): z coordinate in kpc
@@ -126,7 +125,7 @@ class ExtinctionModelHelper:
             a1 (float): Rotation angle around x axis in degrees
             a2 (float): Rotation angle around z axis in degrees
 
-        Returns:
+        # Returns:
             float : Value of the Gaussian function
         """
         v=[x-x0, y-y0, z-z0]
@@ -139,13 +138,13 @@ class ExtinctionModelHelper:
     def compute_extinction_model_density(exctinction_model, x, y, z):
         """Computes the density of the model at a given point in the Galactic plane
 
-        Args:
+        # Args:
             extinction_model (ExctinctionModel): Model to use
             x (float): x coordinate in kpc
             y (float): y coordinate in kpc
             z (float): z coordinate in kpc
 
-        Returns:
+        # Returns:
             float : Value of the density
         """
         hr = 2.5 #kpc

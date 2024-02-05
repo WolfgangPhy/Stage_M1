@@ -7,7 +7,7 @@ class ExtinctionModel:
     """
     Class to store a given model.
 
-    Attributes:
+    # Attributes:
         rho (numpy.ndarray): Core density for each model.
         x0 (numpy.ndarray): Cartesian location of cloud along the x-axis [-4, 4] kpc for each model.
         y0 (numpy.ndarray): Cartesian location of cloud along the y-axis [-4, 4] kpc for each model.
@@ -18,7 +18,7 @@ class ExtinctionModel:
         a1 (numpy.ndarray): Orientation angle along the first axis [-30, 30] degrees for each model.
         a2 (numpy.ndarray): Orientation angle along the second axis [-45, 45] degrees for each model.
 
-    Methods:
+    # Methods:
         - __init__(N): Initializes an instance of the ExtinctionModel class.
         - __len__(): Returns the total number of samples, which is the length of the 'rho' array.
     """
@@ -26,7 +26,7 @@ class ExtinctionModel:
         """
         Initializes an instance of the ExtinctionModel class.
 
-        Args:
+        # Args:
             N (int): Number of clourds to generate.
         """
         self.rho = np.random.rand(N)*0.1 
@@ -43,7 +43,7 @@ class ExtinctionModel:
         """
         Returns the total number of samples.
 
-        Returns:
+        # Returns:
             int: The length of the 'rho' array.
         """
         return len(self.rho)

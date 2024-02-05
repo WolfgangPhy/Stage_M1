@@ -1,32 +1,23 @@
-import sys
-import pickle
-import numpy as np
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader, random_split
-import math
-from scipy.spatial.transform import Rotation as R
-import copy, time
 
 class ExtinctionNeuralNet(nn.Module):
     """
     Neural network model for extinction prediction.
 
-    Args:
+    # Args:
         hidden_size (int): Number of hidden units in the neural network.
 
-    Attributes:
+    # Attributes:
         hidden_size (int): Number of hidden units.
         linear1 (nn.Linear): First linear layer.
         linear2 (nn.Linear): Second linear layer.
         sigmoid (nn.Sigmoid): Sigmoid activation function.
 
-    Methods:
-        forward(tensor): Forward pass of the neural network.
+    # Methods:
+        - __init__(hidden_size): Initializes an instance of the ExtinctionNeuralNet class.
+        - forward(tensor): Forward pass of the neural network.
 
-    Examples:
+    # Examples:
         >>> model = ExtinctionNeuralNet(hidden_size=128)
         >>> input_tensor = torch.tensor([1.0, 2.0, 3.0])
         >>> output = model(input_tensor)
@@ -44,10 +35,10 @@ class ExtinctionNeuralNet(nn.Module):
         """
         Forward pass of the neural network.
 
-        Args:
+        # Args:
             tensor (torch.Tensor): Input tensor of shape (batch_size, 3).
 
-        Returns:
+        # Returns:
             torch.Tensor: Output tensor of shape (batch_size, 1).
         """
         out = self.linear1(tensor)

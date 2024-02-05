@@ -6,13 +6,13 @@ class Dataset2D(Dataset):
     """
     PyTorch dataset for 2D extinction data.
 
-    Args:
+    # Args:
         ell (numpy.ndarray): Array of Galactic longitudes in degrees.
         dist (numpy.ndarray): Array of distances in kiloparsecs (kpc).
         K (numpy.ndarray): Array of total Absorption values.
         error (numpy.ndarray): Array of errors on Absorption values.
 
-    Attributes:
+    # Attributes:
         ell (numpy.ndarray): Array of Galactic longitudes in degrees.
         cosell (numpy.ndarray): Cosine of Galactic longitudes.
         sinell (numpy.ndarray): Sine of Galactic longitudes.
@@ -20,12 +20,12 @@ class Dataset2D(Dataset):
         K (numpy.ndarray): Array of total Absorption values.
         error (numpy.ndarray): Array of errors on Absorption values.
 
-    Methods:
+    # Methods:
         - __init__(ell, dist, K, error): Initializes an instance of the Dataset2D class.
         - __len__(): Returns the size of the dataset.
         - __getitem__(index): Returns the sample at the given index.
         
-    Examples:
+    # Examples:
         Create an instance of the dataset:
 
         >>> dataset = Dataset2D(ell_data, dist_data, K_data, error_data)
