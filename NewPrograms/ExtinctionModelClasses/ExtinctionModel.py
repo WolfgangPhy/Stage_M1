@@ -1,7 +1,4 @@
 import numpy as np
-import math
-import ExtinctionModelHelper as helper
-from scipy.spatial.transform import Rotation as R
 
 class ExtinctionModel:
     """
