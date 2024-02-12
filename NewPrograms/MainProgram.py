@@ -17,24 +17,24 @@ class MainProgram:
     setting up log files, preparing the dataset, creating the network, initializing training, and executing training steps.
 
     # Attributes:
-        - `config` (dict): Configuration parameters for the training process.
-        - `logfile` (file): Logfile for recording training progress and results.
-        - `dataset` (torch.Dataset): Dataset containing training and validation samples.
-        - `train_loader` (torch.utils.data.DataLoader): Dataloader for training minibatches.
-        - `val_loader` (torch.utils.data.DataLoader): Dataloader for validation minibatches.
-        - `network` (ExtinctionNeuralNet): Neural network model for extinction and density estimation.
-        - `opti` (torch.optim.Adam): Adam optimizer for updating network parameters.
-        - `epoch` (int): Current epoch in the training process.
+        - `config (dict)`: Configuration parameters for the training process.
+        - `logfile (file)`: Logfile for recording training progress and results.
+        - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
+        - `train_loader (torch.utils.data.DataLoader)`: Dataloader for training minibatches.
+        - `val_loader (torch.utils.data.DataLoader)`: Dataloader for validation minibatches.
+        - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
+        - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
+        - `epoch (int)`: Current epoch in the training process.
         
     # Methods:
-        - `OpenConfigFile()`: Opens the configuration file and reads the training parameters.
-        - `CloseConfigFile()`: Closes the configuration file. - `OpenAppendConfigFile`: Opens the configuration file in append mode for additional logging.
-        - `SetupLogfile()`: Sets up the logfile for recording training progress and results.
-        - `PrepareDataset()`: Loads and preprocesses the dataset for training and validation.
-        - `CreateNetwork()`: Creates the neural network architecture based on the configuration.
-        - `InitTraining()`: Initializes the training process, setting up epoch-related variables.
-        - `TrainNetwork()`: Performs the training iterations, updating the neural network parameters.
-        - `Execute()`: Executes the main program, orchestrating the entire training process.
+        - `open_config_file()`: Opens the configuration file and reads the training parameters.
+        - `close_config_file()`: Closes the configuration file. - `OpenAppendConfigFile`: Opens the configuration file in append mode for additional logging.
+        - `setup_logfile()`: Sets up the logfile for recording training progress and results.
+        - `prepare_dataset()`: Loads and preprocesses the dataset for training and validation.
+        - `create_network()`: Creates the neural network architecture based on the configuration.
+        - `init_training()`: Initializes the training process, setting up epoch-related variables.
+        - `train_network()`: Performs the training iterations, updating the neural network parameters.
+        - `run()`: Executes the main program, orchestrating the entire training process.
 
 
     # Example:
@@ -44,20 +44,20 @@ class MainProgram:
         ```
 
     """
-    def OpenConfigFile(self):
+    def open_config_file(self):
         """
         Open the config file
         """
         with open('Config.json') as json_file:
             self.config = json.load(json_file)
             
-    def CloseConfigFile(self):  
+    def close_config_file(self):  
         """
         Close the config file
         """
         self.config.close()
             
-    def SetupLogfile(self):
+    def setup_logfile(self):
         """
         Set up the logfile for logging information during training.
 
@@ -89,7 +89,7 @@ class MainProgram:
         self.logfile.write('Using datafile: '+self.config['datafile']+'\n')
         self.logfile.write('Maps stored in '+self.config['outfile']+'_e*.pt\n')
           
-    def PrepareDataset(self):
+    def prepare_dataset(self):
         """
         Prepare the dataset for training and validation.
 
@@ -126,7 +126,7 @@ class MainProgram:
         self.train_loader = DataLoader(dataset=train_dataset, batch_size=10000, shuffle=True)
         self.val_loader = DataLoader(dataset=val_dataset, batch_size=10000,shuffle=False)
         
-    def CreateNetwork(self):
+    def create_network(self):
         """
         Create the neural network.
 
@@ -161,7 +161,7 @@ class MainProgram:
         self.network.to(self.device)    
         self.network.train()
         
-    def InitTraining(self):
+    def init_training(self):
         """
         Initialize the training process.
 
@@ -184,7 +184,7 @@ class MainProgram:
         self.logfile.write('(nu_ext,nu_dens)=('+str(nu_ext)+','+str(nu_dens)+')\n\nStart training:\n')
         self.logfile.close()
             
-    def TrainNetwork(self):
+    def train_network(self):
         """
         Train the neural network.
 
@@ -235,7 +235,7 @@ class MainProgram:
                     nbatch=0
                     for x_val,y_val in self.val_loader:
                         nbatch=nbatch+1
-                        ExtinctionNeuralNetBuilder.validation(x_val, y_val)
+                        ExtinctionNeuralNetBuilder.validation(x_val, y_val) #TODO possible problème avec global dans la méthode
                 
                     val_loss = valdens_total+valint_total/(nbatch*1.)
                 
@@ -266,14 +266,14 @@ class MainProgram:
         self.logfile.write("Total time (hours): "+str((t1-tstart)/3600.)+"\n")
         self.logfile.close()
         
-    def Execute(self):
+    def run(self):
         """
         Execute the main program
         """
-        self.OpenConfigFile()
-        self.SetupLogfile()
-        self.PrepareDataset()
-        self.CreateNetwork()
-        self.InitTraining()
-        self.TrainNetwork()
-        self.CloseConfigFile()
+        self.open_config_file()
+        self.setup_logfile()
+        self.prepare_dataset()
+        self.create_network()
+        self.init_training()
+        self.train_network()
+        self.close_config_file()
