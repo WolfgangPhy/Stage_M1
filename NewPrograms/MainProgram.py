@@ -16,16 +16,6 @@ class MainProgram:
     This class encapsulates the main workflow for training a neural network, including configuring,
     setting up log files, preparing the dataset, creating the network, initializing training, and executing training steps.
 
-    # Methods:
-        - `OpenConfigFile`: Opens the configuration file and reads the training parameters.
-        - `CloseConfigFile`: Closes the configuration file. - `OpenAppendConfigFile`: Opens the configuration file in append mode for additional logging.
-        - `SetupLogfile`: Sets up the logfile for recording training progress and results.
-        - `PrepareDataset`: Loads and preprocesses the dataset for training and validation.
-        - `CreateNetwork`: Creates the neural network architecture based on the configuration.
-        - `InitTraining`: Initializes the training process, setting up epoch-related variables.
-        - `TrainNetwork`: Performs the training iterations, updating the neural network parameters.
-        - `Execute`: Executes the main program, orchestrating the entire training process.
-
     # Attributes:
         - `config` (dict): Configuration parameters for the training process.
         - `logfile` (file): Logfile for recording training progress and results.
@@ -35,6 +25,17 @@ class MainProgram:
         - `network` (ExtinctionNeuralNet): Neural network model for extinction and density estimation.
         - `opti` (torch.optim.Adam): Adam optimizer for updating network parameters.
         - `epoch` (int): Current epoch in the training process.
+        
+    # Methods:
+        - `OpenConfigFile()`: Opens the configuration file and reads the training parameters.
+        - `CloseConfigFile()`: Closes the configuration file. - `OpenAppendConfigFile`: Opens the configuration file in append mode for additional logging.
+        - `SetupLogfile()`: Sets up the logfile for recording training progress and results.
+        - `PrepareDataset()`: Loads and preprocesses the dataset for training and validation.
+        - `CreateNetwork()`: Creates the neural network architecture based on the configuration.
+        - `InitTraining()`: Initializes the training process, setting up epoch-related variables.
+        - `TrainNetwork()`: Performs the training iterations, updating the neural network parameters.
+        - `Execute()`: Executes the main program, orchestrating the entire training process.
+
 
     # Example:
         >>> # Example usage of MainProgram

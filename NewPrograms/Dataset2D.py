@@ -7,23 +7,23 @@ class Dataset2D(Dataset):
     PyTorch dataset for 2D extinction data.
 
     # Args:
-        ell (numpy.ndarray): Array of Galactic longitudes in degrees.
-        dist (numpy.ndarray): Array of distances in kiloparsecs (kpc).
-        K (numpy.ndarray): Array of total Absorption values.
-        error (numpy.ndarray): Array of errors on Absorption values.
+        `ell (numpy.ndarray)`: Array of Galactic longitudes in degrees.
+        `dist (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
+        `K (numpy.ndarray)`: Array of total Absorption values.
+        `error (numpy.ndarray)`: Array of errors on Absorption values.
 
     # Attributes:
-        ell (numpy.ndarray): Array of Galactic longitudes in degrees.
-        cosell (numpy.ndarray): Cosine of Galactic longitudes.
-        sinell (numpy.ndarray): Sine of Galactic longitudes.
-        dist (numpy.ndarray): Array of distances in kiloparsecs (kpc).
-        K (numpy.ndarray): Array of total Absorption values.
-        error (numpy.ndarray): Array of errors on Absorption values.
+        `ell (numpy.ndarray)`: Array of Galactic longitudes in degrees.
+        `cosell (numpy.ndarray)`: Cosine of Galactic longitudes.
+        `sinell (numpy.ndarray)`: Sine of Galactic longitudes.
+        `dist (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
+        `K (numpy.ndarray)`: Array of total Absorption values.
+        `error (numpy.ndarray)`: Array of errors on Absorption values.
 
     # Methods:
-        - __init__(ell, dist, K, error): Initializes an instance of the Dataset2D class.
-        - __len__(): Returns the size of the dataset.
-        - __getitem__(index): Returns the sample at the given index.
+        - `__init__(ell, dist, K, error)`: Initializes an instance of the Dataset2D class.
+        - `__len__()` : Returns the size of the dataset.
+        - `__getitem__(index)`: Returns the sample at the given index.
         
     # Examples:
         Create an instance of the dataset:
@@ -52,7 +52,7 @@ class Dataset2D(Dataset):
         Returns the size of the dataset
         
         Returns:
-            float: size of the dataset
+            `float`: size of the dataset
         """
         return len(self.ell)
     
@@ -61,10 +61,10 @@ class Dataset2D(Dataset):
         Returns the sample at the given index
 
         Args:
-            index (int): Index of the sample to retrieve.
+            `index (int)`: Index of the sample to retrieve.
 
         Returns:
-            tuple[torch.tensor, torch.tensor]: A tuple containing two torch tensors:
+            `tuple[torch.tensor, torch.tensor]`: A tuple containing two torch tensors:
                 - The first tensor contains the 2D coordinates of the sample 
                 as (cos(ell), sin(ell), dist).
                 - The second tensor contains the values associated with the sample 

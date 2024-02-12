@@ -9,21 +9,21 @@ class ExtinctionNeuralNetBuilder:
     A utility class for building and training neural networks for extinction and density estimation.
 
     # Args:
-        device (torch.device): Device on which the neural network is running.
-        hidden_size (int): Size of the hidden layer in the neural network.
-        learning_rate (float, optional): Learning rate for the Adam optimizer. Defaults to 0.001.
+        `device (torch.device)`: Device on which the neural network is running.
+        `hidden_size (int)`: Size of the hidden layer in the neural network.
+        `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 0.001.
 
     # Attributes:
-        network (ExtinctionNeuralNet): The neural network model for extinction and density estimation.
-        opti (optim.Adam): The Adam optimizer used for training.
+        `network (ExtinctionNeuralNet)`: The neural network model for extinction and density estimation.
+        `opti (optim.Adam)`: The Adam optimizer used for training.
 
     # Methods:
-        - integral(tensor, network_model, xmin=0., debug=0): Custom analytic integral of the network for MSE loss.
-        - init_weights(model): Initializes weights and biases using Xavier uniform initialization.
-        - create_net_integ(hidden_size, learning_rate=1e-2): Creates a neural network and sets up the optimizer.
-        - loglike_loss(prediction, label, reduction_method='sum'): Computes the log likelihood loss.
-        - take_step(in_batch, tar_batch): Performs one training step.
-        - validation(in_batch_validation_set, tar_batch_validation_set): Performs one validation step.
+        - `integral(tensor, network_model, xmin=0., debug=0)`: Custom analytic integral of the network for MSE loss.
+        - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
+        - `create_net_integ(hidden_size, learning_rate=1e-2)`: Creates a neural network and sets up the optimizer.
+        - `loglike_loss(prediction, label, reduction_method='sum')`: Computes the log likelihood loss.
+        - `take_step(in_batch, tar_batch)`: Performs one training step.
+        - `validation(in_batch_validation_set, tar_batch_validation_set)`: Performs one validation step.
         
     # Example:
         >>> # Example usage of ExtinctionNeuralNetBuilder
@@ -50,9 +50,9 @@ class ExtinctionNeuralNetBuilder:
         Initializes an instance of the ExtinctionNeuralNetBuilder class.
 
         # Args:
-            device (torch.device): Device on which the neural network is running.
-            hidden_size (int): Size of the hidden layer in the neural network.
-            learning_rate (float, optional): Learning rate for the Adam optimizer. Defaults to 0.001.
+            `device (torch.device)`: Device on which the neural network is running.
+            `hidden_size (int)`: Size of the hidden layer in the neural network.
+            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 0.001.
         """
         self.device = device
         self.network, self.opti = self.create_net_integ(hidden_size, learning_rate)
@@ -66,13 +66,13 @@ class ExtinctionNeuralNetBuilder:
         to be used in Mean Squared Error (MSE) loss during training.
 
         # Args:
-            tensor (torch.Tensor): Input tensor of size (batch_size, 3).
-            network_model (Ext3D): The neural network model (Ext3D) used for the integration.
-            xmin (float, optional): Minimum value for integration. Defaults to 0.
-            debug (int, optional): Debugging flag. Defaults to 0.
+            `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
+            `network_model (Ext3D)`: The neural network model (Ext3D) used for the integration.
+            `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
+            `debug (int, optional)`: Debugging flag. Defaults to 0.
 
         # Returns:
-            torch.tensor: Result of the custom analytic integral for each sample in the batch.
+            `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
         """
         # Equation 15b of Lloyd et al 2020 -> Phi_j for each neuron
         # Li_1(x) = -ln(1-x) for x \in C
@@ -127,7 +127,7 @@ class ExtinctionNeuralNetBuilder:
         using Xavier (Glorot) uniform initialization for weights and sets bias values to 0.1.
 
         # Args:
-            model (torch.nn.Module): The PyTorch model for which weights and biases need to be initialized.
+            `model (torch.nn.Module)`: The PyTorch model for which weights and biases need to be initialized.
         """
         if type(model) == nn.Linear:
             torch.nn.init.xavier_uniform_(model.weight)
@@ -141,11 +141,11 @@ class ExtinctionNeuralNetBuilder:
         hidden size and initializes an Adam optimizer with the given learning rate.
 
         # Args:
-            hidden_size (int): Size of the hidden layer in the neural network.
-            learning_rate (float, optional): Learning rate for the Adam optimizer. Defaults to 1e-2.
+            `hidden_size (int)`: Size of the hidden layer in the neural network.
+            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 1e-2.
 
         # Returns:
-            tuple[ExtinctionNeuralNet, optim.Adam]: A tuple containing the created neural network and the Adam optimizer.
+            `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
         """
         network = neuralnet.ExtinctionNeuralNet(hidden_size)
         return network, optim.Adam(network.parameters(), lr=learning_rate)
@@ -158,15 +158,15 @@ class ExtinctionNeuralNetBuilder:
         and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum, depending on the 'reduction' parameter.
 
         # Args:
-            prediction (torch.Tensor): Model predictions.
-            label (torch.Tensor): Labels in the form (E, sigma).
-            reduction_method (str, optional): Method for reducing the loss, 'sum' by default.
+            `prediction (torch.Tensor)`: Model predictions.
+            `label (torch.Tensor)`: Labels in the form (E, sigma).
+            `reduction_method (str, optional)`: Method for reducing the loss, 'sum' by default.
 
         # Raises:
-            Exception: Raised if the reduction value is unknown. Should be 'sum' or 'mean'.
+            `Exception`: Raised if the reduction value is unknown. Should be 'sum' or 'mean'.
 
         # Returns:
-            torch.Tensor: Value of the log likelihood loss.
+            `torch.Tensor`: Value of the log likelihood loss.
         """
         if reduction_method=='sum':
             return ( ( ( prediction-label[:,0] )/label[:,1] )**2 ).sum()
@@ -185,12 +185,12 @@ class ExtinctionNeuralNetBuilder:
         mean squared error loss for density estimation.
 
         # Args:
-            in_batch (torch.Tensor): Input batch for the neural network.
-            tar_batch (torch.Tensor): Target batch for the neural network.
-            lossint_total (float): Total loss for extinction.
-            lossdens_total (float): Total loss for density.
-            nu_ext (float): Coefficient for extinction loss.
-            nu_dens (float): Coefficient for density loss.
+            `in_batch (torch.Tensor)`: Input batch for the neural network.
+            `tar_batch (torch.Tensor)`: Target batch for the neural network.
+            `lossint_total (float)`: Total loss for extinction.
+            `lossdens_total (float)`: Total loss for density.
+            `nu_ext (float)`: Coefficient for extinction loss.
+            `nu_dens (float)`: Coefficient for density loss.
         """
         
         tar_batch = tar_batch.float().detach()
@@ -241,8 +241,8 @@ class ExtinctionNeuralNetBuilder:
         mean squared error loss for density estimation.
 
         # Args:
-            in_batch_validation_set (torch.Tensor): Input batch for the validation set.
-            tar_batch_validation_set (torch.Tensor): Target batch for the validation set.
+            `in_batch_validation_set (torch.Tensor)`: Input batch for the validation set.
+            `tar_batch_validation_set (torch.Tensor)`: Target batch for the validation set.
         """
         global valint_total
         global valdens_total
