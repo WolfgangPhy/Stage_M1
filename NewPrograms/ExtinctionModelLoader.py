@@ -1,6 +1,6 @@
 import pickle
 import os.path
-import ExtinctionModel
+import ExtinctionModel as ExtinctionModel
 
 class ExtinctionModelLoader:
     def __init__(self, fiducial_model="2DModel.pickle"):
@@ -16,7 +16,7 @@ class ExtinctionModelLoader:
             self.newmodel = True
 
     def create_new_model(self):
-        self.model = ExtinctionModel(100)
+        self.model = ExtinctionModel.ExtinctionModel(100)
         with open(self.fiducial_model, "wb") as file:
             pickle.dump(self.model, file)
 

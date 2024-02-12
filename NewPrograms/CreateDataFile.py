@@ -1,14 +1,14 @@
 import torch
 import multiprocessing as mp
-import ExtinctionModelLoader
-import ModelVisualizer
-import ParallelProcessor
+import ExtinctionModelLoader as Loader
+import ModelVisualizer as Visualizer
+import ParallelProcessor as ParallelProcessor
 
 class CreateDataFile:
     def __init__(self, fiducial_model="2DModel.pickle"):
-        self.extinction_model_loader = ExtinctionModelLoader(fiducial_model)
-        self.model_visualizer = ModelVisualizer()
-        self.parallel_processor = ParallelProcessor()
+        self.extinction_model_loader = Loader.ExtinctionModelLoader(fiducial_model)
+        self.model_visualizer = Visualizer.ModelVisualizer()
+        self.parallel_processor = ParallelProcessor.ParallelProcessor()
 
     def execute(self):
         self.extinction_model_loader.check_existing_model()

@@ -1,12 +1,16 @@
 import numpy as np
 import torch
-import ExtinctionModelHelper
+import ExtinctionModelHelper as Helper
 import Dataset2D
 
 class ParallelProcessor:
     @staticmethod
     def process_parallel(model, pool, n, device, dtype):
         results = []
+        
+        def collect_result(result):
+            global results
+            results.append(result)
 
         ell = torch.rand(n, device=device) * 360.
         b = torch.zeros(n, device=device, dtype=dtype)
@@ -18,7 +22,7 @@ class ParallelProcessor:
 
         # Use a loop for parallel processing
         for i in range(n):
-            pool.apply_async(ExtinctionModelHelper.integ_d, args=(i, ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, dist[i].data, model),
+            pool.apply_async(Helper.ExtinctionModelHelper.integ_d, args=(i, Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, dist[i].data, model),
                             callback=collect_result)
 
         # Close pool
@@ -39,7 +43,4 @@ class ParallelProcessor:
         return Dataset2D(ell, dist, K, error)
     
 
-def collect_result(result):
-        global results
-        results.append(result)
     

@@ -1,8 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./NewPrograms/ExtinctionModelClasses",
-        "./NewPrograms/DataFileClasses",
-        "./NewPrograms/TorchFiles",
-
-    ]
-}
