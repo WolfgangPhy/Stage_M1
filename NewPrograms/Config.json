@@ -1,0 +1,11 @@
+{
+    "datafile": "./fiducial_model2D.pt",
+    "outfile": "../ExtinctionModelMean",
+    "logfile": "../ExtinctionModel.log",
+    "lossfile": "../test_models/fiducial_model2D_mean.loss",
+    "valfile": "../test_models/fiducial_model2D_mean.val",
+    "epochs": 600000,
+    "newnet": false,
+    "pretrainednetwork": "../test_models/fiducial_model2D_mean_e340000.pt"
+}
+  
