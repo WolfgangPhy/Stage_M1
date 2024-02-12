@@ -15,7 +15,7 @@ class ExtinctionModelHelper:
         - `compute_extinction_model_density(extiction_model, x, y, z)`: Computes the density of the model at a given point in the Galactic plane
     """
     @staticmethod
-    def ConvertGalacticToCartesian3D(ell, b, d):
+    def convert_galactic_to_cartesian_3D(ell, b, d):
         """Converts from galactic coordinates to cartesian coordinates
 
         # Args:
@@ -33,7 +33,7 @@ class ExtinctionModelHelper:
         )
     
     @staticmethod
-    def ConvertCartesianToGalactic3D(x, y, z):
+    def convert_cartesian_to_galactic_3D(x, y, z):
         """Converts from cartesian coordinates to galactic coordinates
 
         # Args:
@@ -53,7 +53,7 @@ class ExtinctionModelHelper:
                 math.sqrt(x**2 + y**2 + z**2)
                 
     @staticmethod
-    def ConvertCartesianToGalactic2D(x, y):
+    def convert_cartesian_to_galactic_2D(x, y):
         """Converts from cartesian coordinates to galactic coordinates
 
         # Args:
@@ -71,7 +71,7 @@ class ExtinctionModelHelper:
                 R
 
     @staticmethod
-    def ConvertGalacticToCartesian2D(ell, d):
+    def convert_galactic_to_cartesian_2D(ell, d):
         """Converts from galactic coordinates to cartesian coordinates
 
         # Args:
@@ -100,10 +100,10 @@ class ExtinctionModelHelper:
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
         n = int(dmax/dd)
-        x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(ell, b, dmax)
+        x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
         s = 0.5 * (func(0., 0., 0., model) + func(x, y, z, model))
         for i in range(1, n, 1):
-            x, y, z = ExtinctionModelHelper.ConvertGalacticToCartesian3D(ell, b, i*dd)
+            x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
             s = s + func(x, y, z, model)
         return dd * s
 
