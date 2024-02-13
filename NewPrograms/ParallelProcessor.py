@@ -1,20 +1,28 @@
 import numpy as np
 import torch
 import ExtinctionModelHelper as Helper
-import Dataset2D
+import Dataset2D as ds
+from tqdm import tqdm
 
 class ParallelProcessor:
     @staticmethod
     def process_parallel(model, pool, n, device, dtype):
         results = []
+        progress_index = 0
         
         def collect_result(result):
-            global results
             results.append(result)
+            
+            nonlocal progress_index
+            progress_index += 1
+            print("Progress: ", progress_index/n*100, "%")
+            
+        def error_callback(e):
+            print(e)
 
         ell = torch.rand(n, device=device) * 360.
         b = torch.zeros(n, device=device, dtype=dtype)
-        dist = torch.rand(n, device=device) * 5.5
+        d = torch.rand(n, device=device) * 5.5
         K = torch.zeros(n, device=device, dtype=dtype)
         error = torch.zeros(n, device=device, dtype=dtype)
 
@@ -22,9 +30,12 @@ class ParallelProcessor:
 
         # Use a loop for parallel processing
         for i in range(n):
-            pool.apply_async(Helper.ExtinctionModelHelper.integ_d, args=(i, Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, dist[i].data, model),
-                            callback=collect_result)
-
+            pool.apply_async(
+                Helper.ExtinctionModelHelper.integ_d_async,
+                args=(i, Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, d[i].data, model),
+                callback=collect_result,
+                error_callback=error_callback
+            )
         # Close pool
         pool.close()
         pool.join()  # Wait for all processes to be completed
@@ -40,7 +51,7 @@ class ParallelProcessor:
             K[i] = K[i].item() + np.random.normal(scale=error[i].item())
 
         # Return the processed dataset
-        return Dataset2D(ell, dist, K, error)
+        return ds.Dataset2D(ell, d, K, error)
     
 
     

@@ -2,13 +2,12 @@ import torch
 import multiprocessing as mp
 import ExtinctionModelLoader as Loader
 import ModelVisualizer as Visualizer
-import ParallelProcessor as ParallelProcessor
+import ParallelProcessor as pp
 
 class CreateDataFile:
     def __init__(self, fiducial_model="2DModel.pickle"):
         self.extinction_model_loader = Loader.ExtinctionModelLoader(fiducial_model)
         self.model_visualizer = Visualizer.ModelVisualizer()
-        self.parallel_processor = ParallelProcessor.ParallelProcessor()
 
     def execute(self):
         self.extinction_model_loader.check_existing_model()
@@ -32,9 +31,11 @@ class CreateDataFile:
         # Set up multiprocessing pool
         pool = mp.Pool(processor_num)
 
+        n = 10000 # Number of data points
+        
         # Process the model in parallel and get the dataset
-        dataset = self.parallel_processor.process_parallel(
-            self.extinction_model_loader.model, pool, 20000, device, dtype
+        dataset = pp.ParallelProcessor.process_parallel(
+            self.extinction_model_loader.model, pool, n, device, dtype
         )
 
         # Close the pool

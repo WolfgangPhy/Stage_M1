@@ -99,13 +99,40 @@ class ExtinctionModelHelper:
             `float`: Value of the integral
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
+        
         n = int(dmax/dd)
         x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
-        s = 0.5 * (func(0., 0., 0., model) + func(x, y, z, model))
+        s = 0.5 * (func(model, 0., 0., 0.) + func(model, x, y, z))
         for i in range(1, n, 1):
             x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
-            s = s + func(x, y, z, model)
+            s = s + func(model, x, y, z)
+        
         return dd * s
+    
+    @staticmethod
+    def integ_d_async(idx,func, ell, b, dmax, model, dd=0.01):
+        """Integrates a function f over a line of sight in the galactic plane
+        
+        # Args:
+            `idx (int)`: Index of the integral
+            `func (function)`: Function to integrate
+            `ell (float)`: Galactic longitude in degrees (0 to 360)
+            `b (float)`: Galactic latitude in degrees (-90 to 90)
+            `dmax (float)`: Maximum distance in kpc
+            `model (extmy_model)`: Model to use
+            `dd (float, optional)`: Step size in kpc. Defaults to 0.01.
+
+        # Returns:
+            `tuple[int, float]`: Index and value of the integral
+        """
+        #uses trapezoidal rule WARNING - dmax/dd might not be an integer
+        n = int(dmax/dd)
+        x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
+        s = 0.5 * (func(model, 0., 0., 0.) + func(model, x, y, z))
+        for i in range(1, n, 1):
+            x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
+            s = s + func(model, x, y, z)
+        return (idx, dd * s)
 
     @staticmethod
     def gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2):
