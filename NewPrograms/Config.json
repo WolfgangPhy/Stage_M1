@@ -1,6 +1,6 @@
 {
     "datafile": "./PyTorchFiles/fiducial_model2D.pt",
-    "outfile": "./OutputFiles/ExtinctionModelMean",
+    "outfile": "./PyTorchFiles/ExtinctionModelMean",
     "logfile": "./OutputFiles/ExtinctionModel.log",
     "lossfile": "./OutputFiles/fiducial_model2D_mean_loss.csv",
     "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",

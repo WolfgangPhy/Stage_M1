@@ -105,10 +105,12 @@ class MainProgram:
         self.lossfile = open(self.config['lossfile'],'w')
         csv_writer = csv.writer(self.lossfile)
         csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
+        self.lossfile.close()
         
         self.valfile = open(self.config['valfile'],'w')
         csv_writer = csv.writer(self.valfile)
         csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
+        self.valfile.close()
         
     
     def prepare_dataset(self):
@@ -245,7 +247,6 @@ class MainProgram:
             with open(self.config['lossfile'], 'a', newline='') as csvfile:
                 csv_writer = csv.writer(csvfile)
                 csv_writer.writerow([self.epoch, full_loss, self.lossint_total, self.lossdens_total, (t1 - t0) / 60.])
-            self.lossfile.close()
             
             # compute loss on validation sample
             if self.epoch%50==0:
@@ -263,12 +264,10 @@ class MainProgram:
                     val_loss = self.valdens_total+self.valint_total/(nbatch*1.)
                 
                     t2 = time.time()
-                    self.logfile.write("Validation Epoch "+str(self.epoch)+" -  Loss:"+str(val_loss)+" ("+str(self.valint_total)+","+str(self.valdens_total)+") Time val (min):"+str((t2-t1)/60.)+" Total:"+str((t2-t0)/60.)+"\n")
 
                     with open(self.config['valfile'], 'a', newline='') as csvfile:
                         csv_writer = csv.writer(csvfile)
                         csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
-                    self.valfile.close()
             
             # save model every 50 epoch and last step
             if self.epoch%10000==0 or self.epoch==self.config['epochs']:
