@@ -7,6 +7,7 @@ import time
 import ExtinctionNeuralNet as NeuralNet
 import ExtinctionNeuralNetBuilder as Builder
 import json
+from tqdm import tqdm
 
 
 class MainProgram:
@@ -19,12 +20,16 @@ class MainProgram:
     # Attributes:
         - `config (dict)`: Configuration parameters for the training process.
         - `logfile (file)`: Logfile for recording training progress and results.
+        - `lossfile (file)`: Logfile for recording training loss values.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
         - `train_loader (torch.utils.data.DataLoader)`: Dataloader for training minibatches.
         - `val_loader (torch.utils.data.DataLoader)`: Dataloader for validation minibatches.
         - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
         - `epoch (int)`: Current epoch in the training process.
+        - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
+        - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
+        - `device (torch.device)`: Computing device for running the neural network.
         
     # Methods:
         - `open_config_file()`: Opens the configuration file and reads the training parameters.
@@ -44,6 +49,10 @@ class MainProgram:
         ```
 
     """
+    
+    def __init__(self):
+        self.epoch = -1
+        
     def open_config_file(self):
         """
         Open the config file
@@ -138,13 +147,16 @@ class MainProgram:
         dim = 2
         k = (np.log10(self.dataset.__len__()))**-4.33 * 16. * self.dataset.__len__()/(dim+2)*2.
         self.logfile.write('Using '+str(int(k))+' neurons in the hidden layer\n')
-        hidden_size = int(k)
+        self.hidden_size = int(k)
+        
+        #Instanciate the builder
+        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size)
 
-        self.network, self.opti = Builder.ExtinctionNeuralNetBuilder.create_net_integ(hidden_size,learning_rate=1e-3)
-        self.network.apply(Builder.ExtinctionNeuralNetBuilder.init_weights)
+        self.network, self.opti = self.builder.create_net_integ(self.hidden_size,learning_rate=1e-3)
+        self.network.apply(self.builder.init_weights)
         if not self.config['newnet']:
             # define networks
-            self.network = NeuralNet.ExtinctionNeuralNet(hidden_size)
+            self.network = NeuralNet.ExtinctionNeuralNet(self.hidden_size)
 
             # load checkpoint file
             checkpoint = torch.load(self.config['pretrainednetwork'],map_location='cpu')
@@ -158,7 +170,7 @@ class MainProgram:
             # update epoch
             self.epoch = checkpoint['epoch']
 
-        self.network.to(self.device)    
+        self.network.to(self.device) 
         self.network.train()
         
     def init_training(self):
@@ -173,15 +185,15 @@ class MainProgram:
         """
         # initialize epoch
         try:
-            epoch
+            self.epoch
         except NameError:
-            epoch = -1
+            self.epoch = -1
 
         # Lagrange multipliers for loss calculation
         # global variables used by fullloss
-        nu_ext = 1.   # total ext must match observations
-        nu_dens = 1.   # density must be positive
-        self.logfile.write('(nu_ext,nu_dens)=('+str(nu_ext)+','+str(nu_dens)+')\n\nStart training:\n')
+        self.nu_ext = 1.   # total ext must match observations
+        self.nu_dens = 1.   # density must be positive
+        self.logfile.write('(nu_ext,nu_dens)=('+str(self.nu_ext)+','+str(self.nu_dens)+')\n\nStart training:\n')
         self.logfile.close()
             
     def train_network(self):
@@ -194,13 +206,13 @@ class MainProgram:
 
         """
         tstart = time.time()
-        for idx in range(self.epochs+1):
+        for idx in tqdm(range(self.config['epochs']+1)):
             #open logfile here and close it at end of epoch to make sure everything is written
-            self.OpenAppendConfigFile()
+            self.logfile=open(self.config['logfile'],'a')
         
             # set start time of epoch and epoch number
             t0 = time.time()
-            epoch = epoch+1
+            self.epoch = self.epoch+1
 
             # initialize variables at each epoch to store full losses
             lossint_total=0.
@@ -210,40 +222,40 @@ class MainProgram:
             nbatch = 0
             for xb,yb in self.train_loader:
                 nbatch = nbatch+1
-                Builder.ExtinctionNeuralNetBuilder.take_step(xb,yb)
-
+                self.builder.take_step(xb,yb, lossint_total, lossdens_total, self.nu_ext, self.nu_dens)
+            
             # add up loss function contributions
             full_loss = lossdens_total+lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
 
             # print progress for full batch
             #if epoch%10==0:
             t1 = time.time()
-            self.logfile.write("Epoch "+str(epoch)+" -  Loss:"+str(full_loss)+" ("+str(lossint_total)+','+str(lossdens_total)+") Total time (min): "+str((t1-t0)/60.)+"\n")
+            self.logfile.write("Epoch "+str(self.epoch)+" -  Loss:"+str(full_loss)+" ("+str(lossint_total)+','+str(lossdens_total)+") Total time (min): "+str((t1-t0)/60.)+"\n")
     
             self.lossfile = open(self.config['lossfile'],'a')
-            self.lossfile.write(str(epoch)+' '+str(full_loss)+' '+str(lossint_total)+' '+str(lossdens_total)+' '+str((t1-t0)/60.)+'\n')
+            self.lossfile.write(str(self.epoch)+' '+str(full_loss)+' '+str(lossint_total)+' '+str(lossdens_total)+' '+str((t1-t0)/60.)+'\n')
             self.lossfile.close()
             
             # compute loss on validation sample
-            if epoch%50==0:
+            if self.epoch%50==0:
                 with torch.no_grad(): # turns off gradient calculation
                     # init loss variables
-                    valint_total=0.
-                    valdens_total=0.
+                    self.valint_total=0.
+                    self.valdens_total=0.
 
                     # loop over minibatches of validation sample
                     nbatch=0
                     for x_val,y_val in self.val_loader:
                         nbatch=nbatch+1
-                        Builder.ExtinctionNeuralNetBuilder.validation(x_val, y_val) #TODO possible problème avec global dans la méthode
+                        self.valint_total, self.valdens_total = self.builder.validation(x_val, y_val, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
                 
-                    val_loss = valdens_total+valint_total/(nbatch*1.)
+                    val_loss = self.valdens_total+self.valint_total/(nbatch*1.)
                 
                     t2 = time.time()
-                    self.logfile.write("Validation Epoch "+str(epoch)+" -  Loss:"+str(val_loss)+" ("+str(valint_total)+","+str(valdens_total)+") Time val (min):"+str((t2-t1)/60.)+" Total:"+str((t2-t0)/60.)+"\n")
+                    self.logfile.write("Validation Epoch "+str(self.epoch)+" -  Loss:"+str(val_loss)+" ("+str(self.valint_total)+","+str(self.valdens_total)+") Time val (min):"+str((t2-t1)/60.)+" Total:"+str((t2-t0)/60.)+"\n")
 
                     valfile = open(self.config['valfile'],'a')
-                    valfile.write(str(epoch)+' '+str(val_loss)+' '+str(valint_total)+' '+str(valdens_total)+' '+str((t2-t1)/60.)+' '+str((t2-t0)/60.)+'\n')
+                    valfile.write(str(self.epoch)+' '+str(val_loss)+' '+str(self.valint_total)+' '+str(self.valdens_total)+' '+str((t2-t1)/60.)+' '+str((t2-t0)/60.)+'\n')
                     valfile.close()
                     
 
@@ -251,11 +263,11 @@ class MainProgram:
             self.logfile.close()
             
             # save model every 50 epoch and last step
-            if epoch%10000==0 or epoch==self.config['epochs']:
-                fname1 = '{}_e{}.pt'.format(self.config['outfile'],epoch)
+            if self.epoch%10000==0 or self.epoch==self.config['epochs']:
+                fname1 = '{}_e{}.pt'.format(self.config['outfile'],self.epoch)
                 self.network.to('cpu')
                 torch.save({
-                    'epoch': epoch,
+                    'epoch': self.epoch,
                     'integ_state_dict': self.network.state_dict(),
                     'opti_state_dict': self.opti.state_dict()
                 },fname1)
@@ -270,6 +282,7 @@ class MainProgram:
         """
         Execute the main program
         """
+        
         self.open_config_file()
         self.setup_logfile()
         self.prepare_dataset()
@@ -277,3 +290,4 @@ class MainProgram:
         self.init_training()
         self.train_network()
         self.close_config_file()
+        

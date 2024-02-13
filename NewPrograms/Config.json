@@ -5,7 +5,7 @@
     "lossfile": "../fiducial_model2D_mean.loss",
     "valfile": "../fiducial_model2D_mean.val",
     "epochs": 600000,
-    "newnet": false,
+    "newnet": true,
     "pretrainednetwork": "../fiducial_model2D_mean_e340000.pt"
 }
   

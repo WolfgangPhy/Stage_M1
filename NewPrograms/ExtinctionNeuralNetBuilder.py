@@ -57,7 +57,8 @@ class ExtinctionNeuralNetBuilder:
         self.device = device
         self.network, self.opti = self.create_net_integ(hidden_size, learning_rate)
         
-    def integral(tensor, network_model, xmin=0., debug=0):
+        
+    def integral(self, tensor, network_model, xmin=0., debug=0):
         """
         Custom analytic integral of the network ext3D to be used in MSE loss.
 
@@ -67,7 +68,7 @@ class ExtinctionNeuralNetBuilder:
 
         # Args:
             `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
-            `network_model (Ext3D)`: The neural network model (Ext3D) used for the integration.
+            `network_model (Ext3D)`: The neural network model (ExtinctionNeuralNet) used for the integration.
             `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
             `debug (int, optional)`: Debugging flag. Defaults to 0.
 
@@ -80,20 +81,20 @@ class ExtinctionNeuralNetBuilder:
         coord_num = tensor.size()[1]  # number of coordinates, the last one is the distance
         xmin = tensor * 0. + xmin
 
-        a = -torch.log(1. + torch.exp(-1. * (network_model.lin1.bias.unsqueeze(1).expand(network_model.hidden_size, batch_size)
-                                                + torch.matmul(network_model.lin1.weight[:, 0:coord_num - 1], 
+        a = -torch.log(1. + torch.exp(-1. * (network_model.linear1.bias.unsqueeze(1).expand(network_model.hidden_size, batch_size)
+                                                + torch.matmul(network_model.linear1.weight[:, 0:coord_num - 1], 
                                                 torch.transpose(tensor[:, 0:coord_num - 1], 0, 1))\
                                             )
-                                        - torch.matmul(network_model.lin1.weight[:, coord_num - 1].unsqueeze(1), 
+                                        - torch.matmul(network_model.linear1.weight[:, coord_num - 1].unsqueeze(1), 
                                                             torch.transpose(xmin[:, coord_num - 1].unsqueeze(1), 0, 1)
                                                         )
                                     )
                     )
-        b = torch.log(1. + torch.exp(-1. * (network_model.lin1.bias.unsqueeze(1).expand(network_model.hidden_size, batch_size)
-                                                + torch.matmul(network_model.lin1.weight[:, 0:coord_num - 1], 
+        b = torch.log(1. + torch.exp(-1. * (network_model.linear1.bias.unsqueeze(1).expand(network_model.hidden_size, batch_size)
+                                                + torch.matmul(network_model.linear1.weight[:, 0:coord_num - 1], 
                                                 torch.transpose(tensor[:, 0:coord_num - 1], 0, 1))
                                             )
-                                        - torch.matmul(network_model.lin1.weight[:, coord_num - 1].unsqueeze(1),
+                                        - torch.matmul(network_model.linear1.weight[:, coord_num - 1].unsqueeze(1),
                                                             torch.transpose(tensor[:, coord_num - 1].unsqueeze(1), 0, 1)
                                                             )
                                         )
@@ -103,14 +104,14 @@ class ExtinctionNeuralNetBuilder:
 
         # Equation 15a of Lloyd et al 2020: alpha_1=0, beta_1=x
         # Sum over all neurons of the hidden layer
-        aa = network_model.lin2.bias * (tensor[:, coord_num - 1] - xmin[:, coord_num - 1])
+        aa = network_model.linear2.bias * (tensor[:, coord_num - 1] - xmin[:, coord_num - 1])
 
-        bb = torch.matmul(network_model.lin2.weight[0, :],
+        bb = torch.matmul(network_model.linear2.weight[0, :],
                             (torch.transpose( (tensor[:, coord_num - 1] - xmin[:, coord_num - 1])
                                             .unsqueeze(1), 0, 1)
                                 .expand(network_model.hidden_size, batch_size)
                                 + torch.transpose(torch.div(torch.transpose(phi_j, 0, 1), 
-                                                            network_model.lin1.weight[:, coord_num - 1]),
+                                                            network_model.linear1.weight[:, coord_num - 1]),
                                                 0, 1)
                                 )
                             )
@@ -119,7 +120,7 @@ class ExtinctionNeuralNetBuilder:
 
         return result
 
-    def init_weights(model):
+    def init_weights(self, model):
         """
         Function to initialize weights and biases for the given PyTorch model.
 
@@ -133,7 +134,7 @@ class ExtinctionNeuralNetBuilder:
             torch.nn.init.xavier_uniform_(model.weight)
             model.bias.data.fill_(0.1)
             
-    def create_net_integ(hidden_size, learning_rate=1e-2):
+    def create_net_integ(self, hidden_size, learning_rate=1e-2):
         """
         Function to create the neural network and set the optimizer.
 
@@ -147,10 +148,10 @@ class ExtinctionNeuralNetBuilder:
         # Returns:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
         """
-        network = NeuralNet.ExtinctionNeuralNet(hidden_size)
+        network = NeuralNet.ExtinctionNeuralNet(hidden_size, self.device)
         return network, optim.Adam(network.parameters(), lr=learning_rate)
 
-    def loglike_loss(prediction, label, reduction_method='sum'):
+    def loglike_loss(self, prediction, label, reduction_method='sum'):
         """
         Function to compute the log likelihood loss.
 
@@ -199,24 +200,26 @@ class ExtinctionNeuralNetBuilder:
         #print(in_batch.size())
             
         # copy in_batch to new tensor and sets distance to 0
+        
         y0 = tar_batch.clone().detach()
         y0 = y0[:,0].unsqueeze(1) * 0.
             
         # compute ANN prediction for integration
         # density estimation at each location
-        dens = self.network(in_batch)
+        dens = self.network.forward(in_batch)
         # total extinction : in_batch in [-1,1] after rescaling -> pass the lower integration bound to the code as default is 0
-        exthat = ExtinctionNeuralNetBuilder.integral(in_batch, self.network, xmin=-1.)
+        exthat = self.integral(in_batch, self.network, xmin=-1.)
             
         # compute loss function for integration network 
         # total extinction must match observed value
-        lossintegral = nu_ext * ExtinctionNeuralNetBuilder.loglike_loss(exthat,tar_batch,reduction_method='mean')
+        lossintegral = nu_ext * self.loglike_loss(exthat,tar_batch,reduction_method='mean')
         # density at point in_batch must be positive
         #print(dens.size(),y0.size())
         lossdens = nu_dens * F.mse_loss(F.relu(-1.*dens),y0,reduction='sum')
             
         # combine loss functions
         fullloss = lossdens + lossintegral
+        
             
         # compute total loss of epoch (for monitoring)
         lossint_total = lossint_total+lossintegral.item()
@@ -231,7 +234,7 @@ class ExtinctionNeuralNetBuilder:
         # do 1 optimisation step after minibatch
         self.opti.step()
 
-    def validation(self, in_batch_validation_set, tar_batch_validation_set):
+    def validation(self, in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total):
         """
         Function to perform one validation step.
 
@@ -243,11 +246,14 @@ class ExtinctionNeuralNetBuilder:
         # Args:
             `in_batch_validation_set (torch.Tensor)`: Input batch for the validation set.
             `tar_batch_validation_set (torch.Tensor)`: Target batch for the validation set.
+            `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
+            `nu_dens (float)`: Lagrange multiplier for density loss calculation.
+            `valint_total (float)`: Total loss for extinction in the validation set.
+            `valdens_total (float)`: Total loss for density in the validation set.
+            
+        # Returns:
+            `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
         """
-        global valint_total
-        global valdens_total
-        global nu_ext
-        global nu_dens
         
         #print(in_batch_validation_set.size())
         #in_batch_validation_set.requires_grad = True
@@ -261,15 +267,17 @@ class ExtinctionNeuralNetBuilder:
         # density estimation at each location
         dens = self.network(in_batch_validation_set)
         # total extinction
-        exthat = ExtinctionNeuralNetBuilder.integral(in_batch_validation_set, self.network, xmin=-1.)
+        exthat = self.integral(in_batch_validation_set, self.network, xmin=-1.)
             
         # compute loss function for  network : L2 norm
         # total extinction must match observed value
-        lint = nu_ext * ExtinctionNeuralNetBuilder.loglike_loss(exthat,tar_batch_validation_set,reduction_method='mean')
+        lint = nu_ext * self.loglike_loss(exthat,tar_batch_validation_set,reduction_method='mean')
 
         # density at point in_batch must be positive
         ldens = nu_dens * F.mse_loss(F.relu(-1.*dens),y0_val,reduction='sum')
                     
         valdens_total += ldens.item()        
-        valint_total += lint.item()   
+        valint_total += lint.item() 
+        
+        return valint_total, valdens_total  
         

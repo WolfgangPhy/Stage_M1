@@ -24,12 +24,12 @@ class ExtinctionNeuralNet(nn.Module):
         >>> print(output)
         tensor([0.1234], grad_fn=<AddmmBackward>)
     """
-    def __init__(self, hidden_size):
+    def __init__(self, hidden_size, device):
         super(ExtinctionNeuralNet, self).__init__()
         self.hidden_size = hidden_size
-        self.linear1 = nn.Linear(3, self.hidden_size, bias=True)
-        self.linear2 = nn.Linear(self.hidden_size, 1, bias=True)
-        self.sigmoid = nn.Sigmoid()
+        self.linear1 = nn.Linear(3, self.hidden_size, bias=True).to(device)
+        self.linear2 = nn.Linear(self.hidden_size, 1, bias=True).to(device)
+        self.sigmoid = nn.Sigmoid().to(device)
         
     def forward(self, tensor):
         """
