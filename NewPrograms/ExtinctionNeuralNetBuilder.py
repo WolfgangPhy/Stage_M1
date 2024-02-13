@@ -192,6 +192,9 @@ class ExtinctionNeuralNetBuilder:
             `lossdens_total (float)`: Total loss for density.
             `nu_ext (float)`: Coefficient for extinction loss.
             `nu_dens (float)`: Coefficient for density loss.
+            
+        # Returns:
+            `tuple[float, float]`: Total loss for extinction, Total loss for density.
         """
         
         tar_batch = tar_batch.float().detach()
@@ -233,6 +236,8 @@ class ExtinctionNeuralNetBuilder:
                     
         # do 1 optimisation step after minibatch
         self.opti.step()
+        
+        return lossint_total, lossdens_total
 
     def validation(self, in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total):
         """

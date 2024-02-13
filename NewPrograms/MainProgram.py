@@ -57,14 +57,14 @@ class MainProgram:
         """
         Open the config file
         """
-        with open('Config.json') as json_file:
-            self.config = json.load(json_file)
+        with open('Config.json') as self.config_file:
+            self.config = json.load(self.config_file)
             
     def close_config_file(self):  
         """
         Close the config file
         """
-        self.config.close()
+        self.config_file.close()
             
     def setup_logfile(self):
         """
@@ -215,25 +215,25 @@ class MainProgram:
             self.epoch = self.epoch+1
 
             # initialize variables at each epoch to store full losses
-            lossint_total=0.
-            lossdens_total=0.
+            self.lossint_total=0.
+            self.lossdens_total=0.
 
             # loop over minibatches
             nbatch = 0
             for xb,yb in self.train_loader:
                 nbatch = nbatch+1
-                self.builder.take_step(xb,yb, lossint_total, lossdens_total, self.nu_ext, self.nu_dens)
+                self.lossint_total, self.lossdens_total = self.builder.take_step(xb,yb, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
             
             # add up loss function contributions
-            full_loss = lossdens_total+lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
+            full_loss = self.lossdens_total+self.lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
 
             # print progress for full batch
             #if epoch%10==0:
             t1 = time.time()
-            self.logfile.write("Epoch "+str(self.epoch)+" -  Loss:"+str(full_loss)+" ("+str(lossint_total)+','+str(lossdens_total)+") Total time (min): "+str((t1-t0)/60.)+"\n")
+            self.logfile.write("Epoch "+str(self.epoch)+" -  Loss:"+str(full_loss)+" ("+str(self.lossint_total)+','+str(self.lossdens_total)+") Total time (min): "+str((t1-t0)/60.)+"\n")
     
             self.lossfile = open(self.config['lossfile'],'a')
-            self.lossfile.write(str(self.epoch)+' '+str(full_loss)+' '+str(lossint_total)+' '+str(lossdens_total)+' '+str((t1-t0)/60.)+'\n')
+            self.lossfile.write(str(self.epoch)+' '+str(full_loss)+' '+str(self.lossint_total)+' '+str(self.lossdens_total)+' '+str((t1-t0)/60.)+'\n')
             self.lossfile.close()
             
             # compute loss on validation sample
