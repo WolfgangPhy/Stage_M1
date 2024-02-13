@@ -49,8 +49,7 @@ class ExtinctionNeuralNetBuilder:
     def __init__(self, device, hidden_size, learning_rate=0.001):
         self.device = device
         self.network, self.opti = self.create_net_integ(hidden_size, learning_rate)
-        
-        
+              
     def integral(self, tensor, network_model, xmin=0., debug=0):
         """
         Custom analytic integral of the network ExtinctionNeuralNet to be used in MSE loss.
@@ -218,8 +217,8 @@ class ExtinctionNeuralNetBuilder:
         
             
         # compute total loss of epoch (for monitoring)
-        lossint_total = lossint_total+lossintegral.item()
-        lossdens_total = lossdens_total+lossdens.item()
+        lossint_total += lossintegral.item()
+        lossdens_total += lossdens.item()
 
         # zero gradients before taking step (gradients are additive, if not set to zero then adds to the previous gradients)
         self.opti.zero_grad()

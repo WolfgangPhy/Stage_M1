@@ -1,9 +1,9 @@
 {
-    "datafile": "./fiducial_model2D.pt",
-    "outfile": "../ExtinctionModelMean",
-    "logfile": "../ExtinctionModel.log",
-    "lossfile": "../fiducial_model2D_mean.loss",
-    "valfile": "../fiducial_model2D_mean.val",
+    "datafile": "./PyTorchFiles/fiducial_model2D.pt",
+    "outfile": "./OutputFiles/ExtinctionModelMean",
+    "logfile": "./OutputFiles/ExtinctionModel.log",
+    "lossfile": "./OutputFiles/fiducial_model2D_mean_loss.csv",
+    "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",
     "epochs": 1000,
     "newnet": true,
     "pretrainednetwork": "../fiducial_model2D_mean_e340000.pt"

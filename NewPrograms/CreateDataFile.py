@@ -9,7 +9,7 @@ class CreateDataFile:
     Class for creating a data file based on an extinction model.
 
     # Args:
-        `fiducial_model (str)`: Path to the fiducial model file (default: "2DModel.pickle").
+        `fiducial_model (str, optionnal)`: Path to the fiducial model file (default: "2DModel.pickle").
 
     # Attributes:
         `extinction_model_loader (ExtinctionModelLoader)`: Loader for the extinction model.
@@ -62,6 +62,6 @@ class CreateDataFile:
         pool.close()
 
         # Save the dataset
-        torch.save(dataset, "fiducial_model2D.pt")
+        torch.save(dataset, "./PyTorchFiles/fiducial_model2D.pt")
 
         print("Done")
