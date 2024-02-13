@@ -7,6 +7,7 @@ import time
 import ExtinctionNeuralNet as NeuralNet
 import ExtinctionNeuralNetBuilder as Builder
 import json
+import csv
 from tqdm import tqdm
 
 
@@ -19,8 +20,10 @@ class MainProgram:
 
     # Attributes:
         - `config (dict)`: Configuration parameters for the training process.
+        - `config_file (file)`: Configuration file for reading training parameters.
         - `logfile (file)`: Logfile for recording training progress and results.
         - `lossfile (file)`: Logfile for recording training loss values.
+        - `valfile (file)`: Logfile for recording validation loss values.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
         - `train_loader (torch.utils.data.DataLoader)`: Dataloader for training minibatches.
         - `val_loader (torch.utils.data.DataLoader)`: Dataloader for validation minibatches.
@@ -98,6 +101,16 @@ class MainProgram:
         self.logfile.write('Using datafile: '+self.config['datafile']+'\n')
         self.logfile.write('Maps stored in '+self.config['outfile']+'_e*.pt\n')
           
+    def setup_csv_files(self):
+        self.lossfile = open(self.config['lossfile'],'w')
+        csv_writer = csv.writer(self.lossfile)
+        csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
+        
+        self.valfile = open(self.config['valfile'],'w')
+        csv_writer = csv.writer(self.valfile)
+        csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
+        
+    
     def prepare_dataset(self):
         """
         Prepare the dataset for training and validation.
@@ -193,7 +206,7 @@ class MainProgram:
         # global variables used by fullloss
         self.nu_ext = 1.   # total ext must match observations
         self.nu_dens = 1.   # density must be positive
-        self.logfile.write('(nu_ext,nu_dens)=('+str(self.nu_ext)+','+str(self.nu_dens)+')\n\nStart training:\n')
+        self.logfile.write('(nu_ext,nu_dens)=('+str(self.nu_ext)+','+str(self.nu_dens)+')\n')
         self.logfile.close()
             
     def train_network(self):
@@ -207,8 +220,6 @@ class MainProgram:
         """
         tstart = time.time()
         for idx in tqdm(range(self.config['epochs']+1)):
-            #open logfile here and close it at end of epoch to make sure everything is written
-            self.logfile=open(self.config['logfile'],'a')
         
             # set start time of epoch and epoch number
             t0 = time.time()
@@ -230,10 +241,10 @@ class MainProgram:
             # print progress for full batch
             #if epoch%10==0:
             t1 = time.time()
-            self.logfile.write("Epoch "+str(self.epoch)+" -  Loss:"+str(full_loss)+" ("+str(self.lossint_total)+','+str(self.lossdens_total)+") Total time (min): "+str((t1-t0)/60.)+"\n")
-    
-            self.lossfile = open(self.config['lossfile'],'a')
-            self.lossfile.write(str(self.epoch)+' '+str(full_loss)+' '+str(self.lossint_total)+' '+str(self.lossdens_total)+' '+str((t1-t0)/60.)+'\n')
+            
+            with open(self.config['lossfile'], 'a', newline='') as csvfile:
+                csv_writer = csv.writer(csvfile)
+                csv_writer.writerow([self.epoch, full_loss, self.lossint_total, self.lossdens_total, (t1 - t0) / 60.])
             self.lossfile.close()
             
             # compute loss on validation sample
@@ -254,13 +265,10 @@ class MainProgram:
                     t2 = time.time()
                     self.logfile.write("Validation Epoch "+str(self.epoch)+" -  Loss:"+str(val_loss)+" ("+str(self.valint_total)+","+str(self.valdens_total)+") Time val (min):"+str((t2-t1)/60.)+" Total:"+str((t2-t0)/60.)+"\n")
 
-                    valfile = open(self.config['valfile'],'a')
-                    valfile.write(str(self.epoch)+' '+str(val_loss)+' '+str(self.valint_total)+' '+str(self.valdens_total)+' '+str((t2-t1)/60.)+' '+str((t2-t0)/60.)+'\n')
-                    valfile.close()
-                    
-
-            # end of epoch close log file to make sure the information can be read about progress
-            self.logfile.close()
+                    with open(self.config['valfile'], 'a', newline='') as csvfile:
+                        csv_writer = csv.writer(csvfile)
+                        csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
+                    self.valfile.close()
             
             # save model every 50 epoch and last step
             if self.epoch%10000==0 or self.epoch==self.config['epochs']:
@@ -286,6 +294,10 @@ class MainProgram:
         self.open_config_file()
         self.setup_logfile()
         self.prepare_dataset()
+        
+        if self.config['newnet']:
+            self.setup_csv_files()
+            
         self.create_network()
         self.init_training()
         self.train_network()
