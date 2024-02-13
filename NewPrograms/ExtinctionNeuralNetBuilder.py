@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import ExtinctionNeuralNet as neuralnet
+import ExtinctionNeuralNet as NeuralNet
 
 class ExtinctionNeuralNetBuilder:
     """
@@ -147,7 +147,7 @@ class ExtinctionNeuralNetBuilder:
         # Returns:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
         """
-        network = neuralnet.ExtinctionNeuralNet(hidden_size)
+        network = NeuralNet.ExtinctionNeuralNet(hidden_size)
         return network, optim.Adam(network.parameters(), lr=learning_rate)
 
     def loglike_loss(prediction, label, reduction_method='sum'):

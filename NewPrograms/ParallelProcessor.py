@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import ExtinctionModelHelper as Helper
 import Dataset2D as ds
-from tqdm import tqdm
 
 class ParallelProcessor:
     @staticmethod

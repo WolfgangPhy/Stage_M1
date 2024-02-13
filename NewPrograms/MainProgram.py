@@ -4,8 +4,8 @@ import torch
 from torch.utils.data import DataLoader, random_split
 from scipy.spatial.transform import Rotation as R
 import time
-import ExtinctionNeuralNet
-import ExtinctionNeuralNetBuilder
+import ExtinctionNeuralNet as NeuralNet
+import ExtinctionNeuralNetBuilder as Builder
 import json
 
 
@@ -140,11 +140,11 @@ class MainProgram:
         self.logfile.write('Using '+str(int(k))+' neurons in the hidden layer\n')
         hidden_size = int(k)
 
-        self.network, self.opti = ExtinctionNeuralNetBuilder.create_net_integ(hidden_size,learning_rate=1e-3)
-        self.network.apply(ExtinctionNeuralNetBuilder.init_weights)
+        self.network, self.opti = Builder.ExtinctionNeuralNetBuilder.create_net_integ(hidden_size,learning_rate=1e-3)
+        self.network.apply(Builder.ExtinctionNeuralNetBuilder.init_weights)
         if not self.config['newnet']:
             # define networks
-            self.network = ExtinctionNeuralNet(hidden_size)
+            self.network = NeuralNet.ExtinctionNeuralNet(hidden_size)
 
             # load checkpoint file
             checkpoint = torch.load(self.config['pretrainednetwork'],map_location='cpu')
@@ -210,7 +210,7 @@ class MainProgram:
             nbatch = 0
             for xb,yb in self.train_loader:
                 nbatch = nbatch+1
-                ExtinctionNeuralNetBuilder.take_step(xb,yb)
+                Builder.ExtinctionNeuralNetBuilder.take_step(xb,yb)
 
             # add up loss function contributions
             full_loss = lossdens_total+lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
@@ -235,7 +235,7 @@ class MainProgram:
                     nbatch=0
                     for x_val,y_val in self.val_loader:
                         nbatch=nbatch+1
-                        ExtinctionNeuralNetBuilder.validation(x_val, y_val) #TODO possible problème avec global dans la méthode
+                        Builder.ExtinctionNeuralNetBuilder.validation(x_val, y_val) #TODO possible problème avec global dans la méthode
                 
                     val_loss = valdens_total+valint_total/(nbatch*1.)
                 
