@@ -5,7 +5,7 @@ class ExtinctionModel:
     Class to store a given model.
 
     # Attributes:
-        `rho (numpy.ndarray)`: Core density for each model.
+        `m_tot (numpy.ndarray)`: Total mass for each model.
         `x0 (numpy.ndarray)`: Cartesian location of cloud along the x-axis [-4, 4] kpc for each model.
         `y0 (numpy.ndarray)`: Cartesian location of cloud along the y-axis [-4, 4] kpc for each model.
         `z0 (numpy.ndarray)`: Cartesian location of cloud along the z-axis [-0.5, 0.5] kpc for each model.
@@ -17,16 +17,16 @@ class ExtinctionModel:
 
     # Methods:
         - `__init__(N)`: Initializes an instance of the ExtinctionModel class.
-        - `__len__` : Returns the total number of samples, which is the length of the 'rho' array.
+        - `__len__` : Returns the total number of samples, which is the length of the 'm_tot' array.
     """
     def __init__(self, N):
         """
         Initializes an instance of the ExtinctionModel class.
 
         # Args:
-            `N (int)`: Number of clourds to generate.
+            `N (int)`: Number of clouds to generate.
         """
-        self.rho = np.random.rand(N)*0.1 
+        self.m_tot = np.random.rand(N)*0.1 
         self.x0 = np.random.rand(N)*8.-4. 
         self.y0 = np.random.rand(N)*8.-4. 
         self.z0 = np.random.rand(N)-0.5   
@@ -41,9 +41,9 @@ class ExtinctionModel:
         Returns the total number of samples.
 
         # Returns:
-            `int`: The length of the 'rho' array.
+            `int`: The length of the 'm_tot' array.
         """
-        return len(self.rho)
+        return len(self.m_tot)
     
         
 

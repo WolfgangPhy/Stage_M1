@@ -11,7 +11,7 @@ class ExtinctionModelHelper:
         - `ConvertCartesianToGalactic2D(x, y)`: Converts from cartesian coordinates to galactic coordinates
         - `ConvertGalacticToCartesian2D(ell, d)`: Converts from galactic coordinates to cartesian coordinates
         - `integ_d(func, ell, b, dmax, model, dd=0,01)`: Integrates a function over a line of sight in the galactic plane
-        - `gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2)`: 3D Gaussian function
+        - `gauss3d(x, y, z, x0, y0, z0, m_tot, s1, s2, s3, a1, a2)`: Return the value of the density of a cloud at a given point in the Galactic plane
         - `compute_extinction_model_density(extiction_model, x, y, z)`: Computes the density of the model at a given point in the Galactic plane
     """
     @staticmethod
@@ -75,7 +75,7 @@ class ExtinctionModelHelper:
         """Converts from galactic coordinates to cartesian coordinates
 
         # Args:
-            `l (float)`: Galactic longitude in degrees (0 to 360)
+            `ell (float)`: Galactic longitude in degrees (0 to 360)
             `d (float)`: Distance in kpc
 
         " Returns:
@@ -135,8 +135,8 @@ class ExtinctionModelHelper:
         return (idx, dd * s)
 
     @staticmethod
-    def gauss3d(x, y, z, x0, y0, z0, rho, s1, s2, s3, a1, a2):
-        """3D Gaussian function
+    def gauss3d(x, y, z, x0, y0, z0, m_tot, s1, s2, s3, a1, a2):
+        """Return the value of the density of a cloud at a given point in the Galactic plane
 
         # Args:
             `x (float)`: x coordinate in kpc
@@ -145,7 +145,7 @@ class ExtinctionModelHelper:
             `x0 (float)`: x coordinate of the center in kpc
             `y0 (float)`: y coordinate of the center in kpc
             `z0 (float)`: z coordinate of the center in kpc
-            `rho (float)`: Density at the center
+            `m_tot (float)`: Total mass of the cloud
             `s1 (float)`: Size along x axis in kpc
             `s2 (float)`: Size along y axis in kpc
             `s3 (float)`: Size along z axis in kpc
@@ -153,13 +153,13 @@ class ExtinctionModelHelper:
             `a2 (float)`: Rotation angle around z axis in degrees
 
         # Returns:
-            `float` : Value of the Gaussian function
+            `float` : Value of the density of the cloud at the given point
         """
         v=[x-x0, y-y0, z-z0]
         r1 = R.from_euler('x', a1, degrees=True)
         r2 = R.from_euler('z', a2, degrees=True)
         xx=r2.apply(r1.apply(v))
-        return rho/((2*math.pi)**1.5 * s1 * s2 * s3) * math.exp(-0.5 * (xx[0]**2/s1 + xx[1]**2/s2 + xx[2]**2/s3))    
+        return m_tot/((2*math.pi)**1.5 * s1 * s2 * s3) * math.exp(-0.5 * (xx[0]**2/s1 + xx[1]**2/s2 + xx[2]**2/s3))    
     
     @staticmethod
     def compute_extinction_model_density(exctinction_model, x, y, z):
@@ -182,7 +182,7 @@ class ExtinctionModelHelper:
         d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
         
         for i in range(len(exctinction_model.x0)):
-            d += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i], exctinction_model.z0[i], exctinction_model.rho[i], exctinction_model.s1[i], exctinction_model.s2[i], exctinction_model.s3[i], exctinction_model.a1[i], exctinction_model.a2[i])
+            d += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i], exctinction_model.z0[i], exctinction_model.m_tot[i], exctinction_model.s1[i], exctinction_model.s2[i], exctinction_model.s3[i], exctinction_model.a1[i], exctinction_model.a2[i])
         
         return d
     
