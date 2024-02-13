@@ -5,11 +5,34 @@ import ModelVisualizer as Visualizer
 import ParallelProcessor as pp
 
 class CreateDataFile:
+    """
+    Class for creating a data file based on an extinction model.
+
+    # Args:
+        `fiducial_model (str)`: Path to the fiducial model file (default: "2DModel.pickle").
+
+    # Attributes:
+        `extinction_model_loader (ExtinctionModelLoader)`: Loader for the extinction model.
+        `model_visualizer (ModelVisualizer)`: Visualizer for the extinction model.
+
+    # Methods:
+        - `execute()`: Executes the process of creating the data file.
+
+    # Examples:
+        # Create an instance of CreateDataFile
+        >>> data_creator = CreateDataFile(fiducial_model="custom_model.pickle")
+
+        # Execute the data file creation process
+        >>> data_creator.execute()
+    """
     def __init__(self, fiducial_model="2DModel.pickle"):
         self.extinction_model_loader = Loader.ExtinctionModelLoader(fiducial_model)
         self.model_visualizer = Visualizer.ModelVisualizer()
 
     def execute(self):
+        """
+        Executes the process of creating the data file.
+        """
         self.extinction_model_loader.check_existing_model()
 
         # Create new model if it doesn't exist
@@ -24,9 +47,6 @@ class CreateDataFile:
         dtype = torch.float
         device = torch.device("cpu")
         processor_num = mp.cpu_count()
-        print(f"Device : {device}")
-
-        print(f"Number of processors: {processor_num}")
 
         # Set up multiprocessing pool
         pool = mp.Pool(processor_num)

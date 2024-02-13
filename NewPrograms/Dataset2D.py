@@ -21,7 +21,6 @@ class Dataset2D(Dataset):
         `error (numpy.ndarray)`: Array of errors on Absorption values.
 
     # Methods:
-        - `__init__(ell, dist, K, error)`: Initializes an instance of the Dataset2D class.
         - `__len__()` : Returns the size of the dataset.
         - `__getitem__(index)`: Returns the sample at the given index.
         

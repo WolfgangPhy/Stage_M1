@@ -6,6 +6,7 @@ class ExtinctionNeuralNet(nn.Module):
 
     # Args:
         `hidden_size (int)`: Number of hidden units in the neural network.
+        `device (torch.device)`: Device to run the neural network on.
 
     # Attributes:
         `hidden_size (int)`: Number of hidden units.
@@ -14,7 +15,6 @@ class ExtinctionNeuralNet(nn.Module):
         `sigmoid (nn.Sigmoid)`: Sigmoid activation function.
 
     # Methods:
-        - `__init__(hidden_size)`: Initializes an instance of the ExtinctionNeuralNet class.
         - `forward(tensor)`: Forward pass of the neural network.
 
     # Examples:

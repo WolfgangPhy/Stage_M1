@@ -16,14 +16,15 @@ class ExtinctionNeuralNetBuilder:
     # Attributes:
         `network (ExtinctionNeuralNet)`: The neural network model for extinction and density estimation.
         `opti (optim.Adam)`: The Adam optimizer used for training.
+        `device (torch.device)`: Device on which the neural network is running.
 
     # Methods:
         - `integral(tensor, network_model, xmin=0., debug=0)`: Custom analytic integral of the network for MSE loss.
         - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
         - `create_net_integ(hidden_size, learning_rate=1e-2)`: Creates a neural network and sets up the optimizer.
         - `loglike_loss(prediction, label, reduction_method='sum')`: Computes the log likelihood loss.
-        - `take_step(in_batch, tar_batch)`: Performs one training step.
-        - `validation(in_batch_validation_set, tar_batch_validation_set)`: Performs one validation step.
+        - `take_step(in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens)`: Performs one training step.
+        - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total)`: Performs one validation step.
         
     # Example:
         >>> # Example usage of ExtinctionNeuralNetBuilder
@@ -46,29 +47,21 @@ class ExtinctionNeuralNetBuilder:
     """
     
     def __init__(self, device, hidden_size, learning_rate=0.001):
-        """
-        Initializes an instance of the ExtinctionNeuralNetBuilder class.
-
-        # Args:
-            `device (torch.device)`: Device on which the neural network is running.
-            `hidden_size (int)`: Size of the hidden layer in the neural network.
-            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 0.001.
-        """
         self.device = device
         self.network, self.opti = self.create_net_integ(hidden_size, learning_rate)
         
         
     def integral(self, tensor, network_model, xmin=0., debug=0):
         """
-        Custom analytic integral of the network ext3D to be used in MSE loss.
+        Custom analytic integral of the network ExtinctionNeuralNet to be used in MSE loss.
 
-        This function calculates a custom analytic integral of the network ext3D,
+        This function calculates a custom analytic integral of the network ExtinctionNeuralNet,
         as specified in the Equation 15a and Equation 15b of Lloyd et al. 2020,
         to be used in Mean Squared Error (MSE) loss during training.
 
         # Args:
             `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
-            `network_model (Ext3D)`: The neural network model (ExtinctionNeuralNet) used for the integration.
+            `network_model (ExtinctionNeuralNet)`: The neural network model used for the integration.
             `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
             `debug (int, optional)`: Debugging flag. Defaults to 0.
 
