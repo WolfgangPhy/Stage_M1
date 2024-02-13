@@ -120,7 +120,7 @@ class MainProgram:
             if self.dataset.dist[i].item()> xmax:
                 xmax = self.dataset.dist[i].item()
                 
-        self.logfile.write('Distance nomalisation factor (xmax):'+str(xmax)+'\n')  
+        self.logfile.write('Distance normalisation factor (xmax):'+str(xmax)+'\n')  
 
         for i in range(self.dataset.__len__()):
             self.dataset.dist[i] = 2.*self.dataset.dist[i].item()/(xmax-xmin)-1.
@@ -179,7 +179,7 @@ class MainProgram:
 
         This method sets up the initial conditions for the training process.
         It initializes the training epoch and specifies Lagrange multipliers for loss calculations.
-        The global variables `nu_ext` and `nu_dens` are used by the loss function during training.
+        The variables `nu_ext` and `nu_dens` are used by the loss function during training.
         The initialization details are logged into the logfile.
 
         """

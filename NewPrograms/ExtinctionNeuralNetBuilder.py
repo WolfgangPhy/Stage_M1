@@ -21,7 +21,7 @@ class ExtinctionNeuralNetBuilder:
     # Methods:
         - `integral(tensor, network_model, xmin=0., debug=0)`: Custom analytic integral of the network for MSE loss.
         - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
-        - `create_net_integ(hidden_size, learning_rate=1e-2)`: Creates a neural network and sets up the optimizer.
+        - `create_net_integ(hidden_size, learning_rate=1e-3)`: Creates a neural network and sets up the optimizer.
         - `loglike_loss(prediction, label, reduction_method='sum')`: Computes the log likelihood loss.
         - `take_step(in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens)`: Performs one training step.
         - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total)`: Performs one validation step.
@@ -127,7 +127,7 @@ class ExtinctionNeuralNetBuilder:
             torch.nn.init.xavier_uniform_(model.weight)
             model.bias.data.fill_(0.1)
             
-    def create_net_integ(self, hidden_size, learning_rate=1e-2):
+    def create_net_integ(self, hidden_size, learning_rate=1e-3):
         """
         Function to create the neural network and set the optimizer.
 
@@ -136,7 +136,7 @@ class ExtinctionNeuralNetBuilder:
 
         # Args:
             `hidden_size (int)`: Size of the hidden layer in the neural network.
-            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 1e-2.
+            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 1e-3.
 
         # Returns:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
