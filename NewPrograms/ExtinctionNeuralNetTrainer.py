@@ -5,11 +5,19 @@ class ExtinctionNeuralNetTrainer:
     A class for training the extinction neural network.
 
     # Args:
-        `neural_network_builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
+        - `neural_network_builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
+        - `int_loss_function (callable)`: Loss function for extinction.
+        - `dens_loss_function (callable)`: Loss function for density.
+        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `dens_reduction_method (str)`: Method for reducing the density loss.
 
     # Attributes:
-        `builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
-
+        - `builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
+        - `int_loss_function (callable)`: Loss function for extinction.
+        - `dens_loss_function (callable)`: Loss function for density.
+        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `dens_reduction_method (str)`: Method for reducing the density loss.
+        
     # Methods:
         - `take_step(in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens)`: Performs one training step.
         - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total)`: Performs one validation step.
@@ -35,8 +43,12 @@ class ExtinctionNeuralNetTrainer:
         >>> valint_total, valdens_total = trainer.validation(in_batch_val, tar_batch_val, nu_ext, nu_dens, 0.0, 0.0)
     """
     
-    def __init__(self, neural_network_builder):
+    def __init__(self, neural_network_builder, int_loss_function, dens_loss_function, int_reduction_method, dens_reduction_method):
         self.builder = neural_network_builder
+        self.int_loss_function = int_loss_function
+        self.dens_loss_function = dens_loss_function
+        self.int_reduction_method = int_reduction_method
+        self.dens_reduction_method = dens_reduction_method
 
     def take_step(self, in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens):
         """
@@ -48,15 +60,15 @@ class ExtinctionNeuralNetTrainer:
         mean squared error loss for density estimation.
 
         # Args:
-            `in_batch (torch.Tensor)`: Input batch for the neural network.
-            `tar_batch (torch.Tensor)`: Target batch for the neural network.
-            `lossint_total (float)`: Total loss for extinction.
-            `lossdens_total (float)`: Total loss for density.
-            `nu_ext (float)`: Coefficient for extinction loss.
-            `nu_dens (float)`: Coefficient for density loss.
+            - `in_batch (torch.Tensor)`: Input batch for the neural network.
+            - `tar_batch (torch.Tensor)`: Target batch for the neural network.
+            - `lossint_total (float)`: Total loss for extinction.
+            - `lossdens_total (float)`: Total loss for density.
+            - `nu_ext (float)`: Coefficient for extinction loss.
+            -`nu_dens (float)`: Coefficient for density loss.
             
         # Returns:
-            `tuple[float, float]`: Total loss for extinction, Total loss for density.
+            - `tuple[float, float]`: Total loss for extinction, Total loss for density.
         """
         
         tar_batch = tar_batch.float().detach()
@@ -77,10 +89,10 @@ class ExtinctionNeuralNetTrainer:
             
         # compute loss function for integration network 
         # total extinction must match observed value
-        lossintegral = nu_ext * self.builder.loglike_loss(exthat,tar_batch,reduction_method='mean')
+        lossintegral = nu_ext * self.int_loss_function(exthat,tar_batch,reduction_method=self.int_reduction_method)
         # density at point in_batch must be positive
         #print(dens.size(),y0.size())
-        lossdens = nu_dens * F.mse_loss(F.relu(-1.*dens),y0,reduction='sum')
+        lossdens = nu_dens * self.dens_loss_function(F.relu(-1.*dens),y0,reduction=self.dens_reduction_method)
             
         # combine loss functions
         fullloss = lossdens + lossintegral
@@ -111,15 +123,15 @@ class ExtinctionNeuralNetTrainer:
         mean squared error loss for density estimation.
 
         # Args:
-            `in_batch_validation_set (torch.Tensor)`: Input batch for the validation set.
-            `tar_batch_validation_set (torch.Tensor)`: Target batch for the validation set.
-            `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
-            `nu_dens (float)`: Lagrange multiplier for density loss calculation.
-            `valint_total (float)`: Total loss for extinction in the validation set.
-            `valdens_total (float)`: Total loss for density in the validation set.
+            - `in_batch_validation_set (torch.Tensor)`: Input batch for the validation set.
+            - `tar_batch_validation_set (torch.Tensor)`: Target batch for the validation set.
+            - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
+            - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
+            - `valint_total (float)`: Total loss for extinction in the validation set.
+            - `valdens_total (float)`: Total loss for density in the validation set.
             
         # Returns:
-            `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
+            - `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
         """
         
         #print(in_batch_validation_set.size())
@@ -138,10 +150,10 @@ class ExtinctionNeuralNetTrainer:
             
         # compute loss function for  network : L2 norm
         # total extinction must match observed value
-        lint = nu_ext * self.builder.loglike_loss(exthat,tar_batch_validation_set,reduction_method='mean')
+        lint = nu_ext * self.int_loss_function(exthat, tar_batch_validation_set, reduction_method=self.int_reduction_method)
 
         # density at point in_batch must be positive
-        ldens = nu_dens * F.mse_loss(F.relu(-1.*dens),y0_val,reduction='sum')
+        ldens = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0_val, reduction=self.dens_reduction_method)
                     
         valdens_total += ldens.item()        
         valint_total += lint.item() 

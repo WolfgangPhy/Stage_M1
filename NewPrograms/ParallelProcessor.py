@@ -5,7 +5,7 @@ import Dataset2D as ds
 
 class ParallelProcessor:
     @staticmethod
-    def process_parallel(model, pool, n, device, dtype):
+    def process_parallel(model, pool, star_number, device, dtype):
         results = []
         progress_index = 0
         
@@ -14,21 +14,21 @@ class ParallelProcessor:
             
             nonlocal progress_index
             progress_index += 1
-            print("Progress: ", progress_index/n*100, "%")
+            print("Progress: ", progress_index/star_number*100, "%")
             
         def error_callback(e):
             print(e)
 
-        ell = torch.rand(n, device=device) * 360.
-        b = torch.zeros(n, device=device, dtype=dtype)
-        d = torch.rand(n, device=device) * 5.5
-        K = torch.zeros(n, device=device, dtype=dtype)
-        error = torch.zeros(n, device=device, dtype=dtype)
+        ell = torch.rand(star_number, device=device) * 360.
+        b = torch.zeros(star_number, device=device, dtype=dtype)
+        d = torch.rand(star_number, device=device) * 5.5
+        K = torch.zeros(star_number, device=device, dtype=dtype)
+        error = torch.zeros(star_number, device=device, dtype=dtype)
 
         print("Start processing")
 
         # Use a loop for parallel processing
-        for i in range(n):
+        for i in range(star_number):
             pool.apply_async(
                 Helper.ExtinctionModelHelper.integ_d_async,
                 args=(i, Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, d[i].data, model),
@@ -45,7 +45,7 @@ class ParallelProcessor:
         K = [r for i, r in results]
 
         print("Adding errors")
-        for i in range(n):
+        for i in range(star_number):
             error[i] = K[i].item() * np.random.uniform(low=0.01, high=0.1)
             K[i] = K[i].item() + np.random.normal(scale=error[i].item())
 

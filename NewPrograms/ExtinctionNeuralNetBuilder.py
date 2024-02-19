@@ -11,20 +11,18 @@ class ExtinctionNeuralNetBuilder:
     # Args:
         `device (torch.device)`: Device on which the neural network is running.
         `hidden_size (int)`: Size of the hidden layer in the neural network.
-        `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 0.001.
+        `learning_rate (float)`: Learning rate for the Adam optimizer.
 
     # Attributes:
         `network (ExtinctionNeuralNet)`: The neural network model for extinction and density estimation.
         `opti (optim.Adam)`: The Adam optimizer used for training.
         `device (torch.device)`: Device on which the neural network is running.
+        `learning_rate (float)`: Learning rate for the Adam optimizer.
 
     # Methods:
         - `integral(tensor, network_model, xmin=0., debug=0)`: Custom analytic integral of the network for MSE loss.
         - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
-        - `create_net_integ(hidden_size, learning_rate=1e-3)`: Creates a neural network and sets up the optimizer.
-        - `loglike_loss(prediction, label, reduction_method='sum')`: Computes the log likelihood loss.
-        - `take_step(in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens)`: Performs one training step.
-        - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total)`: Performs one validation step.
+        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer.
         
     # Example:
         >>> # Example usage of ExtinctionNeuralNetBuilder
@@ -34,21 +32,12 @@ class ExtinctionNeuralNetBuilder:
         >>> # Create an instance of ExtinctionNeuralNetBuilder
         >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         >>> builder = ExtinctionNeuralNetBuilder(device, hidden_size, learning_rate)
-
-        >>> # Perform one training step
-        >>> in_batch = torch.randn((batch_size, 3))
-        >>> tar_batch = torch.randn((batch_size, 2))  # Assuming labels (E, sigma)
-        >>> builder.take_step(in_batch, tar_batch)
-
-        >>> # Perform one validation step
-        >>> in_batch_val = torch.randn((val_batch_size, 3))
-        >>> tar_batch_val = torch.randn((val_batch_size, 2))  # Assuming validation labels (E, sigma)
-        >>> builder.validation(in_batch_val, tar_batch_val)
     """
     
-    def __init__(self, device, hidden_size, learning_rate=0.001):
+    def __init__(self, device, hidden_size, learning_rate):
         self.device = device
-        self.network, self.opti = self.create_net_integ(hidden_size, learning_rate)
+        self.learning_rate = learning_rate
+        self.network, self.opti = self.create_net_integ(hidden_size)
               
     def integral(self, tensor, network_model, xmin=0., debug=0):
         """
@@ -59,13 +48,13 @@ class ExtinctionNeuralNetBuilder:
         to be used in Mean Squared Error (MSE) loss during training.
 
         # Args:
-            `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
-            `network_model (ExtinctionNeuralNet)`: The neural network model used for the integration.
-            `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
-            `debug (int, optional)`: Debugging flag. Defaults to 0.
+            - `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
+            - `network_model (ExtinctionNeuralNet)`: The neural network model used for the integration.
+            - `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
+            - `debug (int, optional)`: Debugging flag. Defaults to 0.
 
         # Returns:
-            `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
+            - `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
         """
         # Equation 15b of Lloyd et al 2020 -> Phi_j for each neuron
         # Li_1(x) = -ln(1-x) for x \in C
@@ -120,13 +109,13 @@ class ExtinctionNeuralNetBuilder:
         using Xavier (Glorot) uniform initialization for weights and sets bias values to 0.1.
 
         # Args:
-            `model (torch.nn.Module)`: The PyTorch model for which weights and biases need to be initialized.
+            - `model (torch.nn.Module)`: The PyTorch model for which weights and biases need to be initialized.
         """
         if type(model) == nn.Linear:
             torch.nn.init.xavier_uniform_(model.weight)
             model.bias.data.fill_(0.1)
             
-    def create_net_integ(self, hidden_size, learning_rate=1e-3):
+    def create_net_integ(self, hidden_size):
         """
         Function to create the neural network and set the optimizer.
 
@@ -134,36 +123,12 @@ class ExtinctionNeuralNetBuilder:
         hidden size and initializes an Adam optimizer with the given learning rate.
 
         # Args:
-            `hidden_size (int)`: Size of the hidden layer in the neural network.
-            `learning_rate (float, optional)`: Learning rate for the Adam optimizer. Defaults to 1e-3.
+            - `hidden_size (int)`: Size of the hidden layer in the neural network.
 
         # Returns:
-            `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
+            - `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
         """
         network = NeuralNet.ExtinctionNeuralNet(hidden_size, self.device)
-        return network, optim.Adam(network.parameters(), lr=learning_rate)
+        return network, optim.Adam(network.parameters(), lr=self.learning_rate)
 
-    def loglike_loss(self, prediction, label, reduction_method='sum'):
-        """
-        Function to compute the log likelihood loss.
-
-        This function implements the log likelihood loss function. It assumes that 'label' is a pair (E, sigma)
-        and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum, depending on the 'reduction' parameter.
-
-        # Args:
-            `prediction (torch.Tensor)`: Model predictions.
-            `label (torch.Tensor)`: Labels in the form (E, sigma).
-            `reduction_method (str, optional)`: Method for reducing the loss, 'sum' by default.
-
-        # Raises:
-            `Exception`: Raised if the reduction value is unknown. Should be 'sum' or 'mean'.
-
-        # Returns:
-            `torch.Tensor`: Value of the log likelihood loss.
-        """
-        if reduction_method=='sum':
-            return ( ( ( prediction-label[:,0] )/label[:,1] )**2 ).sum()
-        elif reduction_method=='mean':
-            return ( ( ( prediction-label[:,0] )/label[:,1] )**2 ).mean()
-        else :
-            raise Exception('reduction value unkown. Should be sum or mean')
+    

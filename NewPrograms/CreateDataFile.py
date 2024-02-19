@@ -9,23 +9,26 @@ class CreateDataFile:
     Class for creating a data file based on an extinction model.
 
     # Args:
-        `fiducial_model (str, optionnal)`: Path to the fiducial model file (default: "2DModel.pickle").
+        - `star_number (int)`: Number of stars to be used in the data file.
+        - `fiducial_model (str, optionnal)`: Path to the fiducial model file (default: "2DModel.pickle").
 
     # Attributes:
-        `extinction_model_loader (ExtinctionModelLoader)`: Loader for the extinction model.
-        `model_visualizer (ModelVisualizer)`: Visualizer for the extinction model.
+        - `star_number (int)`: Number of stars to be used in the data file.
+        - `extinction_model_loader (ExtinctionModelLoader)`: Loader for the extinction model.
+        - `model_visualizer (ModelVisualizer)`: Visualizer for the extinction model.
 
     # Methods:
         - `execute()`: Executes the process of creating the data file.
 
     # Examples:
         # Create an instance of CreateDataFile
-        >>> data_creator = CreateDataFile(fiducial_model="custom_model.pickle")
+        >>> data_creator = CreateDataFile(star_number, fiducial_model="custom_model.pickle")
 
         # Execute the data file creation process
         >>> data_creator.execute()
     """
-    def __init__(self, fiducial_model="2DModel.pickle"):
+    def __init__(self, star_number, fiducial_model="2DModel.pickle"):
+        self.star_number = star_number
         self.extinction_model_loader = Loader.ExtinctionModelLoader(fiducial_model)
         self.model_visualizer = Visualizer.ModelVisualizer()
 
@@ -50,12 +53,10 @@ class CreateDataFile:
 
         # Set up multiprocessing pool
         pool = mp.Pool(processor_num)
-
-        n = 10000 # Number of data points
         
         # Process the model in parallel and get the dataset
         dataset = pp.ParallelProcessor.process_parallel(
-            self.extinction_model_loader.model, pool, n, device, dtype
+            self.extinction_model_loader.model, pool, self.star_number, device, dtype
         )
 
         # Close the pool

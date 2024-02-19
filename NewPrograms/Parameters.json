@@ -1,11 +1,13 @@
 {
-    "nu_ext": 1,
-    "nu_dens": 1,
-    "loss_function": "mse_loss",
-    "n": 10000,
-    "reduction_method": "sum",
-    "hidden_size": 1,
-    "epochs": 1000,
-    "activation_function": "sigmoid",
+    "nu_ext": 1.0,
+    "nu_dens": 1.0,
+    "int_loss_function": "loglike_loss",
+    "int_loss_function_custom": true,
+    "dens_loss_function": "mse_loss",
+    "dens_loss_function_custom": false,
+    "star_number": 10000,
+    "int_reduction_method": "mean",
+    "dens_reduction_method": "sum",
+    "epoch_number": 10000,
     "learning_rate": 0.001
 }

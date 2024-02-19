@@ -17,6 +17,16 @@ class MainTrainer:
 
     This class encapsulates the main workflow for training a neural network, including configuring,
     setting up log files, preparing the dataset, creating the network, initializing training, and executing training steps.
+    
+    # Args:
+        - `epoch_number (int)`: Number of epochs for training the neural network.
+        - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
+        - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
+        - `int_loss_function (callable)`: Loss function for extinction estimation.
+        - `dens_loss_function (callable)`: Loss function for density estimation.
+        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `dens_reduction_method (str)`: Method for reducing the density loss.
+        - `learning_rate (float)`: Learning rate for updating network parameters.
 
     # Attributes:
         - `config (dict)`: Configuration parameters for the training process.
@@ -33,6 +43,11 @@ class MainTrainer:
         - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
         - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
         - `device (torch.device)`: Computing device for running the neural network.
+        - `int_loss_function (callable)`: Loss function for extinction estimation.
+        - `dens_loss_function (callable)`: Loss function for density estimation.
+        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `dens_reduction_method (str)`: Method for reducing the density loss.
+        - `learning_rate (float)`: Learning rate for updating network parameters.
         
     # Methods:
         - `open_config_file()`: Opens the configuration file and reads the training parameters.
@@ -53,8 +68,16 @@ class MainTrainer:
 
     """
     
-    def __init__(self):
+    def __init__(self, epoch_number, nu_ext, nu_dens, int_loss_function, dens_loss_function, int_reduction_method, dens_reduction_method, learning_rate):
         self.epoch = -1
+        self.epoch_number = epoch_number
+        self.nu_ext = nu_ext
+        self.nu_dens = nu_dens
+        self.int_loss_function = int_loss_function
+        self.dens_loss_function = dens_loss_function
+        self.int_reduction_method = int_reduction_method
+        self.dens_reduction_method = dens_reduction_method
+        self.learning_rate = learning_rate
         
     def open_config_file(self):
         """
@@ -164,9 +187,9 @@ class MainTrainer:
         self.hidden_size = int(k)
         
         #Instanciate the builder
-        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size)
+        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
 
-        self.network, self.opti = self.builder.create_net_integ(self.hidden_size,learning_rate=1e-3)
+        self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
         self.network.apply(self.builder.init_weights)
         if not self.config['newnet']:
             # define networks
@@ -203,10 +226,6 @@ class MainTrainer:
         except NameError:
             self.epoch = -1
 
-        # Lagrange multipliers for loss calculation
-        # global variables used by fullloss
-        self.nu_ext = 1.   # total ext must match observations
-        self.nu_dens = 1.   # density must be positive
         self.logfile.write('(nu_ext,nu_dens)=('+str(self.nu_ext)+','+str(self.nu_dens)+')\n')
         self.logfile.close()
             
@@ -220,8 +239,8 @@ class MainTrainer:
 
         """
         tstart = time.time()
-        self.trainer = Trainer.ExtinctionNeuralNetTrainer(self.builder)
-        for idx in tqdm(range(self.config['epochs']+1)):
+        self.trainer = Trainer.ExtinctionNeuralNetTrainer(self.builder, self.int_loss_function, self.dens_loss_function, self.int_reduction_method, self.dens_reduction_method)
+        for idx in tqdm(range(self.epoch_number+1)):
         
             # set start time of epoch and epoch number
             t0 = time.time()
@@ -270,7 +289,7 @@ class MainTrainer:
                         csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
             
             # save model every 50 epoch and last step
-            if self.epoch%10000==0 or self.epoch==self.config['epochs']:
+            if self.epoch%10000==0 or self.epoch==self.epoch_number:
                 fname1 = '{}_e{}.pt'.format(self.config['outfile'],self.epoch)
                 self.network.to('cpu')
                 torch.save({
@@ -287,7 +306,7 @@ class MainTrainer:
         
     def run(self):
         """
-        Execute the main program
+        Execute the main trainer
         """
         
         self.open_config_file()
