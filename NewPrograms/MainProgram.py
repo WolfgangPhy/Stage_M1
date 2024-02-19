@@ -2,10 +2,10 @@ import sys
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, random_split
-from scipy.spatial.transform import Rotation as R
 import time
 import ExtinctionNeuralNet as NeuralNet
 import ExtinctionNeuralNetBuilder as Builder
+import ExtinctionNeuralNetTrainer as Trainer
 import json
 import csv
 from tqdm import tqdm
@@ -221,6 +221,7 @@ class MainProgram:
 
         """
         tstart = time.time()
+        self.trainer = Trainer.ExtinctionNeuralNetTrainer(self.builder)
         for idx in tqdm(range(self.config['epochs']+1)):
         
             # set start time of epoch and epoch number
@@ -235,7 +236,7 @@ class MainProgram:
             nbatch = 0
             for xb,yb in self.train_loader:
                 nbatch = nbatch+1
-                self.lossint_total, self.lossdens_total = self.builder.take_step(xb,yb, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
+                self.lossint_total, self.lossdens_total = self.trainer.take_step(xb , yb, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
             
             # add up loss function contributions
             full_loss = self.lossdens_total+self.lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
@@ -259,7 +260,7 @@ class MainProgram:
                     nbatch=0
                     for x_val,y_val in self.val_loader:
                         nbatch=nbatch+1
-                        self.valint_total, self.valdens_total = self.builder.validation(x_val, y_val, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
+                        self.valint_total, self.valdens_total = self.trainer.validation(x_val, y_val, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
                 
                     val_loss = self.valdens_total+self.valint_total/(nbatch*1.)
                 
