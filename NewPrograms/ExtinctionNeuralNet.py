@@ -5,14 +5,14 @@ class ExtinctionNeuralNet(nn.Module):
     Neural network model for extinction prediction.
 
     # Args:
-        `hidden_size (int)`: Number of hidden units in the neural network.
-        `device (torch.device)`: Device to run the neural network on.
+        - `hidden_size (int)`: Number of hidden units in the neural network.
+        - `device (torch.device)`: Device to run the neural network on.
 
     # Attributes:
-        `hidden_size (int)`: Number of hidden units.
-        `linear1 (nn.Linear)`: First linear layer.
-        `linear2 (nn.Linear)`: Second linear layer.
-        `sigmoid (nn.Sigmoid)`: Sigmoid activation function.
+        - `hidden_size (int)`: Number of hidden units.
+        - `linear1 (nn.Linear)`: First linear layer.
+        - `linear2 (nn.Linear)`: Second linear layer.
+        - `sigmoid (nn.Sigmoid)`: Sigmoid activation function.
 
     # Methods:
         - `forward(tensor)`: Forward pass of the neural network.
@@ -36,10 +36,10 @@ class ExtinctionNeuralNet(nn.Module):
         Forward pass of the neural network.
 
         # Args:
-            `tensor (torch.Tensor)`: Input tensor of shape (batch_size, 3).
+            - `tensor (torch.Tensor)`: Input tensor of shape (batch_size, 3).
 
         # Returns:
-            `torch.Tensor`: Output tensor of shape (batch_size, 1).
+            - `torch.Tensor`: Output tensor of shape (batch_size, 1).
         """
         out = self.linear1(tensor)
         out = self.sigmoid(out)

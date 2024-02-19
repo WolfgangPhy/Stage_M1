@@ -125,6 +125,17 @@ class MainTrainer:
         self.logfile.write('Maps stored in '+self.config['outfile']+'_e*.pt\n')
           
     def setup_csv_files(self):
+        """
+        Set up CSV files for logging training and validation metrics.
+
+        This method creates and initializes CSV files for logging training and validation metrics. 
+        It opens the specified files, writes the header row, and then closes the files.
+
+        # Files created:
+        - `lossfile`: CSV file for training metrics.
+        - `valfile`: CSV file for validation metrics.
+            - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
+        """
         self.lossfile = open(self.config['lossfile'],'w')
         csv_writer = csv.writer(self.lossfile)
         csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
@@ -276,9 +287,9 @@ class MainTrainer:
 
                     # loop over minibatches of validation sample
                     nbatch=0
-                    for x_val,y_val in self.val_loader:
+                    for in_batch_validation_set,tar_batch_validation_set in self.val_loader:
                         nbatch=nbatch+1
-                        self.valint_total, self.valdens_total = self.trainer.validation(x_val, y_val, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
+                        self.valint_total, self.valdens_total = self.trainer.validation(in_batch_validation_set, tar_batch_validation_set, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
                 
                     val_loss = self.valdens_total+self.valint_total/(nbatch*1.)
                 

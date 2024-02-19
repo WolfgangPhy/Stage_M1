@@ -19,12 +19,12 @@ class ExtinctionModelHelper:
         """Converts from galactic coordinates to cartesian coordinates
 
         # Args:
-            `ell (float)`: Galactic longitude in degrees (0 to 360)
-            `b (float)`: Galactic latitude in degrees (-90 to 90)
-            `d (float)`: Distance in kpc
+            - `ell (float)`: Galactic longitude in degrees (0 to 360)
+            - `b (float)`: Galactic latitude in degrees (-90 to 90)
+            - `d (float)`: Distance in kpc
 
         " Returns:
-            `tuple[float, float, float]` : Cartesian coordinates (x, y, z) in kpc
+            - `tuple[float, float, float]` : Cartesian coordinates (x, y, z) in kpc
         """
         return (
             d * math.cos(b*math.pi/180.) * math.cos(ell*math.pi/180.),
@@ -37,12 +37,12 @@ class ExtinctionModelHelper:
         """Converts from cartesian coordinates to galactic coordinates
 
         # Args:
-            `x (float)`: x coordinate in kpc
-            `y (float)`: y coordinate in kpc
-            `z (float)`: z coordinate in kpc
+            - `x (float)`: x coordinate in kpc
+            - `y (float)`: y coordinate in kpc
+            - `z (float)`: z coordinate in kpc
 
         # Returns:
-            `tuple[float, float, float]`: Galactic coordinates (ell,b,d) in degrees and kpc
+            - `tuple[float, float, float]`: Galactic coordinates (ell,b,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
         ell = math.atan2(y,x)
@@ -57,11 +57,11 @@ class ExtinctionModelHelper:
         """Converts from cartesian coordinates to galactic coordinates
 
         # Args:
-            `x (float)`: x coordinate in kpc
-            `y (float)`: y coordinate in kpc
+            - `x (float)`: x coordinate in kpc
+            - `y (float)`: y coordinate in kpc
 
         # Returns:
-            `tuple[float, float]`: Galactic coordinates (ell,d) in degrees and kpc
+            - `tuple[float, float]`: Galactic coordinates (ell,d) in degrees and kpc
         """
         R = math.sqrt(x**2 + y**2)
         ell = math.atan2(y, x)
@@ -75,11 +75,11 @@ class ExtinctionModelHelper:
         """Converts from galactic coordinates to cartesian coordinates
 
         # Args:
-            `ell (float)`: Galactic longitude in degrees (0 to 360)
-            `d (float)`: Distance in kpc
+            - `ell (float)`: Galactic longitude in degrees (0 to 360)
+            - `d (float)`: Distance in kpc
 
         " Returns:
-            `tuple[float, float]`: Cartesian coordinates (x,y) in kpc
+            - `tuple[float, float]`: Cartesian coordinates (x,y) in kpc
         """
         return  d * math.cos(ell*math.pi/180.), \
                 d * math.sin(ell*math.pi/180.)
@@ -88,15 +88,15 @@ class ExtinctionModelHelper:
         """Integrates a function f over a line of sight in the galactic plane
         
         # Args:
-            `func (function)`: Function to integrate
-            `ell (float)`: Galactic longitude in degrees (0 to 360)
-            `b (float)`: Galactic latitude in degrees (-90 to 90)
-            `dmax (float)`: Maximum distance in kpc
-            `model (extmy_model)`: Model to use
-            `dd (float, optional)`: Step size in kpc. Defaults to 0.01.
+            - `func (function)`: Function to integrate
+            - `ell (float)`: Galactic longitude in degrees (0 to 360)
+            - `b (float)`: Galactic latitude in degrees (-90 to 90)
+            - `dmax (float)`: Maximum distance in kpc
+            - `model (extmy_model)`: Model to use
+            - `dd (float, optional)`: Step size in kpc. Defaults to 0.01.
 
         # Returns:
-            `float`: Value of the integral
+            - `float`: Value of the integral
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
         
@@ -114,16 +114,16 @@ class ExtinctionModelHelper:
         """Integrates a function f over a line of sight in the galactic plane
         
         # Args:
-            `idx (int)`: Index of the integral
-            `func (function)`: Function to integrate
-            `ell (float)`: Galactic longitude in degrees (0 to 360)
-            `b (float)`: Galactic latitude in degrees (-90 to 90)
-            `dmax (float)`: Maximum distance in kpc
-            `model (extmy_model)`: Model to use
-            `dd (float, optional)`: Step size in kpc. Defaults to 0.01.
+            - `idx (int)`: Index of the integral
+            - `func (function)`: Function to integrate
+            - `ell (float)`: Galactic longitude in degrees (0 to 360)
+            - `b (float)`: Galactic latitude in degrees (-90 to 90)
+            - `dmax (float)`: Maximum distance in kpc
+            - `model (extmy_model)`: Model to use
+            - `dd (float, optional)`: Step size in kpc. Defaults to 0.01.
 
         # Returns:
-            `tuple[int, float]`: Index and value of the integral
+            - `tuple[int, float]`: Index and value of the integral
         """
         #uses trapezoidal rule WARNING - dmax/dd might not be an integer
         n = int(dmax/dd)
@@ -139,21 +139,21 @@ class ExtinctionModelHelper:
         """Return the value of the density of a cloud at a given point in the Galactic plane
 
         # Args:
-            `x (float)`: x coordinate in kpc
-            `y (float)`: y coordinate in kpc
-            `z (float)`: z coordinate in kpc
-            `x0 (float)`: x coordinate of the center in kpc
-            `y0 (float)`: y coordinate of the center in kpc
-            `z0 (float)`: z coordinate of the center in kpc
-            `m_tot (float)`: Total mass of the cloud
-            `s1 (float)`: Size along x axis in kpc
-            `s2 (float)`: Size along y axis in kpc
-            `s3 (float)`: Size along z axis in kpc
-            `a1 (float)`: Rotation angle around x axis in degrees
-            `a2 (float)`: Rotation angle around z axis in degrees
+            - `x (float)`: x coordinate in kpc
+            - `y (float)`: y coordinate in kpc
+            - `z (float)`: z coordinate in kpc
+            - `x0 (float)`: x coordinate of the center in kpc
+            - `y0 (float)`: y coordinate of the center in kpc
+            - `z0 (float)`: z coordinate of the center in kpc
+            - `m_tot (float)`: Total mass of the cloud
+            - `s1 (float)`: Size along x axis in kpc
+            - `s2 (float)`: Size along y axis in kpc
+            - `s3 (float)`: Size along z axis in kpc
+            - `a1 (float)`: Rotation angle around x axis in degrees
+            - `a2 (float)`: Rotation angle around z axis in degrees
 
         # Returns:
-            `float` : Value of the density of the cloud at the given point
+            - `float` : Value of the density of the cloud at the given point
         """
         v=[x-x0, y-y0, z-z0]
         r1 = R.from_euler('x', a1, degrees=True)
@@ -166,13 +166,13 @@ class ExtinctionModelHelper:
         """Computes the density of the model at a given point in the Galactic plane
 
         # Args:
-            extinction_model (ExctinctionModel): Model to use
-            `x (float)`: x coordinate in kpc
-            `y (float)`: y coordinate in kpc
-            `z (float)`: z coordinate in kpc
+            - `extinction_model (ExctinctionModel)`: Model to use
+            - `x (float)`: x coordinate in kpc
+            - `y (float)`: y coordinate in kpc
+            - `z (float)`: z coordinate in kpc
 
         # Returns:
-            `float` : Value of the density
+            - `float` : Value of the density
         """
         hr = 2.5 #kpc
         hz = 0.05 #kpc
