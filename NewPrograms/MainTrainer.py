@@ -11,7 +11,7 @@ import csv
 from tqdm import tqdm
 
 
-class MainProgram:
+class MainTrainer:
     """
     Main program for training a neural network for extinction and density estimation.
 
@@ -111,8 +111,7 @@ class MainProgram:
         csv_writer = csv.writer(self.valfile)
         csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
         self.valfile.close()
-        
-    
+           
     def prepare_dataset(self):
         """
         Prepare the dataset for training and validation.
