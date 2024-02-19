@@ -1,0 +1,11 @@
+{
+    "nu_ext": 1,
+    "nu_dens": 1,
+    "loss_function": "mse_loss",
+    "n": 10000,
+    "reduction_method": "sum",
+    "hidden_size": 1,
+    "epochs": 1000,
+    "activation_function": "sigmoid",
+    "learning_rate": 0.001
+}
