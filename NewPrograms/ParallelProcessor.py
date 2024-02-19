@@ -4,8 +4,47 @@ import ExtinctionModelHelper as Helper
 import Dataset2D as ds
 
 class ParallelProcessor:
+    """
+    A class providing static methods for parallel processing of extinction model predictions.
+
+    # Methods:
+        - `process_parallel(model, pool, star_number, device, dtype)`: Process extinction model predictions in parallel.
+
+    # Example:
+        >>> # Instantiate a neural network model and a multiprocessing Pool
+        >>> your_model = YourExtinctionModel()
+        >>> your_pool = YourMultiprocessingPool()
+        >>> 
+        >>> # Process extinction model predictions in parallel
+        >>> processed_data = ParallelProcessor.process_parallel(your_model, your_pool, star_number, device, dtype)
+    """
     @staticmethod
     def process_parallel(model, pool, star_number, device, dtype):
+        """
+        Process extinction model predictions in parallel.
+
+        This method uses parallel processing to compute extinction model predictions for a given number of stars.
+        It utilizes a multiprocessing pool to distribute the workload across multiple processes.
+        The method returns a processed dataset containing the computed results.
+
+        # Args:
+            - `model`: An extinction model for parallel processing.
+            - `pool`: A multiprocessing pool for parallel computation.
+            - `star_number (int)`: Number of stars for which predictions need to be computed.
+            - `device`: The device (e.g., 'cuda' or 'cpu') for computation.
+            - `dtype`: Data type for computation (e.g., torch.float32).
+
+        # Returns:
+            - `Dataset2D`: A processed dataset containing computed results.
+
+        # Example:
+            >>> # Instantiate a neural network model and a multiprocessing Pool
+            >>> your_model = YourExtinctionModel()
+            >>> your_pool = YourMultiprocessingPool()
+            >>> 
+            >>> # Process extinction model predictions in parallel
+            >>> processed_data = ParallelProcessor.process_parallel(your_model, your_pool, star_number, device, dtype)
+        """
         results = []
         progress_index = 0
         

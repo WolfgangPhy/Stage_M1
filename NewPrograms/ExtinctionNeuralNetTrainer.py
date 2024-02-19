@@ -65,7 +65,7 @@ class ExtinctionNeuralNetTrainer:
             - `lossint_total (float)`: Total loss for extinction.
             - `lossdens_total (float)`: Total loss for density.
             - `nu_ext (float)`: Coefficient for extinction loss.
-            -`nu_dens (float)`: Coefficient for density loss.
+            - `nu_dens (float)`: Coefficient for density loss.
             
         # Returns:
             - `tuple[float, float]`: Total loss for extinction, Total loss for density.
