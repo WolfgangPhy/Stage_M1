@@ -133,6 +133,8 @@ class MainTrainer:
 
         # Files created:
         - `lossfile`: CSV file for training metrics.
+            - Header: ['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time']
+
         - `valfile`: CSV file for validation metrics.
             - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
         """
@@ -204,7 +206,7 @@ class MainTrainer:
         self.network.apply(self.builder.init_weights)
         if not self.config['newnet']:
             # define networks
-            self.network = NeuralNet.ExtinctionNeuralNet(self.hidden_size)
+            self.network = NeuralNet.ExtinctionNeuralNet(self.hidden_size, self.device)
 
             # load checkpoint file
             checkpoint = torch.load(self.config['pretrainednetwork'],map_location='cpu')
@@ -263,9 +265,9 @@ class MainTrainer:
 
             # loop over minibatches
             nbatch = 0
-            for xb,yb in self.train_loader:
+            for in_batch, tar_batch in self.train_loader:
                 nbatch = nbatch+1
-                self.lossint_total, self.lossdens_total = self.trainer.take_step(xb , yb, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
+                self.lossint_total, self.lossdens_total = self.trainer.take_step(in_batch , tar_batch, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
             
             # add up loss function contributions
             full_loss = self.lossdens_total+self.lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
