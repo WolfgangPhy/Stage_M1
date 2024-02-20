@@ -1,9 +1,14 @@
 import MainTrainer as MainTrainer
 import CreateDataFile as Creator
+import ModelCalculator as Calculator
+import ExtinctionModelLoader as Loader
+import torch
 import time
 import json
 import torch.nn.functional as F
+import numpy as np
 import CustomLossFunctions as LossFunctions
+import ExtinctionNeuralNetBuilder as Builder
 
 class MainProgram:
     """
@@ -42,6 +47,26 @@ class MainProgram:
     def __init__(self):
         self.get_parameters_from_json()
         self.set_parameters()
+        self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+        self.load_dataset()
+        self.max_distance = np.max(self.dataset.dist.cpu().numpy())
+        self.set_hidden_size()
+        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
+        self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
+        self.set_model()
+        
+    def set_model(self):
+        self.loader = Loader.ExtinctionModelLoader("2DModel.pickle")
+        self.extinction_model_loader.check_existing_model()
+        if self.extinction_model_loader.newmodel:
+            self.extinction_model_loader.create_new_model()
+        else:
+            self.extinction_model_loader.load_model()
+            
+    def set_hidden_size(self):
+        dim = 2
+        k = (np.log10(self.dataset.__len__()))**-4.33 * 16. * self.dataset.__len__()/(dim+2)*2.
+        self.hidden_size = int(k)
     
     def get_parameters_from_json(self):
         """
@@ -49,6 +74,17 @@ class MainProgram:
         """
         with open("Parameters.json") as f:
             self.parameters = json.load(f)
+            
+    def load_dataset(self):
+        """
+        Open the config file
+        """
+        with open('Config.json') as config_file:
+            config = json.load(config_file)
+        
+        self.dataset = torch.load(config['datafile'], map_location=self.device)
+        config_file.close()
+        
     
     def set_parameters(self):
         """
@@ -93,15 +129,23 @@ class MainProgram:
         """
         Creates a data file for training.
         """
-        CreateDataFile = Creator.CreateDataFile(self.star_number)
+        CreateDataFile = Creator.CreateDataFile(self.star_number, self.loader.model)
         CreateDataFile.execute()
         
     def train(self):
         """
         Initiates and runs the training process.
         """
-        maintrainer = MainTrainer.MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens, self.int_loss_function, self.dens_loss_function, self.int_reduction_method, self.dens_reduction_method, self.learning_rate)
-        maintrainer.run()
+        self.maintrainer = MainTrainer.MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens, self.int_loss_function, 
+                                                        self.dens_loss_function, self.int_reduction_method, self.dens_reduction_method,
+                                                        self.learning_rate, self.device, self.dataset, self.builder, self.network, self.opti, self.hidden_size,
+                                                        self.max_distance)
+        self.maintrainer.run()
+        
+    def calculate_density_extinction(self):
+        calculator = Calculator.ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5., 0.1, self.max_distance, self.device, self.network)
+        calculator.density_extinction_grid()
+        calculator.density_extinction_sight()
         
     def execute(self):
         """
@@ -114,7 +158,8 @@ if __name__ == "__main__":
     start_time = time.time()
     
     mainprogram = MainProgram()
-    mainprogram.train()
+    #mainprogram.train()
+    mainprogram.calculate_density_extinction()
     
     process_time = time.time() - start_time
     print("Process time: ", round(process_time, 0), " seconds")

@@ -3,6 +3,7 @@ import numpy as np
 class ExtinctionModel:
     """
     Class to store a given model.
+    It stores the total mass, the location, the size, and the orientation of the clouds.
 
     # Args:
         - `N (int)`: Number of clouds to generate.
@@ -19,11 +20,10 @@ class ExtinctionModel:
         - `a2 (numpy.ndarray)`: Orientation angle along the second axis [-45, 45] degrees for each model.
 
     # Methods:
-        - `__init__(N)`: Initializes an instance of the ExtinctionModel class.
         - `__len__` : Returns the total number of samples, which is the length of the 'm_tot' array.
     """
     def __init__(self, N):
-        self.m_tot = np.random.rand(N)*0.1 
+        self.m_tot = np.random.rand(N)*0.1 #TODO 
         self.x0 = np.random.rand(N)*8.-4. 
         self.y0 = np.random.rand(N)*8.-4. 
         self.z0 = np.random.rand(N)-0.5   

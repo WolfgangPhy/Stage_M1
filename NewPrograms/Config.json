@@ -3,8 +3,6 @@
     "outfile": "./PyTorchFiles/ExtinctionModelMean",
     "logfile": "./OutputFiles/ExtinctionModel.log",
     "lossfile": "./OutputFiles/fiducial_model2D_mean_loss.csv",
-    "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",
-    "newnet": true,
-    "pretrainednetwork": "../fiducial_model2D_mean_e340000.pt"
+    "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv"
 }
   

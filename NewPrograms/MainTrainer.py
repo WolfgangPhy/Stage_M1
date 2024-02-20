@@ -26,7 +26,14 @@ class MainTrainer:
         - `dens_loss_function (callable)`: Loss function for density estimation.
         - `int_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
+        - `device (torch.device)`: Computing device for running the neural network.
         - `learning_rate (float)`: Learning rate for updating network parameters.
+        - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
+        - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
+        - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
+        - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
+        - `hidden_size (int)`: Size of the hidden layer in the neural network.
+        - `max_distance (float)`: Maximum distance in the dataset.
 
     # Attributes:
         - `config (dict)`: Configuration parameters for the training process.
@@ -48,6 +55,9 @@ class MainTrainer:
         - `int_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
         - `learning_rate (float)`: Learning rate for updating network parameters.
+        - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
+        - `hidden_size (int)`: Size of the hidden layer in the neural network.
+        - `max_distance (float)`: Maximum distance in the dataset.
         
     # Methods:
         - `open_config_file()`: Opens the configuration file and reads the training parameters.
@@ -68,7 +78,8 @@ class MainTrainer:
 
     """
     
-    def __init__(self, epoch_number, nu_ext, nu_dens, int_loss_function, dens_loss_function, int_reduction_method, dens_reduction_method, learning_rate):
+    def __init__(self, epoch_number, nu_ext, nu_dens, int_loss_function, dens_loss_function, int_reduction_method, 
+                    dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size, max_distance):
         self.epoch = -1
         self.epoch_number = epoch_number
         self.nu_ext = nu_ext
@@ -78,6 +89,13 @@ class MainTrainer:
         self.int_reduction_method = int_reduction_method
         self.dens_reduction_method = dens_reduction_method
         self.learning_rate = learning_rate
+        self.device = device
+        self.dataset = dataset
+        self.builder = builder
+        self.network = network
+        self.opti = opti
+        self.hidden_size = hidden_size
+        self.max_distance = max_distance
         
     def open_config_file(self):
         """
@@ -111,7 +129,6 @@ class MainTrainer:
             self.logfile = open(self.config['logfile'],'a')
         
         dtype = torch.float
-        self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
         self.logfile.write('__Python VERSION:'+sys.version)
         self.logfile.write('__pyTorch VERSION:'+torch.__version__+'\n')
@@ -156,24 +173,19 @@ class MainTrainer:
         and prepares training and validation datasets along with corresponding data loaders.
 
         """
-        self.dataset = torch.load(self.config['datafile'], map_location='cpu')
-
-        #attrs = vars(dataset)
-        #print(', '.join("%s: %s" % item for item in attrs.items()))
 
         # Limits of the dataset of our sample
-        xmin=0.
-        xmax=0.
+        min_distance=0.
 
         # Computes normalisation coefficients to help training, xmin and ymin both =0
         for i in range(self.dataset.__len__()):
-            if self.dataset.dist[i].item()> xmax:
-                xmax = self.dataset.dist[i].item()
+            if self.dataset.dist[i].item()> max_distance:
+                max_distance = self.dataset.dist[i].item()
                 
-        self.logfile.write('Distance normalisation factor (xmax):'+str(xmax)+'\n')  
+        self.logfile.write('Distance normalisation factor (max_distance):'+str(max_distance)+'\n')  
 
         for i in range(self.dataset.__len__()):
-            self.dataset.dist[i] = 2.*self.dataset.dist[i].item()/(xmax-xmin)-1.
+            self.dataset.dist[i] = 2.*self.dataset.dist[i].item()/(max_distance-min_distance)-1.
 
         # prepares the dataset used for training and validation
         size = self.dataset.__len__()
@@ -194,32 +206,7 @@ class MainTrainer:
         It also handles loading a pretrained network if specified in the configuration.
 
         """
-        dim = 2
-        k = (np.log10(self.dataset.__len__()))**-4.33 * 16. * self.dataset.__len__()/(dim+2)*2.
-        self.logfile.write('Using '+str(int(k))+' neurons in the hidden layer\n')
-        self.hidden_size = int(k)
-        
-        #Instanciate the builder
-        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
-
-        self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
         self.network.apply(self.builder.init_weights)
-        if not self.config['newnet']:
-            # define networks
-            self.network = NeuralNet.ExtinctionNeuralNet(self.hidden_size, self.device)
-
-            # load checkpoint file
-            checkpoint = torch.load(self.config['pretrainednetwork'],map_location='cpu')
-
-            # update networks to checkpoint state
-            self.network.load_state_dict(checkpoint['integ_state_dict'])
-
-            # update optimizers state
-            self.opti.load_state_dict(checkpoint['opti_state_dict'])
-
-            # update epoch
-            self.epoch = checkpoint['epoch']
-
         self.network.to(self.device) 
         self.network.train()
         

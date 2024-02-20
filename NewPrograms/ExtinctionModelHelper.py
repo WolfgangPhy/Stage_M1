@@ -179,10 +179,10 @@ class ExtinctionModelHelper:
         absorp = 0.2 #mag/kpc
         x_sum = 8. #kpc (Sun x coordinate relative to the Galactic center)
         R = math.sqrt((x-x_sum)**2 + y**2)
-        d = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
+        density = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
         
         for i in range(len(exctinction_model.x0)):
-            d += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i], exctinction_model.z0[i], exctinction_model.m_tot[i], exctinction_model.s1[i], exctinction_model.s2[i], exctinction_model.s3[i], exctinction_model.a1[i], exctinction_model.a2[i])
+            density += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i], exctinction_model.z0[i], exctinction_model.m_tot[i], exctinction_model.s1[i], exctinction_model.s2[i], exctinction_model.s3[i], exctinction_model.a1[i], exctinction_model.a2[i])
         
-        return d
+        return density
     

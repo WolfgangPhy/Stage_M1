@@ -37,12 +37,12 @@ class Dataset2D(Dataset):
 
         >>> sample = dataset[0]
     """
-    def __init__(self, ell, dist, K, error):
+    def __init__(self, ell, distance, K, error):
         #self.list_IDs  = np.arange(len(ell))
         self.ell = ell
         self.cosell = np.cos(self.ell * np.pi/180.)
         self.sinell = np.sin(self.ell * np.pi/180.)
-        self.dist = dist # distance in kpc
+        self.distance = distance # distance in kpc
         self.K = K # total Absorption
         self.error = error # error on absorption
         
@@ -69,4 +69,4 @@ class Dataset2D(Dataset):
                 - The second tensor contains the values associated with the sample 
                 as (total_absorption, error_on_absorption).
         """
-        return torch.tensor((self.cosell[index], self.sinell[index], self.dist[index])), torch.tensor((self.K[index], self.error[index]))
+        return torch.tensor((self.cosell[index], self.sinell[index], self.distance[index])), torch.tensor((self.K[index], self.error[index]))

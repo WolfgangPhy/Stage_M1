@@ -19,8 +19,8 @@ class ExtinctionModelLoader:
         - `create_new_model()`: Creates a new ExtinctionModel instance and saves it to the fiducial model file.
         - `load_model()`: Loads the ExtinctionModel instance from the fiducial model file.
     """
-    def __init__(self, fiducial_model="2DModel.pickle"):
-        self.fiducial_model = fiducial_model
+    def __init__(self, fiducial_model_filename="2DModel.pickle"):
+        self.fiducial_model_filename = fiducial_model_filename
         self.newmodel = None
         self.model = None
 
@@ -31,7 +31,7 @@ class ExtinctionModelLoader:
         If the file exists, sets the `newmodel` flag to False, indicating that the existing model will be used.
         If the file does not exist, sets the `newmodel` flag to True.
         """
-        if os.path.isfile(self.fiducial_model):
+        if os.path.isfile(self.fiducial_model_filename):
             print("Using existing model")
             self.newmodel = False
         else:
@@ -41,14 +41,14 @@ class ExtinctionModelLoader:
         """
         Creates a new ExtinctionModel instance and saves it to the fiducial model file.
         """
-        self.model = ExtinctionModel.ExtinctionModel(100)
-        with open(self.fiducial_model, "wb") as file:
+        self.model = ExtinctionModel.ExtinctionModel(100)#TODO
+        with open(self.fiducial_model_filename, "wb") as file:
             pickle.dump(self.model, file)
 
     def load_model(self):
         """
         Loads the ExtinctionModel instance from the fiducial model file.
         """
-        with open(self.fiducial_model, "rb") as file:
+        with open(self.fiducial_model_filename, "rb") as file:
             self.model = pickle.load(file)
 
