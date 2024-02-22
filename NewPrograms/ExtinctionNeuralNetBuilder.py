@@ -39,7 +39,7 @@ class ExtinctionNeuralNetBuilder:
         self.learning_rate = learning_rate
         self.network, self.opti = self.create_net_integ(hidden_size)
               
-    def integral(self, tensor, network_model, distance_min=0., debug=0):
+    def integral(self, tensor, network_model, min_distance=0., debug=0):
         """
         Custom analytic integral of the network ExtinctionNeuralNet to be used in MSE loss.
 
@@ -60,14 +60,14 @@ class ExtinctionNeuralNetBuilder:
         # Li_1(x) = -ln(1-x) for x \in C
         batch_size = tensor.size()[0]
         coord_num = tensor.size()[1]  # number of coordinates, the last one is the distance
-        distance_min = tensor * 0. + distance_min
+        min_distance = tensor * 0. + min_distance
 
         a = -torch.log(1. + torch.exp(-1. * (network_model.linear1.bias.unsqueeze(1).expand(network_model.hidden_size, batch_size)
                                                 + torch.matmul(network_model.linear1.weight[:, 0:coord_num - 1], 
                                                 torch.transpose(tensor[:, 0:coord_num - 1], 0, 1))\
                                             )
                                         - torch.matmul(network_model.linear1.weight[:, coord_num - 1].unsqueeze(1), 
-                                                            torch.transpose(distance_min[:, coord_num - 1].unsqueeze(1), 0, 1)
+                                                            torch.transpose(min_distance[:, coord_num - 1].unsqueeze(1), 0, 1)
                                                         )
                                     )
                     )
@@ -85,10 +85,10 @@ class ExtinctionNeuralNetBuilder:
 
         # Equation 15a of Lloyd et al 2020: alpha_1=0, beta_1=x
         # Sum over all neurons of the hidden layer
-        aa = network_model.linear2.bias * (tensor[:, coord_num - 1] - distance_min[:, coord_num - 1])
+        aa = network_model.linear2.bias * (tensor[:, coord_num - 1] - min_distance[:, coord_num - 1])
 
         bb = torch.matmul(network_model.linear2.weight[0, :],
-                            (torch.transpose( (tensor[:, coord_num - 1] - distance_min[:, coord_num - 1])
+                            (torch.transpose( (tensor[:, coord_num - 1] - min_distance[:, coord_num - 1])
                                             .unsqueeze(1), 0, 1)
                                 .expand(network_model.hidden_size, batch_size)
                                 + torch.transpose(torch.div(torch.transpose(phi_j, 0, 1), 

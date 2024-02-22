@@ -41,7 +41,7 @@ class ExtinctionModelLoader:
         """
         Creates a new ExtinctionModel instance and saves it to the fiducial model file.
         """
-        self.model = ExtinctionModel.ExtinctionModel(100)#TODO
+        self.model = ExtinctionModel.ExtinctionModel(15)
         with open(self.fiducial_model_filename, "wb") as file:
             pickle.dump(self.model, file)
 

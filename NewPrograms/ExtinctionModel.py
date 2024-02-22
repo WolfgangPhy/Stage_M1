@@ -23,7 +23,7 @@ class ExtinctionModel:
         - `__len__` : Returns the total number of samples, which is the length of the 'm_tot' array.
     """
     def __init__(self, N):
-        self.m_tot = np.random.rand(N)*0.1 #TODO 
+        self.m_tot = np.random.rand(N)*0.1
         self.x0 = np.random.rand(N)*8.-4. 
         self.y0 = np.random.rand(N)*8.-4. 
         self.z0 = np.random.rand(N)-0.5   

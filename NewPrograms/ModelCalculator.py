@@ -1,6 +1,7 @@
 import numpy as np
 import ExtinctionModelHelper as Helper
 import ExtinctionNeuralNet as Net
+import FileHelper as FHelper
 import torch
 from tqdm import tqdm
 class ModelCalculator:
@@ -31,7 +32,7 @@ class ModelCalculator:
         - `device`: Device (CPU/GPU) for PyTorch operations.
         - `network`: Neural network for predictions.
         - `grid_filename`: Filename to save grid results.
-        - `sight_filename`: Filename to save line-of-sight results.
+        - `los_filename`: Filename to save line-of-sight results.
 
     # Methods:
         - `density_extinction_grid()`: Compute density and extinction on a 2D grid.
@@ -47,7 +48,7 @@ class ModelCalculator:
         >>> # Compute density and extinction along lines of sight
         >>> model_calculator.density_extinction_sight()
     """
-    def __init__(self, model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network):
+    def __init__(self, model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path):
         self.model = model
         self.builder = builder
         self.x_max = x_max
@@ -58,8 +59,9 @@ class ModelCalculator:
         self.max_distance = max_distance
         self.device = device
         self.network = network
-        self.grid_filename = "./npzFiles/density_extinction_grid.npz"
-        self.sight_filename = "./npzFiles/density_extinction_sight.npz"
+        self.config_file_path = config_file_path
+        self.grid_filename = FHelper.FileHelper.give_config_value(self.config_file_path, "gridfile")
+        self.los_filename = FHelper.FileHelper.give_config_value(self.config_file_path, "losfile")
         
     
     def density_extinction_grid(self):
@@ -81,8 +83,8 @@ class ModelCalculator:
         sinell = Y/R_network
         
         print("Computing grid")
-        for i in tqdm(range(len(X[:,1]))):
-            for j in tqdm(range(len(X[1,:]))):
+        for i in tqdm(range(len(X[:,1])), desc='Rows'):
+            for j in tqdm(range(len(X[1,:])), desc=f'Column number {i}', leave=False):
                 density_model[i,j] = Helper.ExtinctionModelHelper.compute_extinction_model_density(self.model, X[i,j], Y[i,j], 0.)
                 ell[i,j], R_model[i,j] = Helper.ExtinctionModelHelper.convert_cartesian_to_galactic_2D(X[i,j], Y[i,j])
                 extinction_model[i,j] = Helper.ExtinctionModelHelper.integ_d(Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i,j], 0., R_model[i,j], self.model)
@@ -90,7 +92,7 @@ class ModelCalculator:
                 data = torch.Tensor([cosell[i,j], sinell[i,j], 2.*R_network[i,j]/self.max_distance-1.]).float()
                 density_network[i,j] = self.network.forward(data.to(self.device))
                 data = data.unsqueeze(1)
-                extinction_network[i,j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1), self.network, distance_min = -1.)
+                extinction_network[i,j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1), self.network, min_distance = -1.)
                 
         np.savez(self.grid_filename, density_model = density_model, extinction_model = extinction_model, density_network = density_network, 
                     extinction_network = extinction_network, X = X, Y = Y, ell = ell, R_model = R_model, R_network = R_network)
@@ -112,17 +114,17 @@ class ModelCalculator:
 
         print("Computing sight")
         
-        for i in tqdm(range(len(ells))):
-            for j in tqdm(range(len(distance))):
+        for i in tqdm(range(len(ells)), desc='Lines of sight'):
+            for j in tqdm(range(len(distance)), desc=f'Distance number {i}', leave=False):
                 data = torch.Tensor([cosell[i],sinell[i],2.*distance[j]/self.max_distance-1.]).float()
                 los_dens_network[i,j] = self.network.forward(data.to(self.device))
                 data = data.unsqueeze(1)
-                los_ext_network[i,j] = self.builder.integral(torch.transpose(data.to(self.device),0,1), self.network, distance_min=-1.)
+                los_ext_network[i,j] = self.builder.integral(torch.transpose(data.to(self.device),0,1), self.network, min_distance=-1.)
 
                 X = distance[j]*cosell[i]
                 Y = distance[j]*sinell[i]
                 los_dens_true[i,j] = Helper.ExtinctionModelHelper.compute_extinction_model_density(self.model, X,Y,0.)
                 los_ext_true[i,j] = Helper.ExtinctionModelHelper.integ_d(Helper.ExtinctionModelHelper.compute_extinction_model_density,ells[i],0.,distance[j], self.model)
                 
-        np.savez(self.sight_filename, ells = ells, distance = distance, los_dens_true = los_dens_true, los_ext_true = los_ext_true, los_dens_network = los_dens_network,
+        np.savez(self.los_filename, ells = ells, distance = distance, los_dens_true = los_dens_true, los_ext_true = los_ext_true, los_dens_network = los_dens_network,
                     los_ext_network = los_ext_network)

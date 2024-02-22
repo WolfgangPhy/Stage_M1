@@ -3,6 +3,8 @@
     "outfile": "./PyTorchFiles/ExtinctionModelMean",
     "logfile": "./OutputFiles/ExtinctionModel.log",
     "lossfile": "./OutputFiles/fiducial_model2D_mean_loss.csv",
-    "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv"
+    "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",
+    "gridfile" : "./NpzFiles/density_extinction_grid.npz",
+    "losfile" : "./NpzFiles/density_extinction_los.npz",
+    "model_file" : "2DModel.pickle"
 }
-  

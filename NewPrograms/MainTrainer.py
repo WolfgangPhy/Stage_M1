@@ -6,6 +6,7 @@ import time
 import ExtinctionNeuralNet as NeuralNet
 import ExtinctionNeuralNetBuilder as Builder
 import ExtinctionNeuralNetTrainer as Trainer
+import FileHelper as FHelper
 import json
 import csv
 from tqdm import tqdm
@@ -34,6 +35,7 @@ class MainTrainer:
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
         - `max_distance (float)`: Maximum distance in the dataset.
+        - `config_file_path (str)`: Path to the configuration file.
 
     # Attributes:
         - `config (dict)`: Configuration parameters for the training process.
@@ -58,10 +60,14 @@ class MainTrainer:
         - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
         - `max_distance (float)`: Maximum distance in the dataset.
+        - `config_file_path (str)`: Path to the configuration file.
+        - `datafile_path (str)`: Path to the dataset file.
+        - `outfile_path (str)`: Path to the output file for storing trained models.
+        - `logfile_path (str)`: Path to the logfile for recording training progress and results.
+        - `lossfile_path (str)`: Path to the logfile for recording training loss values.
+        - `valfile_path (str)`: Path to the logfile for recording validation loss values.
         
     # Methods:
-        - `open_config_file()`: Opens the configuration file and reads the training parameters.
-        - `close_config_file()`: Closes the configuration file. - `OpenAppendConfigFile`: Opens the configuration file in append mode for additional logging.
         - `setup_logfile()`: Sets up the logfile for recording training progress and results.
         - `prepare_dataset()`: Loads and preprocesses the dataset for training and validation.
         - `create_network()`: Creates the neural network architecture based on the configuration.
@@ -79,7 +85,7 @@ class MainTrainer:
     """
     
     def __init__(self, epoch_number, nu_ext, nu_dens, int_loss_function, dens_loss_function, int_reduction_method, 
-                    dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size, max_distance):
+                    dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size, max_distance, config_file_path):
         self.epoch = -1
         self.epoch_number = epoch_number
         self.nu_ext = nu_ext
@@ -96,20 +102,19 @@ class MainTrainer:
         self.opti = opti
         self.hidden_size = hidden_size
         self.max_distance = max_distance
+        self.config_file_path = config_file_path
         
-    def open_config_file(self):
+    def init_files_path(self):
         """
-        Open the config file
+        Initialize the path for the files
         """
-        with open('Config.json') as self.config_file:
-            self.config = json.load(self.config_file)
-            
-    def close_config_file(self):  
-        """
-        Close the config file
-        """
-        self.config_file.close()
-            
+        self.datafile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'datafile')
+        self.outfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'outfile')
+        self.logfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'logfile')
+        self.lossfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'lossfile')
+        self.valfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'valfile')
+        
+        
     def setup_logfile(self):
         """
         Set up the logfile for logging information during training.
@@ -123,10 +128,7 @@ class MainTrainer:
             and in 'append' mode otherwise.
             
         """
-        if self.config['newnet']:
-            self.logfile = open(self.config['logfile'],'w')
-        else :
-            self.logfile = open(self.config['logfile'],'a')
+        self.logfile = open(self.logfile_path,'w')
         
         dtype = torch.float
 
@@ -138,8 +140,8 @@ class MainTrainer:
             self.logfile.write('Available devices '+str(torch.cuda.device_count())+'\n')
             self.logfile.write('Current cuda device '+str(torch.cuda.current_device())+'\n')  
         self.logfile.write('Using device: '+str(self.device)+'\n')
-        self.logfile.write('Using datafile: '+self.config['datafile']+'\n')
-        self.logfile.write('Maps stored in '+self.config['outfile']+'_e*.pt\n')
+        self.logfile.write('Using datafile: '+self.datafile_path+'\n')
+        self.logfile.write('Maps stored in '+self.outfile_path+'_e*.pt\n')
           
     def setup_csv_files(self):
         """
@@ -155,15 +157,15 @@ class MainTrainer:
         - `valfile`: CSV file for validation metrics.
             - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
         """
-        self.lossfile = open(self.config['lossfile'],'w')
-        csv_writer = csv.writer(self.lossfile)
-        csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
-        self.lossfile.close()
+        with open(self.lossfile_path, 'w') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
+            csvfile.close()
         
-        self.valfile = open(self.config['valfile'],'w')
-        csv_writer = csv.writer(self.valfile)
-        csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
-        self.valfile.close()
+        with open(self.valfile_path,'w') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
+            csvfile.close()
            
     def prepare_dataset(self):
         """
@@ -179,13 +181,13 @@ class MainTrainer:
 
         # Computes normalisation coefficients to help training, xmin and ymin both =0
         for i in range(self.dataset.__len__()):
-            if self.dataset.dist[i].item()> max_distance:
-                max_distance = self.dataset.dist[i].item()
+            if self.dataset.distance[i].item()> self.max_distance:
+                self.max_distance = self.dataset.distance[i].item()
                 
-        self.logfile.write('Distance normalisation factor (max_distance):'+str(max_distance)+'\n')  
+        self.logfile.write('Distance normalisation factor (max_distance):'+str(self.max_distance)+'\n')  
 
         for i in range(self.dataset.__len__()):
-            self.dataset.dist[i] = 2.*self.dataset.dist[i].item()/(max_distance-min_distance)-1.
+            self.dataset.distance[i] = 2.*self.dataset.distance[i].item()/(self.max_distance-min_distance)-1.
 
         # prepares the dataset used for training and validation
         size = self.dataset.__len__()
@@ -263,7 +265,8 @@ class MainTrainer:
             #if epoch%10==0:
             t1 = time.time()
             
-            with open(self.config['lossfile'], 'a', newline='') as csvfile:
+            
+            with open(self.lossfile_path, 'a', newline='') as csvfile:
                 csv_writer = csv.writer(csvfile)
                 csv_writer.writerow([self.epoch, full_loss, self.lossint_total, self.lossdens_total, (t1 - t0) / 60.])
             
@@ -284,13 +287,13 @@ class MainTrainer:
                 
                     t2 = time.time()
 
-                    with open(self.config['valfile'], 'a', newline='') as csvfile:
+                    with open(self.valfile_path, 'a', newline='') as csvfile:
                         csv_writer = csv.writer(csvfile)
                         csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
             
             # save model every 50 epoch and last step
             if self.epoch%10000==0 or self.epoch==self.epoch_number:
-                fname1 = '{}_e{}.pt'.format(self.config['outfile'],self.epoch)
+                fname1 = '{}_e{}.pt'.format(self.outfile_path, self.epoch)
                 self.network.to('cpu')
                 torch.save({
                     'epoch': self.epoch,
@@ -300,7 +303,7 @@ class MainTrainer:
                 self.network.to(self.device)
 
         t1=time.time()
-        self.logfile=open(self.config['logfile'],'a')
+        self.logfile=open(self.logfile_path,'a')
         self.logfile.write("Total time (hours): "+str((t1-tstart)/3600.)+"\n")
         self.logfile.close()
         
@@ -308,16 +311,12 @@ class MainTrainer:
         """
         Execute the main trainer
         """
-        
-        self.open_config_file()
+
+        self.init_files_path()
         self.setup_logfile()
         self.prepare_dataset()
-        
-        if self.config['newnet']:
-            self.setup_csv_files()
-            
+        self.setup_csv_files()
         self.create_network()
         self.init_training()
         self.train_network()
-        self.close_config_file()
         

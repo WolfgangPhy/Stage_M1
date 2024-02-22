@@ -85,7 +85,7 @@ class ExtinctionNeuralNetTrainer:
         # density estimation at each location
         dens = self.builder.network.forward(in_batch)
         # total extinction : in_batch in [-1,1] after rescaling -> pass the lower integration bound to the code as default is 0
-        exthat = self.builder.integral(in_batch, self.builder.network, xmin=-1.)
+        exthat = self.builder.integral(in_batch, self.builder.network, min_distance=-1.)
             
         # compute loss function for integration network 
         # total extinction must match observed value
@@ -146,7 +146,7 @@ class ExtinctionNeuralNetTrainer:
         # density estimation at each location
         dens = self.builder.network.forward(in_batch_validation_set)
         # total extinction
-        exthat = self.builder.integral(in_batch_validation_set, self.builder.network, xmin=-1.)
+        exthat = self.builder.integral(in_batch_validation_set, self.builder.network, min_distance=-1.)
             
         # compute loss function for  network : L2 norm
         # total extinction must match observed value

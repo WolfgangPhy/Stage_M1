@@ -1,6 +1,7 @@
 import torch
 import multiprocessing as mp
 import ParallelProcessor as pp
+import FileHelper as FHelper
 
 class CreateDataFile:
     """
@@ -9,10 +10,12 @@ class CreateDataFile:
     # Args:
         - `star_number (int)`: Number of stars to be used in the data file.
         - `model (ExtinctionModel)`: The extinction model to be used for creating the data file.
+        - `config_file_path (str)`: The path to the configuration file.
 
     # Attributes:
         - `star_number (int)`: Number of stars to be used in the data file.
         - `model (ExtinctionModel)`: The extinction model to be used for creating the data file.
+        - `config_file_path (str)`: The path to the configuration file.
 
     # Methods:
         - `execute()`: Executes the process of creating the data file.
@@ -24,9 +27,10 @@ class CreateDataFile:
         # Execute the data file creation process
         >>> data_creator.execute()
     """
-    def __init__(self, star_number, model):
+    def __init__(self, star_number, model, config_file_path):
         self.star_number = star_number
         self.model = model
+        self.config_file_path = config_file_path
 
     def execute(self):
         """
@@ -48,7 +52,7 @@ class CreateDataFile:
         # Close the pool
         pool.close()
 
-        # Save the dataset
-        torch.save(dataset, "./PyTorchFiles/fiducial_model2D.pt") #TODO
+        dataset_filepath = FHelper.FileHelper.give_config_value(self.config_file_path, "datafile")
+        torch.save(dataset, dataset_filepath)
 
         print("Done")

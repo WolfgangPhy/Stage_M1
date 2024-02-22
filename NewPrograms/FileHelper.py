@@ -1,0 +1,84 @@
+import os
+import json
+import shutil
+
+class FileHelper:
+    """
+    A utility class for file-related operations.
+
+    # Methods:
+    - init_test_directory(): Initializes a test directory based on parameters from 'Parameters.json' (Static)
+    - give_config_value(config_file_path, key): Retrieves a specific value from a given configuration file. (Static)
+
+    # Example:
+    >>> # Example for initializing a test directory
+    >>> test_directory_path = FileHelper.init_test_directory()
+
+    >>> # Example for retrieving a config value
+    >>> data_file_path = FileHelper.give_config_value(test_directory_path, 'datafile')
+    """
+    
+    @staticmethod
+    def init_test_directory():
+        """
+        Initializes a test directory based on parameters from 'Parameters.json'.
+
+        Returns:
+        - str: The path to the config file in the test directory.
+        """
+        with open('Parameters.json') as config_file:
+            parameters = json.load(config_file)
+        
+        directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items()])
+        if not os.path.exists(directory_name):
+            os.makedirs(directory_name)
+        elif input("Directory already exists. Do you want to do calculations in this directory? (y/n): ") == "y":
+            return os.path.join(directory_name, "Config.json")
+        else:
+            raise ValueError("Directory already exists")
+            
+        npz_directory = os.path.join(directory_name, "NpzFiles")
+        torch_directory = os.path.join(directory_name, "PyTorchFiles")
+        output_directory = os.path.join(directory_name, "OutputFiles")
+        
+        os.makedirs(npz_directory)
+        os.makedirs(torch_directory)
+        os.makedirs(output_directory)
+        
+        shutil.copy('Parameters.json', directory_name)
+        shutil.copy('Config.json', directory_name)
+        
+        with open(os.path.join(directory_name, 'Config.json')) as config_file:
+            config_data = json.load(config_file)
+            config_data['datafile'] = os.path.join('./', directory_name, config_data['datafile'][2:])
+            config_data['outfile'] = os.path.join('./',directory_name, config_data['outfile'][2:])
+            config_data['logfile'] = os.path.join('./',directory_name, config_data['logfile'][2:])
+            config_data['lossfile'] = os.path.join('./',directory_name, config_data['lossfile'][2:])
+            config_data['valfile'] = os.path.join('./',directory_name, config_data['valfile'][2:])
+            config_data['gridfile'] = os.path.join('./',directory_name, config_data['gridfile'][2:])
+            config_data['losfile'] = os.path.join('./',directory_name, config_data['losfile'][2:])
+            
+            with open(os.path.join(directory_name, 'Config.json'), 'w') as new_config_file:
+                json.dump(config_data, new_config_file, indent=4)
+           
+        return os.path.join(directory_name, "Config.json")
+
+    @staticmethod
+    def give_config_value(config_file_path, key):
+        """
+        Retrieves a specific value from a given configuration file.
+
+        Args:
+        - config_file_path (str): Path to the configuration file.
+        - key (str): Key for the desired value in the configuration file.
+
+        Returns:
+        - Any: The value associated with the specified key in the configuration file.
+        """
+        with open(config_file_path) as config_file:
+            config = json.load(config_file)
+        
+        value = config[key]
+        
+        config_file.close()
+        return value

@@ -85,7 +85,7 @@ class ParallelProcessor:
 
         print("Adding errors")
         for i in range(star_number):
-            error[i] = K[i].item() * np.random.uniform(low=0.01, high=0.1)
+            error[i] = K[i].item() * np.random.uniform(low=0.01, high=0.1) #TODO
             K[i] = K[i].item() + np.random.normal(scale=error[i].item())
 
         # Return the processed dataset

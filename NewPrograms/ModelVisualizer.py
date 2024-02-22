@@ -5,13 +5,14 @@ import pandas as pd
 import ExtinctionModelHelper as Helper
 import ExtinctionModelLoader as loader
 import ExtinctionNeuralNet as Net
+import FileHelper as FHelper
 
 import torch
 
 class ModelVisualizer:
     """
     A class providing static methods for visualizing extinction model predictions.
-
+    #TODO
     # Methods:
         - `visualize_model(model)`: Visualizes the extinction model predictions.
 
@@ -23,15 +24,17 @@ class ModelVisualizer:
         >>> ModelVisualizer.visualize_model(your_model)
     """
         
-    def __init__(self, device, grid_filename, sight_filename):
-        self.grid_filename = grid_filename
-        self.sight_filename = sight_filename
-        self.dataset = torch.load('./PyTorchFiles/fiducial_model2D.pt', map_location=device)
+    def __init__(self, device, config_file_name):
+        self.config_file_name = config_file_name
+        datafile_path = FHelper.FileHelper.give_config_value(self.config_file_name, "datafile")
+        self.grid_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "gridfile")
+        self.los_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "losfile")
+        self.dataset = torch.load(datafile_path, map_location=device)
         self.max_distance = np.max(self.dataset.dist.numpy())
     
     def load_datas(self):
         self.grid_datas = np.load(self.grid_filename)
-        self.sight_datas = np.load(self.sight_filename)
+        self.sight_datas = np.load(self.los_filename)
         
     def compare_densities(self):
         
@@ -59,7 +62,7 @@ class ModelVisualizer:
         fig.colorbar(cs1,ax=ax1)
         fig.colorbar(cs2,ax=ax2)
         fig.colorbar(cs3,ax=ax3)
-        plt.savefig('ext_2D_dens_mean_e250000.png')
+        plt.savefig('Compare_density.png')
         plt.show()
         
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35,10))
@@ -78,7 +81,7 @@ class ModelVisualizer:
         fig.colorbar(cs1,ax=ax1)
         fig.colorbar(cs2,ax=ax2)
         fig.colorbar(cs3,ax=ax3)
-        plt.savefig('ext_2D_ext_mean_e25000.png')
+        plt.savefig('Compare_extinction.png')
         plt.show()
         
     def extinction_vs_distance(self):
@@ -292,7 +295,7 @@ class ModelVisualizer:
         ax8.set_ylabel('K (mag)')
 
         plt.legend()
-        plt.savefig('ext_2D_losext_248.png')
+        plt.savefig('Extinction_by_los.png')
         plt.show()
 
     
