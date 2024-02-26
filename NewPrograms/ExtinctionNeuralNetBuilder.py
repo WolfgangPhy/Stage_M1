@@ -20,7 +20,7 @@ class ExtinctionNeuralNetBuilder:
         `learning_rate (float)`: Learning rate for the Adam optimizer.
 
     # Methods:
-        - `integral(tensor, network_model, xmin=0., debug=0)`: Custom analytic integral of the network for MSE loss.
+        - `integral(tensor, network_model, min_distance=0., debug=0)`: Custom analytic integral of the network for MSE loss.
         - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
         - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer.
         
@@ -54,7 +54,7 @@ class ExtinctionNeuralNetBuilder:
             - `debug (int, optional)`: Debugging flag. Defaults to 0.
 
         # Returns:
-            - `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
+            `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
         """
         # Equation 15b of Lloyd et al 2020 -> Phi_j for each neuron
         # Li_1(x) = -ln(1-x) for x \in C
@@ -126,9 +126,10 @@ class ExtinctionNeuralNetBuilder:
             - `hidden_size (int)`: Size of the hidden layer in the neural network.
 
         # Returns:
-            - `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
+            `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and the Adam optimizer.
         """
         network = NeuralNet.ExtinctionNeuralNet(hidden_size, self.device)
-        return network, optim.Adam(network.parameters(), lr=self.learning_rate)
+        return network,\
+               optim.Adam(network.parameters(), lr=self.learning_rate)
 
     

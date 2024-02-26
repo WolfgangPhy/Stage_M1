@@ -27,8 +27,8 @@ class MainTrainer:
         - `dens_loss_function (callable)`: Loss function for density estimation.
         - `int_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
-        - `device (torch.device)`: Computing device for running the neural network.
         - `learning_rate (float)`: Learning rate for updating network parameters.
+        - `device (torch.device)`: Computing device for running the neural network.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
         - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
         - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
@@ -38,20 +38,20 @@ class MainTrainer:
         - `config_file_path (str)`: Path to the configuration file.
 
     # Attributes:
-        - `config (dict)`: Configuration parameters for the training process.
-        - `config_file (file)`: Configuration file for reading training parameters.
         - `logfile (file)`: Logfile for recording training progress and results.
-        - `lossfile (file)`: Logfile for recording training loss values.
-        - `valfile (file)`: Logfile for recording validation loss values.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
+        - `trainer (ExtinctionNeuralNetTrainer)`: Trainer for the extinction neural network.
         - `train_loader (torch.utils.data.DataLoader)`: Dataloader for training minibatches.
         - `val_loader (torch.utils.data.DataLoader)`: Dataloader for validation minibatches.
         - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
+        - `epoch_number (int)`: Number of epochs for training the neural network.
         - `epoch (int)`: Current epoch in the training process.
         - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
         - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
         - `device (torch.device)`: Computing device for running the neural network.
+        - `lossint_total (float)`: Total loss for extinction estimation.
+        - `lossdens_total (float)`: Total loss for density estimation.
         - `int_loss_function (callable)`: Loss function for extinction estimation.
         - `dens_loss_function (callable)`: Loss function for density estimation.
         - `int_reduction_method (str)`: Method for reducing the extinction loss.
@@ -68,7 +68,9 @@ class MainTrainer:
         - `valfile_path (str)`: Path to the logfile for recording validation loss values.
         
     # Methods:
+        - `init_files_path()`: Initializes the path for the files used in the training process. 
         - `setup_logfile()`: Sets up the logfile for recording training progress and results.
+        - `setup_csv_files()`: Sets up CSV files for recording training and validation loss values.
         - `prepare_dataset()`: Loads and preprocesses the dataset for training and validation.
         - `create_network()`: Creates the neural network architecture based on the configuration.
         - `init_training()`: Initializes the training process, setting up epoch-related variables.
@@ -77,9 +79,9 @@ class MainTrainer:
 
 
     # Example:
-        >>> # Example usage of MainProgram
-        >>> main_program = MainProgram()
-        >>> main_program.Execute()
+        >>> # Example usage of MainTrainer class
+        >>> main_trainer = MainTrainer()
+        >>> main_trainer.run()
         ```
 
     """
@@ -106,15 +108,14 @@ class MainTrainer:
         
     def init_files_path(self):
         """
-        Initialize the path for the files
+        Initialize the path for the files using the current test configuration file.
         """
         self.datafile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'datafile')
         self.outfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'outfile')
         self.logfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'logfile')
         self.lossfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'lossfile')
         self.valfile_path = FHelper.FileHelper.give_config_value(self.config_file_path, 'valfile')
-        
-        
+                
     def setup_logfile(self):
         """
         Set up the logfile for logging information during training.
@@ -123,14 +124,8 @@ class MainTrainer:
         It writes information about Python and PyTorch versions, CUDA devices (if available),
         the selected computing device, the specified datafile, and the expected storage location for maps.
 
-        # Note:
-            The log file is opened in 'write' mode if a new network is being used (newnet=True),
-            and in 'append' mode otherwise.
-            
         """
         self.logfile = open(self.logfile_path,'w')
-        
-        dtype = torch.float
 
         self.logfile.write('__Python VERSION:'+sys.version)
         self.logfile.write('__pyTorch VERSION:'+torch.__version__+'\n')
@@ -151,11 +146,11 @@ class MainTrainer:
         It opens the specified files, writes the header row, and then closes the files.
 
         # Files created:
-        - `lossfile`: CSV file for training metrics.
-            - Header: ['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time']
+            - `lossfile`: CSV file for training metrics.
+                - Header: ['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time']
 
-        - `valfile`: CSV file for validation metrics.
-            - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
+            - `valfile`: CSV file for validation metrics.
+                - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
         """
         with open(self.lossfile_path, 'w') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -205,7 +200,6 @@ class MainTrainer:
 
         This method initializes and configures the neural network for extinction and density estimation.
         The network is created with a hidden layer size determined by a formula based on the dataset size.
-        It also handles loading a pretrained network if specified in the configuration.
 
         """
         self.network.apply(self.builder.init_weights)
@@ -261,8 +255,7 @@ class MainTrainer:
             # add up loss function contributions
             full_loss = self.lossdens_total+self.lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
 
-            # print progress for full batch
-            #if epoch%10==0:
+            
             t1 = time.time()
             
             
@@ -291,7 +284,7 @@ class MainTrainer:
                         csv_writer = csv.writer(csvfile)
                         csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
             
-            # save model every 50 epoch and last step
+            # save model every 10000 epoch and last step
             if self.epoch%10000==0 or self.epoch==self.epoch_number:
                 fname1 = '{}_e{}.pt'.format(self.outfile_path, self.epoch)
                 self.network.to('cpu')

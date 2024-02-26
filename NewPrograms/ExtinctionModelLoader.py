@@ -7,7 +7,7 @@ class ExtinctionModelLoader:
     A utility class for loading and managing ExtinctionModel instances.
 
     # Args:
-        - `fiducial_model (str, optional)`: File name for the fiducial model pickle file. Defaults to "2DModel.pickle".
+        - `fiducial_model (str)`: File name for the fiducial model pickle file.
 
     # Attributes:
         - `fiducial_model (str)`: File name for the fiducial model pickle file.
@@ -19,7 +19,7 @@ class ExtinctionModelLoader:
         - `create_new_model()`: Creates a new ExtinctionModel instance and saves it to the fiducial model file.
         - `load_model()`: Loads the ExtinctionModel instance from the fiducial model file.
     """
-    def __init__(self, fiducial_model_filename="2DModel.pickle"):
+    def __init__(self, fiducial_model_filename):
         self.fiducial_model_filename = fiducial_model_filename
         self.newmodel = None
         self.model = None

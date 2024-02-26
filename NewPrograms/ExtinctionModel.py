@@ -38,7 +38,7 @@ class ExtinctionModel:
         Returns the total number of samples.
 
         # Returns:
-            - `int`: The length of the 'm_tot' array.
+            `int`: The length of the 'm_tot' array.
         """
         return len(self.m_tot)
     

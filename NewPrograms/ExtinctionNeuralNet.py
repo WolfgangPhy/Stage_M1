@@ -39,7 +39,7 @@ class ExtinctionNeuralNet(nn.Module):
             - `tensor (torch.Tensor)`: Input tensor of shape (batch_size, 3).
 
         # Returns:
-            - `torch.Tensor`: Output tensor of shape (batch_size, 1).
+            `torch.Tensor`: Output tensor of shape (batch_size, 1).
         """
         out = self.linear1(tensor)
         out = self.sigmoid(out)

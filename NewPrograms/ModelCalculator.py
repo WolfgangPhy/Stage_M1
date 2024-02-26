@@ -31,6 +31,7 @@ class ModelCalculator:
         - `max_distance`: Maximum distance for normalization.
         - `device`: Device (CPU/GPU) for PyTorch operations.
         - `network`: Neural network for predictions.
+        - `config_file_path`: Path to the current test configuration file.
         - `grid_filename`: Filename to save grid results.
         - `los_filename`: Filename to save line-of-sight results.
 
@@ -40,7 +41,7 @@ class ModelCalculator:
 
     # Example:
         >>> # Instantiate a model calculator
-        >>> model_calculator = ModelCalculator(model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network)
+        >>> model_calculator = ModelCalculator(model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path)
         >>> 
         >>> # Compute density and extinction on a 2D grid
         >>> model_calculator.density_extinction_grid()
@@ -67,7 +68,7 @@ class ModelCalculator:
     def density_extinction_grid(self):
         """
         Compute density and extinction on a 2D grid.
-        Save the results in a NumPy file.
+        Save the results in a NumPy file in the NpzFiles subdirectory of the current test directory.
         """
         
         X, Y = np.mgrid[self.x_min:self.x_max:self.step, self.y_min:self.y_max:self.step]
@@ -100,7 +101,7 @@ class ModelCalculator:
     def density_extinction_sight(self):
         """
         Compute density and extinction along lines of sight.
-        Save the results in a NumPy file.
+        Save the results in the NpzFiles subdirectory of the current test directory.
         """
         ells = np.arange(0., 360., 45.)
         cosell = np.cos(ells*np.pi/180.)

@@ -64,20 +64,18 @@ class ExtinctionNeuralNetTrainer:
             - `tar_batch (torch.Tensor)`: Target batch for the neural network.
             - `lossint_total (float)`: Total loss for extinction.
             - `lossdens_total (float)`: Total loss for density.
-            - `nu_ext (float)`: Coefficient for extinction loss.
-            - `nu_dens (float)`: Coefficient for density loss.
+            - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
+            - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
             
         # Returns:
-            - `tuple[float, float]`: Total loss for extinction, Total loss for density.
+            `tuple[float, float]`: Total loss for extinction, Total loss for density.
         """
         
         tar_batch = tar_batch.float().detach()
         in_batch = in_batch.float().to(self.builder.device)
         tar_batch = tar_batch.to(self.builder.device)
-        #print(in_batch.size())
             
         # copy in_batch to new tensor and sets distance to 0
-        
         y0 = tar_batch.clone().detach()
         y0 = y0[:,0].unsqueeze(1) * 0.
             
@@ -90,8 +88,8 @@ class ExtinctionNeuralNetTrainer:
         # compute loss function for integration network 
         # total extinction must match observed value
         lossintegral = nu_ext * self.int_loss_function(exthat,tar_batch,reduction_method=self.int_reduction_method)
+        
         # density at point in_batch must be positive
-        #print(dens.size(),y0.size())
         lossdens = nu_dens * self.dens_loss_function(F.relu(-1.*dens),y0,reduction=self.dens_reduction_method)
             
         # combine loss functions
@@ -131,11 +129,8 @@ class ExtinctionNeuralNetTrainer:
             - `valdens_total (float)`: Total loss for density in the validation set.
             
         # Returns:
-            - `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
+            `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
         """
-        
-        #print(in_batch_validation_set.size())
-        #in_batch_validation_set.requires_grad = True
         tar_batch_validation_set = tar_batch_validation_set.float().detach()
         in_batch_validation_set = in_batch_validation_set.float().to(self.builder.device)
         tar_batch_validation_set = tar_batch_validation_set.to(self.builder.device)
@@ -145,6 +140,7 @@ class ExtinctionNeuralNetTrainer:
                     
         # density estimation at each location
         dens = self.builder.network.forward(in_batch_validation_set)
+        
         # total extinction
         exthat = self.builder.integral(in_batch_validation_set, self.builder.network, min_distance=-1.)
             

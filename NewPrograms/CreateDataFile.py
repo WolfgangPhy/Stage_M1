@@ -15,7 +15,7 @@ class CreateDataFile:
     # Attributes:
         - `star_number (int)`: Number of stars to be used in the data file.
         - `model (ExtinctionModel)`: The extinction model to be used for creating the data file.
-        - `config_file_path (str)`: The path to the configuration file.
+        - `config_file_path (str)`: The path to the current test configuration file.
 
     # Methods:
         - `execute()`: Executes the process of creating the data file.

@@ -28,14 +28,14 @@ class ParallelProcessor:
         The method returns a processed dataset containing the computed results.
 
         # Args:
-            - `model`: An extinction model for parallel processing.
-            - `pool`: A multiprocessing pool for parallel computation.
+            - `model(ExtinctionModel)`: An extinction model for computation.
+            - `pool(multiprocessing.Pool)`: A multiprocessing pool for parallel processing.
             - `star_number (int)`: Number of stars for which predictions need to be computed.
-            - `device`: The device (e.g., 'cuda' or 'cpu') for computation.
-            - `dtype`: Data type for computation (e.g., torch.float32).
+            - `device(torch.device)`: Device (CPU/GPU) for PyTorch operations.
+            - `dtype(torch.dtype)`: Data type for PyTorch operations.
 
         # Returns:
-            - `Dataset2D`: A processed dataset containing computed results.
+            `Dataset2D`: A processed dataset containing computed results.
 
         # Example:
             >>> # Instantiate a neural network model and a multiprocessing Pool

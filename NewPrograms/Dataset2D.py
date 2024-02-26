@@ -8,7 +8,7 @@ class Dataset2D(Dataset):
 
     # Args:
         `ell (numpy.ndarray)`: Array of Galactic longitudes in degrees.
-        `dist (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
+        `distance (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
         `K (numpy.ndarray)`: Array of total Absorption values.
         `error (numpy.ndarray)`: Array of errors on Absorption values.
 
@@ -16,7 +16,7 @@ class Dataset2D(Dataset):
         `ell (numpy.ndarray)`: Array of Galactic longitudes in degrees.
         `cosell (numpy.ndarray)`: Cosine of Galactic longitudes.
         `sinell (numpy.ndarray)`: Sine of Galactic longitudes.
-        `dist (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
+        `distance (numpy.ndarray)`: Array of distances in kiloparsecs (kpc).
         `K (numpy.ndarray)`: Array of total Absorption values.
         `error (numpy.ndarray)`: Array of errors on Absorption values.
 
@@ -27,7 +27,7 @@ class Dataset2D(Dataset):
     # Examples:
         Create an instance of the dataset:
 
-        >>> dataset = Dataset2D(ell_data, dist_data, K_data, error_data)
+        >>> dataset = Dataset2D(ell_data, distance_data, K_data, error_data)
         
         Access the length of the dataset:
 
@@ -38,13 +38,12 @@ class Dataset2D(Dataset):
         >>> sample = dataset[0]
     """
     def __init__(self, ell, distance, K, error):
-        #self.list_IDs  = np.arange(len(ell))
         self.ell = ell
         self.cosell = np.cos(self.ell * np.pi/180.)
         self.sinell = np.sin(self.ell * np.pi/180.)
-        self.distance = distance # distance in kpc
-        self.K = K # total Absorption
-        self.error = error # error on absorption
+        self.distance = distance
+        self.K = K
+        self.error = error
         
     def __len__(self):
         """

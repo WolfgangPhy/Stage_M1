@@ -7,8 +7,8 @@ class FileHelper:
     A utility class for file-related operations.
 
     # Methods:
-    - init_test_directory(): Initializes a test directory based on parameters from 'Parameters.json' (Static)
-    - give_config_value(config_file_path, key): Retrieves a specific value from a given configuration file. (Static)
+        - `init_test_directory()`: Initializes a test directory based on parameters from 'Parameters.json' (Static)
+        - `give_config_value(config_file_path, key)`: Retrieves a specific value from a given configuration file. (Static)
 
     # Example:
     >>> # Example for initializing a test directory
@@ -24,10 +24,10 @@ class FileHelper:
         Initializes a test directory based on parameters from 'Parameters.json'.
 
         Returns:
-        - str: The path to the config file in the test directory.
+            `str`: The path to the config file in the test directory.
         """
-        with open('Parameters.json') as config_file:
-            parameters = json.load(config_file)
+        with open('Parameters.json') as param_file:
+            parameters = json.load(param_file)
         
         directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items()])
         if not os.path.exists(directory_name):
@@ -50,8 +50,8 @@ class FileHelper:
         shutil.copy('Parameters.json', directory_name)
         shutil.copy('Config.json', directory_name)
         
-        with open(os.path.join(directory_name, 'Config.json')) as config_file:
-            config_data = json.load(config_file)
+        with open(os.path.join(directory_name, 'Config.json')) as param_file:
+            config_data = json.load(param_file)
             config_data['datafile'] = os.path.join('./', directory_name, config_data['datafile'][2:])
             config_data['outfile'] = os.path.join('./',directory_name, config_data['outfile'][2:])
             config_data['logfile'] = os.path.join('./',directory_name, config_data['logfile'][2:])
@@ -74,11 +74,11 @@ class FileHelper:
         Retrieves a specific value from a given configuration file.
 
         Args:
-        - config_file_path (str): Path to the configuration file.
-        - key (str): Key for the desired value in the configuration file.
+        - `config_file_path (str)`: Path to the configuration file.
+        - `key (str)`: Key for the desired value in the configuration file.
 
         Returns:
-        - Any: The value associated with the specified key in the configuration file.
+        - `Any`: The value associated with the specified key in the configuration file.
         """
         with open(config_file_path) as config_file:
             config = json.load(config_file)
