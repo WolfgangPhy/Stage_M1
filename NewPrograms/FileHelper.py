@@ -40,10 +40,12 @@ class FileHelper:
         npz_directory = os.path.join(directory_name, "NpzFiles")
         torch_directory = os.path.join(directory_name, "PyTorchFiles")
         output_directory = os.path.join(directory_name, "OutputFiles")
+        plot_directory = os.path.join(directory_name, "Plots")
         
         os.makedirs(npz_directory)
         os.makedirs(torch_directory)
         os.makedirs(output_directory)
+        os.makedirs(plot_directory)
         
         shutil.copy('Parameters.json', directory_name)
         shutil.copy('Config.json', directory_name)
@@ -57,6 +59,9 @@ class FileHelper:
             config_data['valfile'] = os.path.join('./',directory_name, config_data['valfile'][2:])
             config_data['gridfile'] = os.path.join('./',directory_name, config_data['gridfile'][2:])
             config_data['losfile'] = os.path.join('./',directory_name, config_data['losfile'][2:])
+            config_data['density_plot'] = os.path.join('./',directory_name, config_data['density_plot'][2:])
+            config_data['extinction_plot'] = os.path.join('./',directory_name, config_data['extinction_plot'][2:])
+            config_data['extinction_los_plot'] = os.path.join('./',directory_name, config_data['extinction_los_plot'][2:])
             
             with open(os.path.join(directory_name, 'Config.json'), 'w') as new_config_file:
                 json.dump(config_data, new_config_file, indent=4)

@@ -29,8 +29,9 @@ class ModelVisualizer:
         datafile_path = FHelper.FileHelper.give_config_value(self.config_file_name, "datafile")
         self.grid_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "gridfile")
         self.los_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "losfile")
-        self.dataset = torch.load(datafile_path, map_location=device)
-        self.max_distance = np.max(self.dataset.dist.numpy())
+        self.dataset = torch.load(datafile_path, map_location='cpu') #pourquoi cpu ?
+        self.max_distance = np.max(self.dataset.distance.numpy())
+        self.load_datas()
     
     def load_datas(self):
         self.grid_datas = np.load(self.grid_filename)
@@ -44,7 +45,8 @@ class ModelVisualizer:
         dens_network = self.grid_datas['density_network']
         ext_true = self.grid_datas['extinction_model']
         ext_network = self.grid_datas['extinction_network']
-        
+        density_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "density_plot")
+        extinction_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "extinction_plot")
         
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35,10))
         cs = ax1.set_title('True density')
@@ -62,7 +64,7 @@ class ModelVisualizer:
         fig.colorbar(cs1,ax=ax1)
         fig.colorbar(cs2,ax=ax2)
         fig.colorbar(cs3,ax=ax3)
-        plt.savefig('Compare_density.png')
+        plt.savefig(density_plot_path)
         plt.show()
         
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35,10))
@@ -81,7 +83,7 @@ class ModelVisualizer:
         fig.colorbar(cs1,ax=ax1)
         fig.colorbar(cs2,ax=ax2)
         fig.colorbar(cs3,ax=ax3)
-        plt.savefig('Compare_extinction.png')
+        plt.savefig(extinction_plot_path)
         plt.show()
         
     def extinction_vs_distance(self):
@@ -90,6 +92,7 @@ class ModelVisualizer:
         dist = self.sight_datas['distance']
         los_ext_true = self.sight_datas['los_ext_true']
         los_ext_network = self.sight_datas['los_ext_network']
+        extinction_los_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "extinction_los_plot")
         
         fig, ((ax1, ax2, ax3, ax4),(ax5,ax6,ax7,ax8)) = plt.subplots(2, 4, figsize=(35,20))
         delta=0.5
@@ -295,7 +298,7 @@ class ModelVisualizer:
         ax8.set_ylabel('K (mag)')
 
         plt.legend()
-        plt.savefig('Extinction_by_los.png')
+        plt.savefig(extinction_los_plot_path)
         plt.show()
 
     

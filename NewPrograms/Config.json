@@ -6,5 +6,8 @@
     "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",
     "gridfile" : "./NpzFiles/density_extinction_grid.npz",
     "losfile" : "./NpzFiles/density_extinction_los.npz",
+    "density_plot" : "./Plots/density_plot.png",
+    "extinction_plot" : "./Plots/extinction_plot.png",
+    "extinction_los_plot" : "./Plots/extinction_los_plot.png",
     "model_file" : "2DModel.pickle"
 }
