@@ -4,10 +4,13 @@
     "logfile": "./OutputFiles/ExtinctionModel.log",
     "lossfile": "./OutputFiles/fiducial_model2D_mean_loss.csv",
     "valfile": "./OutputFiles/fiducial_model2D_mean_validation.csv",
-    "gridfile" : "./NpzFiles/density_extinction_grid.npz",
-    "losfile" : "./NpzFiles/density_extinction_los.npz",
+    "ext_grid_file" : "./NpzFiles/extinction_grid.npz",
+    "dens_grid_file" : "./NpzFiles/density_grid.npz",
+    "ext_los_file" : "./NpzFiles/extinction_los.npz",
+    "dens_los_file" : "./NpzFiles/density_los.npz",
     "density_plot" : "./Plots/density_plot.png",
     "extinction_plot" : "./Plots/extinction_plot.png",
     "extinction_los_plot" : "./Plots/extinction_los_plot.png",
+    "loss_plot" : "./Plots/loss_plot.png",
     "model_file" : "2DModel.pickle"
 }

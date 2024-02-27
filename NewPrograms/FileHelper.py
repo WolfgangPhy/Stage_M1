@@ -29,7 +29,7 @@ class FileHelper:
         with open('Parameters.json') as param_file:
             parameters = json.load(param_file)
         
-        directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items()])
+        directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items() if key not in ["ext_loss_function_custom", "dens_loss_function_custom"]])
         if not os.path.exists(directory_name):
             os.makedirs(directory_name)
         elif input("Directory already exists. Do you want to do calculations in this directory? (y/n): ") == "y":
@@ -57,11 +57,14 @@ class FileHelper:
             config_data['logfile'] = os.path.join('./',directory_name, config_data['logfile'][2:])
             config_data['lossfile'] = os.path.join('./',directory_name, config_data['lossfile'][2:])
             config_data['valfile'] = os.path.join('./',directory_name, config_data['valfile'][2:])
-            config_data['gridfile'] = os.path.join('./',directory_name, config_data['gridfile'][2:])
-            config_data['losfile'] = os.path.join('./',directory_name, config_data['losfile'][2:])
+            config_data['ext_grid_file'] = os.path.join('./',directory_name, config_data['ext_grid_file'][2:])
+            config_data['dens_grid_file'] = os.path.join('./',directory_name, config_data['dens_grid_file'][2:])
+            config_data['ext_los_file'] = os.path.join('./',directory_name, config_data['ext_los_file'][2:])
+            config_data['dens_los_file'] = os.path.join('./',directory_name, config_data['dens_los_file'][2:])
             config_data['density_plot'] = os.path.join('./',directory_name, config_data['density_plot'][2:])
             config_data['extinction_plot'] = os.path.join('./',directory_name, config_data['extinction_plot'][2:])
             config_data['extinction_los_plot'] = os.path.join('./',directory_name, config_data['extinction_los_plot'][2:])
+            config_data['loss_plot'] = os.path.join('./',directory_name, config_data['loss_plot'][2:])
             
             with open(os.path.join(directory_name, 'Config.json'), 'w') as new_config_file:
                 json.dump(config_data, new_config_file, indent=4)

@@ -6,21 +6,21 @@ class ExtinctionNeuralNetTrainer:
 
     # Args:
         - `neural_network_builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
-        - `int_loss_function (callable)`: Loss function for extinction.
+        - `ext_loss_function (callable)`: Loss function for extinction.
         - `dens_loss_function (callable)`: Loss function for density.
-        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
 
     # Attributes:
         - `builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
-        - `int_loss_function (callable)`: Loss function for extinction.
+        - `ext_loss_function (callable)`: Loss function for extinction.
         - `dens_loss_function (callable)`: Loss function for density.
-        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
         
     # Methods:
-        - `take_step(in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens)`: Performs one training step.
-        - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total)`: Performs one validation step.
+        - `take_step(in_batch, tar_batch, loss_ext_total, loss_dens_total, nu_ext, nu_dens)`: Performs one training step.
+        - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, val_ext_total, val_dens_total)`: Performs one validation step.
 
     # Example:
         >>> # Example usage of ExtinctionNeuralNetTrainer
@@ -35,22 +35,22 @@ class ExtinctionNeuralNetTrainer:
         >>> tar_batch = torch.randn((batch_size, 2))  # Assuming labels (E, sigma)
         >>> nu_ext = 1.0
         >>> nu_dens = 1.0
-        >>> lossint_total, lossdens_total = trainer.take_step(in_batch, tar_batch, 0.0, 0.0, nu_ext, nu_dens)
+        >>> loss_ext_total, loss_dens_total = trainer.take_step(in_batch, tar_batch, 0.0, 0.0, nu_ext, nu_dens)
 
         >>> # Perform one validation step
         >>> in_batch_val = torch.randn((val_batch_size, 3))
         >>> tar_batch_val = torch.randn((val_batch_size, 2))  # Assuming validation labels (E, sigma)
-        >>> valint_total, valdens_total = trainer.validation(in_batch_val, tar_batch_val, nu_ext, nu_dens, 0.0, 0.0)
+        >>> val_ext_total, val_dens_total = trainer.validation(in_batch_val, tar_batch_val, nu_ext, nu_dens, 0.0, 0.0)
     """
     
-    def __init__(self, neural_network_builder, int_loss_function, dens_loss_function, int_reduction_method, dens_reduction_method):
+    def __init__(self, neural_network_builder, ext_loss_function, dens_loss_function, ext_reduction_method, dens_reduction_method):
         self.builder = neural_network_builder
-        self.int_loss_function = int_loss_function
+        self.ext_loss_function = ext_loss_function
         self.dens_loss_function = dens_loss_function
-        self.int_reduction_method = int_reduction_method
+        self.ext_reduction_method = ext_reduction_method
         self.dens_reduction_method = dens_reduction_method
 
-    def take_step(self, in_batch, tar_batch, lossint_total, lossdens_total, nu_ext, nu_dens):
+    def take_step(self, in_batch, tar_batch, loss_ext_total, loss_dens_total, nu_ext, nu_dens):
         """
         Function to perform one training step.
 
@@ -62,10 +62,13 @@ class ExtinctionNeuralNetTrainer:
         # Args:
             - `in_batch (torch.Tensor)`: Input batch for the neural network.
             - `tar_batch (torch.Tensor)`: Target batch for the neural network.
-            - `lossint_total (float)`: Total loss for extinction.
-            - `lossdens_total (float)`: Total loss for density.
+            - `loss_ext_total (float)`: Total loss for extinction.
+            - `loss_dens_total (float)`: Total loss for density.
             - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
             - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
+            
+        # Raises:
+            - `RuntimeError`: If the target batch has a different shape than expected.
             
         # Returns:
             `tuple[float, float]`: Total loss for extinction, Total loss for density.
@@ -87,18 +90,25 @@ class ExtinctionNeuralNetTrainer:
             
         # compute loss function for integration network 
         # total extinction must match observed value
-        lossintegral = nu_ext * self.int_loss_function(exthat,tar_batch,reduction_method=self.int_reduction_method)
-        
+        try:
+            loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch[:,0], reduction=self.ext_reduction_method)
+        except RuntimeError as e:
+            if f"The size of tensor a ({exthat.size()}) must match the size of tensor b ({tar_batch.size()}) at non-singleton dimension 1" in str(e):
+                print("This error is probably due to the fact that the target batch has a different shape than expected. Please check the shape of the target batch and try again.")
+                print("For more informations please check the \"Important Note\" in the documentation of the \"check_and_assign_loss_function\" method in the MainProgram")
+                raise e
+            else:
+                print(e)
         # density at point in_batch must be positive
-        lossdens = nu_dens * self.dens_loss_function(F.relu(-1.*dens),y0,reduction=self.dens_reduction_method)
+        loss_dens = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0, reduction=self.dens_reduction_method)
             
         # combine loss functions
-        fullloss = lossdens + lossintegral
+        fullloss = loss_dens + loss_extinction
         
             
         # compute total loss of epoch (for monitoring)
-        lossint_total += lossintegral.item()
-        lossdens_total += lossdens.item()
+        loss_ext_total += loss_extinction.item()
+        loss_dens_total += loss_dens.item()
 
         # zero gradients before taking step (gradients are additive, if not set to zero then adds to the previous gradients)
         self.builder.opti.zero_grad()
@@ -109,9 +119,9 @@ class ExtinctionNeuralNetTrainer:
         # do 1 optimisation step after minibatch
         self.builder.opti.step()
         
-        return lossint_total, lossdens_total
+        return loss_ext_total, loss_dens_total
 
-    def validation(self, in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, valint_total, valdens_total):
+    def validation(self, in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, val_ext_total, val_dens_total):
         """
         Function to perform one validation step.
 
@@ -125,8 +135,11 @@ class ExtinctionNeuralNetTrainer:
             - `tar_batch_validation_set (torch.Tensor)`: Target batch for the validation set.
             - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
             - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
-            - `valint_total (float)`: Total loss for extinction in the validation set.
-            - `valdens_total (float)`: Total loss for density in the validation set.
+            - `val_ext_total (float)`: Total loss for extinction in the validation set.
+            - `val_dens_total (float)`: Total loss for density in the validation set.
+            
+        # Raises:
+            - `RuntimeError`: If the target batch has a different shape than expected.
             
         # Returns:
             `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the validation set.
@@ -146,13 +159,21 @@ class ExtinctionNeuralNetTrainer:
             
         # compute loss function for  network : L2 norm
         # total extinction must match observed value
-        lint = nu_ext * self.int_loss_function(exthat, tar_batch_validation_set, reduction_method=self.int_reduction_method)
+        try:
+            loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch_validation_set[:,0], reduction=self.ext_reduction_method)
+        except RuntimeError as e:
+            if "The size of tensor a (500) must match the size of tensor b (2) at non-singleton dimension 1" in str(e):
+                print("This error is probably due to the fact that the target batch has a different shape than expected. Please check the shape of the target batch and try again.")
+                print("For more informations please check the \"Important Note\" in the documentation of the \"check_and_assign_loss_function\" method in the MainProgram")
+                raise e
+            else:
+                print(e)
 
         # density at point in_batch must be positive
-        ldens = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0_val, reduction=self.dens_reduction_method)
+        loss_density = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0_val, reduction=self.dens_reduction_method)
                     
-        valdens_total += ldens.item()        
-        valint_total += lint.item() 
+        val_dens_total += loss_density.item()        
+        val_ext_total += loss_extinction.item() 
         
-        return valint_total, valdens_total  
+        return val_ext_total, val_dens_total  
         

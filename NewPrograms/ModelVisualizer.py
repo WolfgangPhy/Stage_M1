@@ -13,7 +13,29 @@ class ModelVisualizer:
     """
     A class providing methods for visualizing extinction model predictions.
     
+    # Args:
+        - `config_file_name (str)`: Name of the configuration file.
+        - `dataset (ExtinctionDataset)`: Instance of the extinction dataset.
+        - `max_distance (float)`: Maximum distance in the dataset.
+    
+    # Attributes:
+        - `config_file_name (str)`: Name of the configuration file.
+        - `ext_grid_filename (str)`: Filename for the extinction grid data.
+        - `dens_grid_filename (str)`: Filename for the density grid data.
+        - `ext_los_filename (str)`: Filename for the extinction line-of-sight data.
+        - `dens_los_filename (str)`: Filename for the density line-of-sight data.
+        - `dataset (ExtinctionDataset)`: Instance of the extinction dataset.
+        - `max_distance (float)`: Maximum distance in the dataset.
+        - `ext_grid_datas (dict)`: Dictionary containing extinction grid data.
+        - `dens_grid_datas (dict)`: Dictionary containing density grid data.
+        - `ext_sight_datas (dict)`: Dictionary containing extinction line-of-sight data.
+        - `dens_sight_datas (dict)`: Dictionary containing density line-of-sight data.
+        - `lossdatas (pd.DataFrame)`: DataFrame containing training loss data.
+        - `valdatas (pd.DataFrame)`: DataFrame containing validation loss data.
+        
+    
     # Methods:
+        - `loss_function()`: Plot the training and validation loss.
         - `load_datas()`: Load grid and line-of-sight data.
         - `compare_densities()`: Compare true and network density predictions.
         - `compare_extinctions()`: Compare true and network extinction predictions.
@@ -29,27 +51,50 @@ class ModelVisualizer:
         
     def __init__(self, config_file_name, dataset, max_distance):
         self.config_file_name = config_file_name
-        self.grid_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "gridfile")
-        self.los_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "losfile")
+        self.ext_grid_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "ext_grid_file")
+        self.dens_grid_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "dens_grid_file")
+        self.ext_los_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "ext_los_file")
+        self.dens_los_filename = FHelper.FileHelper.give_config_value(self.config_file_name, "dens_los_file")
         self.dataset = dataset
         self.max_distance = max_distance
         self.load_datas()
-    
+        
+    def loss_function(self):
+        """
+        Plot the training and validation loss and save the plot in the Plots subdirectory of the current test directory.
+        """
+        loss_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "loss_plot")
+        sns.set_theme()
+        fig, ax = plt.subplots(1, 1, figsize=(15,10))
+        sns.lineplot(data=self.lossdatas, x='Epoch', y='TotalLoss', label='Training loss', ax=ax)
+        sns.lineplot(data=self.valdatas, x='Epoch', y='TotalValLoss', label='Validation loss', ax=ax)
+        ax.set_xlabel('Epochs')
+        ax.set_ylabel('Loss')
+        ax.legend()
+        plt.savefig(loss_plot_path)
+        #plt.show()
+        
     def load_datas(self):
         """
         Load grid and line-of-sight data.
         """
-        self.grid_datas = np.load(self.grid_filename)
-        self.sight_datas = np.load(self.los_filename)
-        
+        self.ext_grid_datas = np.load(self.ext_grid_filename)
+        self.dens_grid_datas = np.load(self.dens_grid_filename)
+        self.ext_sight_datas = np.load(self.ext_los_filename)
+        self.dens_sight_datas = np.load(self.dens_los_filename)
+        lossfile = FHelper.FileHelper.give_config_value(self.config_file_name, "lossfile")
+        valfile = FHelper.FileHelper.give_config_value(self.config_file_name, "valfile")
+        self.lossdatas = pd.read_csv(lossfile)
+        self.valdatas = pd.read_csv(valfile)
+            
     def compare_densities(self):
         """
         Compare true and network density predictions and save the plot in the Plots subdirectory of the current test directory.
         """
-        X = self.grid_datas['X']
-        Y = self.grid_datas['Y']
-        dens_true = self.grid_datas['density_model']
-        dens_network = self.grid_datas['density_network']
+        X = self.dens_grid_datas['X']
+        Y = self.dens_grid_datas['Y']
+        dens_true = self.dens_grid_datas['density_model']
+        dens_network = self.dens_grid_datas['density_network']
         density_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "density_plot")
         
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35,10))
@@ -75,10 +120,10 @@ class ModelVisualizer:
         """
         Compare true and network extinction predictions and save the plot in the Plots subdirectory of the current test directory.
         """
-        X = self.grid_datas['X']
-        Y = self.grid_datas['Y']
-        ext_true = self.grid_datas['extinction_model']
-        ext_network = self.grid_datas['extinction_network']
+        X = self.ext_grid_datas['X']
+        Y = self.ext_grid_datas['Y']
+        ext_true = self.ext_grid_datas['extinction_model']
+        ext_network = self.ext_grid_datas['extinction_network']
         extinction_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "extinction_plot")
         
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35,10))
@@ -104,25 +149,24 @@ class ModelVisualizer:
         """
         Plot true and network extinction along lines of sight and save the plot in the Plots subdirectory of the current test directory.
         """
-        ells = self.sight_datas['ells']
-        distance = self.sight_datas['distance']
-        los_ext_true = self.sight_datas['los_ext_true']
-        los_ext_network = self.sight_datas['los_ext_network']
+        ells = self.ext_sight_datas['ells']
+        distance = self.ext_sight_datas['distance']
+        los_ext_true = self.ext_sight_datas['los_ext_true']
+        los_ext_network = self.ext_sight_datas['los_ext_network']
         extinction_los_plot_path = FHelper.FileHelper.give_config_value(self.config_file_name, "extinction_los_plot")
         
         fig, ((ax1, ax2, ax3, ax4),(ax5,ax6,ax7,ax8)) = plt.subplots(2, 4, figsize=(35,20))
         delta=0.5
         ttl = 'l='+str(ells[0])
         ax1.set_title(ttl)
-        ax1.plot(distance,los_ext_true[0,:],label='True extinction')
+        ax1.plot(distance, los_ext_true[0,:],label='True extinction')
         ax1.plot(distance,los_ext_network[0,:],label='Network extinction')
         xdata=[]
         ydata=[]
         errdata=[]
         for i in range(self.dataset.__len__()):
             if self.dataset.ell[i].item()> ells[0]-delta and self.dataset.ell[i].item()<= ells[0]+delta:
-                #print(i)
-                xdata.append( (1.+self.dataset.distance[i].item())*self.max_distance/2. )
+                xdata.append( (self.dataset.distance[i].item()) )
                 ydata.append( self.dataset.K[i] )
                 errdata.append( self.dataset.error[i].item() )
         xdata=np.array(xdata)
@@ -317,4 +361,3 @@ class ModelVisualizer:
         plt.savefig(extinction_los_plot_path)
         #plt.show()
 
-    
