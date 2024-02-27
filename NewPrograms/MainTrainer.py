@@ -23,9 +23,9 @@ class MainTrainer:
         - `epoch_number (int)`: Number of epochs for training the neural network.
         - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
         - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
-        - `int_loss_function (callable)`: Loss function for extinction estimation.
+        - `ext_loss_function (callable)`: Loss function for extinction estimation.
         - `dens_loss_function (callable)`: Loss function for density estimation.
-        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
         - `learning_rate (float)`: Learning rate for updating network parameters.
         - `device (torch.device)`: Computing device for running the neural network.
@@ -36,6 +36,7 @@ class MainTrainer:
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
         - `max_distance (float)`: Maximum distance in the dataset.
         - `config_file_path (str)`: Path to the configuration file.
+        - `batch_size (int)`: Size of the minibatches for training and validation.
 
     # Attributes:
         - `logfile (file)`: Logfile for recording training progress and results.
@@ -50,11 +51,11 @@ class MainTrainer:
         - `nu_ext (float)`: Lagrange multiplier for extinction loss calculation.
         - `nu_dens (float)`: Lagrange multiplier for density loss calculation.
         - `device (torch.device)`: Computing device for running the neural network.
-        - `lossint_total (float)`: Total loss for extinction estimation.
-        - `lossdens_total (float)`: Total loss for density estimation.
-        - `int_loss_function (callable)`: Loss function for extinction estimation.
+        - `loss_ext_total (float)`: Total loss for extinction estimation.
+        - `loss_dens_total (float)`: Total loss for density estimation.
+        - `ext_loss_function (callable)`: Loss function for extinction estimation.
         - `dens_loss_function (callable)`: Loss function for density estimation.
-        - `int_reduction_method (str)`: Method for reducing the extinction loss.
+        - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
         - `learning_rate (float)`: Learning rate for updating network parameters.
         - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
@@ -66,6 +67,7 @@ class MainTrainer:
         - `logfile_path (str)`: Path to the logfile for recording training progress and results.
         - `lossfile_path (str)`: Path to the logfile for recording training loss values.
         - `valfile_path (str)`: Path to the logfile for recording validation loss values.
+        - `batch_size (int)`: Size of the minibatches for training and validation.
         
     # Methods:
         - `init_files_path()`: Initializes the path for the files used in the training process. 
@@ -86,15 +88,15 @@ class MainTrainer:
 
     """
     
-    def __init__(self, epoch_number, nu_ext, nu_dens, int_loss_function, dens_loss_function, int_reduction_method, 
-                    dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size, max_distance, config_file_path):
+    def __init__(self, epoch_number, nu_ext, nu_dens, ext_loss_function, dens_loss_function, ext_reduction_method, 
+                    dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size, max_distance, config_file_path, batch_size):
         self.epoch = -1
         self.epoch_number = epoch_number
         self.nu_ext = nu_ext
         self.nu_dens = nu_dens
-        self.int_loss_function = int_loss_function
+        self.ext_loss_function = ext_loss_function
         self.dens_loss_function = dens_loss_function
-        self.int_reduction_method = int_reduction_method
+        self.ext_reduction_method = ext_reduction_method
         self.dens_reduction_method = dens_reduction_method
         self.learning_rate = learning_rate
         self.device = device
@@ -105,6 +107,7 @@ class MainTrainer:
         self.hidden_size = hidden_size
         self.max_distance = max_distance
         self.config_file_path = config_file_path
+        self.batch_size = batch_size
         
     def init_files_path(self):
         """
@@ -147,19 +150,19 @@ class MainTrainer:
 
         # Files created:
             - `lossfile`: CSV file for training metrics.
-                - Header: ['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time']
+                - Header: ['Epoch', 'TotalLoss', 'ExtinctionLoss', 'DensityLoss', 'Time']
 
             - `valfile`: CSV file for validation metrics.
-                - Header: ['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
+                - Header: ['Epoch', 'TotalValLoss', 'ExtinctionValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime']
         """
         with open(self.lossfile_path, 'w') as csvfile:
             csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(['Epoch', 'TotalLoss', 'IntegralLoss', 'DensityLoss', 'Time'])
+            csv_writer.writerow(['Epoch', 'TotalLoss', 'ExtinctionLoss', 'DensityLoss', 'Time'])
             csvfile.close()
         
         with open(self.valfile_path,'w') as csvfile:
             csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(['Epoch', 'TotalValLoss', 'IntegralValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
+            csv_writer.writerow(['Epoch', 'TotalValLoss', 'ExtinctionValLoss', 'DensityValLoss', 'ValTime', 'TotalValTime'])
             csvfile.close()
            
     def prepare_dataset(self):
@@ -191,9 +194,8 @@ class MainTrainer:
         train_dataset, val_dataset = random_split(self.dataset, [training_size, validation_size])
 
         # prepares the dataloader for minibatch
-        self.train_loader = DataLoader(dataset=train_dataset, batch_size=10000, shuffle=True)
-        self.val_loader = DataLoader(dataset=val_dataset, batch_size=10000,shuffle=False)
-        
+        self.train_loader = DataLoader(dataset=train_dataset, batch_size=self.batch_size, shuffle=True)
+        self.val_loader = DataLoader(dataset=val_dataset, batch_size=self.batch_size, shuffle=False)
     def create_network(self):
         """
         Create the neural network.
@@ -235,7 +237,7 @@ class MainTrainer:
 
         """
         tstart = time.time()
-        self.trainer = Trainer.ExtinctionNeuralNetTrainer(self.builder, self.int_loss_function, self.dens_loss_function, self.int_reduction_method, self.dens_reduction_method)
+        self.trainer = Trainer.ExtinctionNeuralNetTrainer(self.builder, self.ext_loss_function, self.dens_loss_function, self.ext_reduction_method, self.dens_reduction_method)
         for idx in tqdm(range(self.epoch_number+1)):
         
             # set start time of epoch and epoch number
@@ -243,17 +245,17 @@ class MainTrainer:
             self.epoch = self.epoch+1
 
             # initialize variables at each epoch to store full losses
-            self.lossint_total=0.
-            self.lossdens_total=0.
+            self.loss_ext_total=0.
+            self.loss_dens_total=0.
 
             # loop over minibatches
             nbatch = 0
             for in_batch, tar_batch in self.train_loader:
                 nbatch = nbatch+1
-                self.lossint_total, self.lossdens_total = self.trainer.take_step(in_batch , tar_batch, self.lossint_total, self.lossdens_total, self.nu_ext, self.nu_dens)
+                self.loss_ext_total, self.loss_dens_total = self.trainer.take_step(in_batch , tar_batch, self.loss_ext_total, self.loss_dens_total, self.nu_ext, self.nu_dens)
             
             # add up loss function contributions
-            full_loss = self.lossdens_total+self.lossint_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
+            full_loss = self.loss_dens_total+self.loss_ext_total # /(nbatch*1.) # loss of the integral is on the mean so we need to divide by the number of batches
 
             
             t1 = time.time()
@@ -261,28 +263,28 @@ class MainTrainer:
             
             with open(self.lossfile_path, 'a', newline='') as csvfile:
                 csv_writer = csv.writer(csvfile)
-                csv_writer.writerow([self.epoch, full_loss, self.lossint_total, self.lossdens_total, (t1 - t0) / 60.])
+                csv_writer.writerow([self.epoch, full_loss, self.loss_ext_total, self.loss_dens_total, (t1 - t0) / 60.])
             
             # compute loss on validation sample
             if self.epoch%50==0:
                 with torch.no_grad(): # turns off gradient calculation
                     # init loss variables
-                    self.valint_total=0.
-                    self.valdens_total=0.
+                    self.val_ext_total=0.
+                    self.val_dens_total=0.
 
                     # loop over minibatches of validation sample
                     nbatch=0
                     for in_batch_validation_set,tar_batch_validation_set in self.val_loader:
                         nbatch=nbatch+1
-                        self.valint_total, self.valdens_total = self.trainer.validation(in_batch_validation_set, tar_batch_validation_set, self.nu_ext, self.nu_dens, self.valint_total, self.valdens_total)
+                        self.val_ext_total, self.val_dens_total = self.trainer.validation(in_batch_validation_set, tar_batch_validation_set, self.nu_ext, self.nu_dens, self.val_ext_total, self.val_dens_total)
                 
-                    val_loss = self.valdens_total+self.valint_total/(nbatch*1.)
+                    val_loss = self.val_dens_total+self.val_ext_total/(nbatch*1.)
                 
                     t2 = time.time()
 
                     with open(self.valfile_path, 'a', newline='') as csvfile:
                         csv_writer = csv.writer(csvfile)
-                        csv_writer.writerow([self.epoch, val_loss, self.valint_total, self.valdens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
+                        csv_writer.writerow([self.epoch, val_loss, self.val_ext_total, self.val_dens_total, (t2 - t1) / 60., (t2 - t0) / 60.])
             
             # save model every 10000 epoch and last step
             if self.epoch%10000==0 or self.epoch==self.epoch_number:

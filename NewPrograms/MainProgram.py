@@ -19,10 +19,10 @@ class MainProgram:
     # Attributes:
         - `nu_ext (float)`: Coefficient for extinction loss.
         - `nu_dens (float)`: Coefficient for density loss.
-        - `int_loss_function (function)`: Loss function for extinction.
+        - `ext_loss_function (function)`: Loss function for extinction.
         - `dens_loss_function (function)`: Loss function for density.
         - `star_number (int)`: Number of stars in the dataset.
-        - `int_reduction_method (str)`: Reduction method for extinction loss.
+        - `ext_reduction_method (str)`: Reduction method for extinction loss.
         - `dens_reduction_method (str)`: Reduction method for density loss.
         - `epoch_number (int)`: Number of training epochs.
         - `learning_rate (float)`: Learning rate for optimization.
@@ -37,6 +37,7 @@ class MainProgram:
         - `hidden_size (int)`: Size of the hidden layer.
         - `max_distance (float)`: Maximum distance in the dataset.
         - `parameters (dict)`: Dictionary of current test parameters.
+        - `batch_size (int)`: Batch size for training.
         
     # Methods:
         - `get_parameters_from_json()`: Loads parameters from the "Parameters.json" file.
@@ -120,13 +121,15 @@ class MainProgram:
         """
         self.nu_ext = self.parameters["nu_ext"]
         self.nu_dens = self.parameters["nu_dens"]
-        self.int_loss_function = self.check_and_assign_loss_function(self.parameters["int_loss_function"], self.parameters["int_loss_function_custom"])
+        self.ext_loss_function = self.check_and_assign_loss_function(self.parameters["ext_loss_function"], self.parameters["ext_loss_function_custom"])
         self.dens_loss_function = self.check_and_assign_loss_function(self.parameters["dens_loss_function"], self.parameters["dens_loss_function_custom"])
         self.star_number = self.parameters["star_number"]
-        self.int_reduction_method = self.parameters["int_reduction_method"]
+        self.ext_reduction_method = self.parameters["ext_reduction_method"]
         self.dens_reduction_method = self.parameters["dens_reduction_method"]
         self.epoch_number = self.parameters["epoch_number"]
         self.learning_rate = self.parameters["learning_rate"]
+        self.batch_size = self.parameters["batch_size"]
+        self.compute_density = self.parameters["compute_density"]
         
     def check_and_assign_loss_function(self, loss_function, custom_loss_function):
         """
@@ -135,15 +138,21 @@ class MainProgram:
         This method returns a callable loss function based on the given parameters.
         If the loss_function is custome in return the corresponding callable from the CustomLossFunctions module.
         If the loss_function is not custom, it returns the corresponding callable from the torch.nn.functional module.
+        
+        # Important Note:
+            Some of the loss functions does not takes same parameters, for example, the loglike_loss function from the CustomLossFunctions module takes tar_batch parameters 
+            wich contains the extinction and the sigma, while the torch.nn.functional.mse_loss function only takes the extinction as target.
+            So be careful when using the loss functions, and make sure that the loss function you are using takes the right parameters.
+            Some try/catch are implemented to avoid some errors and clarify the problem.
 
-        Args:
+        # Args:
             - `loss_function (str)`: The name of the loss function.
             - `custom_loss_function (bool)`: A flag indicating whether a custom loss function is used.
 
-        Raises:
+        # Raises:
             - `ValueError`: If the loss function is unknown.
 
-        Returns:
+        # Returns:
             `callable`: The assigned loss function.
         """
         if custom_loss_function:
@@ -168,10 +177,10 @@ class MainProgram:
         """
         Initiates and runs the training process using MainTrainer class.
         """
-        self.maintrainer = MainTrainer.MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens, self.int_loss_function, 
-                                                        self.dens_loss_function, self.int_reduction_method, self.dens_reduction_method,
+        self.maintrainer = MainTrainer.MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens, self.ext_loss_function, 
+                                                        self.dens_loss_function, self.ext_reduction_method, self.dens_reduction_method,
                                                         self.learning_rate, self.device, self.dataset, self.builder, self.network, self.opti, self.hidden_size,
-                                                        self.max_distance, self.config_file_path)
+                                                        self.max_distance, self.config_file_path, self.batch_size)
         self.maintrainer.run()
         
     def calculate_density_extinction(self):
@@ -179,23 +188,28 @@ class MainProgram:
         Calculates the density and extinction values using the ModelCalculator class.
         """
         calculator = Calculator.ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5., 0.1, self.max_distance, self.device, self.network, self.config_file_path)
-        calculator.density_extinction_grid()
-        calculator.density_extinction_sight()
+        calculator.compute_extinction_grid()
+        calculator.compute_extinction_sight()
+        if(self.compute_density):
+            calculator.compute_density_grid()
+            calculator.compute_density_sight()
         
     def Visualize(self):
         """
         Visualize the results (saave the plot in the "Plots" subsirectory of the current test directory) using the ModelVisualizer class.
         """
         visualizer = Visualizer.ModelVisualizer(self.config_file_path,self.dataset, self.max_distance)
-        visualizer.compare_densities()
+        if(self.compute_density):
+            visualizer.compare_densities()
         visualizer.compare_extinctions()
         visualizer.extinction_vs_distance()
+        visualizer.loss_function()
         
     def execute(self):
         """
         Executes the complete program, including loading parameters, setting them, creating a data file, and training.
         """
-        self.create_data_file()
+        #self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
         self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
