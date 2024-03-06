@@ -8,7 +8,7 @@ from FileHelper import FileHelper
 
 class Calculator:
     """
-    A class for computing density and extinction models on a grid and along lines of sight.
+    A class for computing density and extinction of the model and the network on a grid and along lines of sight.
 
     # Args:
         - `model`: Extinction model for computation.
@@ -46,18 +46,17 @@ class Calculator:
 
     # Example:
         >>> # Instantiate a model calculator
-        >>> model_calculator = ModelCalculator(model, builder, x_max, x_min, y_max, y_min, step, max_distance, device,
-        >>>                                     network, config_file_path
-        >>>                                   )
+        >>> calculator = Calculator(model, x_max, x_min, y_max, y_min, step, max_distance, device,
+        >>>                         network, config_file_path
+        >>>                        )
         >>> 
         >>> # Compute density and extinction on a 2D grid
-        >>> model_calculator.density_extinction_grid()
+        >>> calculator.density_extinction_grid()
         >>> 
         >>> # Compute density and extinction along lines of sight
-        >>> model_calculator.density_extinction_sight()
+        >>> calculator.density_extinction_sight()
     """
-    def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network,
-                 config_file_path):
+    def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path):
         self.model = model
         self.x_max = x_max
         self.x_min = x_min

@@ -5,12 +5,12 @@ import torch.nn.functional as f
 import numpy as np
 from MainTrainer import MainTrainer
 from CreateDataFile import CreateDataFile
-from ModelCalculator import Calculator
-from NewPrograms.ModelLoader import ModelLoader
+from Calculator import Calculator
+from ModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from NewPrograms.NetworkHelper import NetworkHelper
+from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
-from ModelVisualizer import Visualizer
+from Visualizer import Visualizer
 
 
 class MainProgram:

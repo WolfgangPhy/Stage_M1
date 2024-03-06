@@ -30,8 +30,7 @@ class NetworkTrainer:
         >>> hidden_size = 64
         >>> learning_rate = 0.001
         >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        >>> builder = ExtinctionNeuralNetBuilder(device, hidden_size, learning_rate)
-        >>> trainer = ExtinctionNeuralNetTrainer(builder)
+        >>> trainer = NetworkTrainer(builder)
 
         >>> # Perform one training step
         >>> in_batch = torch.randn((batch_size, 3))

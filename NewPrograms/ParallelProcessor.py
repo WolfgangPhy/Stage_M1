@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from ExtinctionModelHelper import ModelHelper
+from ModelHelper import ModelHelper
 from Dataset2D import Dataset2D
 
 

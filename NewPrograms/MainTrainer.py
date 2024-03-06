@@ -4,8 +4,8 @@ import csv
 import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader, random_split
-from ExtinctionNeuralNetTrainer import NetworkTrainer
-from ExtinctionNeuralNetHelper import NetworkHelper
+from NetworkTrainer import NetworkTrainer
+from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 
 

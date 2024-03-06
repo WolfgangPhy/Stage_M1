@@ -19,7 +19,7 @@ class ExtinctionNetwork(nn.Module):
         - `forward(tensor)`: Forward pass of the neural network.
 
     # Examples:
-        >>> model = ExtinctionNeuralNet(hidden_size=128)
+        >>> network = ExtinctionNetwork(hidden_size=128)
         >>> input_tensor = torch.tensor([1.0, 2.0, 3.0])
         >>> output = model(input_tensor)
         >>> print(output)
