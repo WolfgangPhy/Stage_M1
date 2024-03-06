@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from ExtinctionModelHelper import ExtinctionModelHelper
+from ExtinctionNeuralNetHelper import ExtinctionNeuralNetHelper
 from FileHelper import FileHelper
 
 
@@ -11,7 +12,6 @@ class ModelCalculator:
 
     # Args:
         - `model`: Extinction model for computation.
-        - `builder`: Integral builder for computing network predictions.
         - `x_max`: Maximum x-coordinate for the grid.
         - `x_min`: Minimum x-coordinate for the grid.
         - `y_max`: Maximum y-coordinate for the grid.
@@ -24,7 +24,6 @@ class ModelCalculator:
 
     # Attributes:
         - `model`: Extinction model for computation.
-        - `builder`: Integral builder for computing network predictions.
         - `x_max`: Maximum x-coordinate for the grid.
         - `x_min`: Minimum x-coordinate for the grid.
         - `y_max`: Maximum y-coordinate for the grid.
@@ -57,10 +56,9 @@ class ModelCalculator:
         >>> # Compute density and extinction along lines of sight
         >>> model_calculator.density_extinction_sight()
     """
-    def __init__(self, model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network,
+    def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network,
                  config_file_path):
         self.model = model
-        self.builder = builder
         self.x_max = x_max
         self.x_min = x_min
         self.y_max = y_max
@@ -104,7 +102,7 @@ class ModelCalculator:
                 
                 data = torch.Tensor([cosell[i, j], sinell[i, j], 2.*r_network[i, j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
-                extinction_network[i, j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1),
+                extinction_network[i, j] = ExtinctionNeuralNetHelper.integral(torch.transpose(data.to(self.device), 0, 1),
                                                                  self.network, min_distance=-1.
                                                                  )
                 
@@ -157,7 +155,7 @@ class ModelCalculator:
             for j in tqdm(range(len(distance)), desc=f'Distance number {i}', leave=False):
                 data = torch.Tensor([cosell[i], sinell[i], 2.*distance[j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
-                los_ext_network[i, j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1),
+                los_ext_network[i, j] = ExtinctionNeuralNetHelper.integral(torch.transpose(data.to(self.device), 0, 1),
                                                               self.network, min_distance=-1.
                                                               )
 

@@ -1,10 +1,11 @@
 import sys
-import torch
-from torch.utils.data import DataLoader, random_split
 import time
 import csv
+import torch
 from tqdm import tqdm
+from torch.utils.data import DataLoader, random_split
 from ExtinctionNeuralNetTrainer import ExtinctionNeuralNetTrainer
+from ExtinctionNeuralNetHelper import ExtinctionNeuralNetHelper
 from FileHelper import FileHelper
 
 
@@ -27,7 +28,6 @@ class MainTrainer:
         - `learning_rate (float)`: Learning rate for updating network parameters.
         - `device (torch.device)`: Computing device for running the neural network.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
-        - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
         - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
@@ -55,7 +55,6 @@ class MainTrainer:
         - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
         - `learning_rate (float)`: Learning rate for updating network parameters.
-        - `builder (ExtinctionNeuralNetBuilder)`: Builder for creating the neural network.
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
         - `max_distance (float)`: Maximum distance in the dataset.
         - `config_file_path (str)`: Path to the configuration file.
@@ -86,7 +85,7 @@ class MainTrainer:
     """
     
     def __init__(self, epoch_number, nu_ext, nu_dens, ext_loss_function, dens_loss_function, ext_reduction_method,
-                 dens_reduction_method, learning_rate, device, dataset, builder, network, opti, hidden_size,
+                 dens_reduction_method, learning_rate, device, dataset, network, opti, hidden_size,
                  max_distance, config_file_path, batch_size):
         self.val_dens_total = None
         self.val_ext_total = None
@@ -112,7 +111,6 @@ class MainTrainer:
         self.learning_rate = learning_rate
         self.device = device
         self.dataset = dataset
-        self.builder = builder
         self.network = network
         self.opti = opti
         self.hidden_size = hidden_size
@@ -218,7 +216,7 @@ class MainTrainer:
         The network is created with a hidden layer size determined by a formula based on the dataset size.
 
         """
-        self.network.apply(self.builder.init_weights)  # TODO : init_wieghts do not return anything
+        self.network.apply(ExtinctionNeuralNetHelper.init_weights)  # TODO : init_wieghts do not return anything
         self.network.to(self.device) 
         self.network.train()
         

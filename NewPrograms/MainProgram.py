@@ -8,7 +8,7 @@ from CreateDataFile import CreateDataFile
 from ModelCalculator import ModelCalculator
 from ExtinctionModelLoader import ExtinctionModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from ExtinctionNeuralNetBuilder import ExtinctionNeuralNetBuilder
+from NewPrograms.ExtinctionNeuralNetHelper import ExtinctionNeuralNetHelper
 from FileHelper import FileHelper
 from ModelVisualizer import ModelVisualizer
 
@@ -70,7 +70,6 @@ class MainProgram:
     def __init__(self):
         self.opti = None
         self.network = None
-        self.builder = None
         self.main_trainer = None
         self.compute_density = None
         self.batch_size = None
@@ -209,7 +208,7 @@ class MainProgram:
         self.main_trainer = MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens,
                                         self.ext_loss_function, self.dens_loss_function,
                                         self.ext_reduction_method, self.dens_reduction_method,
-                                        self.learning_rate, self.device, self.dataset, self.builder,
+                                        self.learning_rate, self.device, self.dataset,
                                         self.network, self.opti, self.hidden_size, self.max_distance,
                                         self.config_file_path, self.batch_size
                                         )
@@ -219,7 +218,7 @@ class MainProgram:
         """
         Calculates the density and extinction values using the ModelCalculator class.
         """
-        calculator = ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5.,
+        calculator = ModelCalculator(self.loader.model, 5.1, -5., 5.1, -5.,
                                      0.1, self.max_distance, self.device, self.network, self.config_file_path
                                      )
         calculator.compute_extinction_grid()
@@ -247,8 +246,7 @@ class MainProgram:
         self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.builder = ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
-        self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
+        self.network, self.opti = ExtinctionNeuralNetHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
         self.get_max_distance()
         self.train()
         self.calculate_density_extinction()
