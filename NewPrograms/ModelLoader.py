@@ -3,7 +3,7 @@ import os.path
 from ExtinctionModel import ExtinctionModel
 
 
-class ExtinctionModelLoader:
+class ModelLoader:
     """
     A utility class for loading and managing ExtinctionModel instances.
 

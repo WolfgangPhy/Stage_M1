@@ -2,11 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from FileHelper import FileHelper
+import pandas as pd
 import os
+from FileHelper import FileHelper
 
 
-class ModelVisualizer:
+class Visualizer:
     """
     A class providing methods for visualizing extinction model predictions.
     
@@ -39,11 +40,13 @@ class ModelVisualizer:
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
 
     # Example:
-        >>> # Instantiate a neural network model
-        >>> your_model = YourExtinctionModel()
-        >>> 
+        >>> # Instantiate Visualizer
+        >>> Visualizer = Visualizer(config_file_name, dataset, max_distance)
         >>> # Visualize the model predictions
-        >>> ModelVisualizer.visualize_model(your_model)
+        >>> Visualizer.loss_function()
+        >>> Visualizer.compare_densities()
+        >>> Visualizer.compare_extinctions()
+        >>> Visualizer.extinction_vs_distance()
     """
 
     def __init__(self, config_file_name, dataset, max_distance):

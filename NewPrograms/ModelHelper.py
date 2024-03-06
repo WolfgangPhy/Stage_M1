@@ -2,7 +2,7 @@ import math
 from scipy.spatial.transform import Rotation as Rot
 
 
-class ExtinctionModelHelper:
+class ModelHelper:
     """
     Utility functions for coordinate change and integration
     
@@ -113,10 +113,10 @@ class ExtinctionModelHelper:
             `float`: Value of the integral
         """
         n = int(dmax/dd)
-        x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
+        x, y, z = ModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
         s = 0.5 * (func(model, 0., 0., 0.) + func(model, x, y, z))
         for i in range(1, n, 1):
-            x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
+            x, y, z = ModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
             s = s + func(model, x, y, z)
         
         return dd * s
@@ -139,10 +139,10 @@ class ExtinctionModelHelper:
             `tuple[int, float]`: Index and value of the integral
         """
         n = int(dmax/dd)
-        x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
+        x, y, z = ModelHelper.convert_galactic_to_cartesian_3D(ell, b, dmax)
         s = 0.5 * (func(model, 0., 0., 0.) + func(model, x, y, z))
         for i in range(1, n, 1):
-            x, y, z = ExtinctionModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
+            x, y, z = ModelHelper.convert_galactic_to_cartesian_3D(ell, b, i*dd)
             s = s + func(model, x, y, z)
         return idx, \
             dd * s
@@ -197,7 +197,7 @@ class ExtinctionModelHelper:
         density = absorp * math.exp(-(R - x_sum)/hr) * math.exp(-abs(z)/hz)
         
         for i in range(len(exctinction_model.x0)):
-            density += ExtinctionModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i],
+            density += ModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i],
                                                      exctinction_model.z0[i], exctinction_model.m_tot[i],
                                                      exctinction_model.s1[i],
                                                      exctinction_model.s2[i], exctinction_model.s3[i],

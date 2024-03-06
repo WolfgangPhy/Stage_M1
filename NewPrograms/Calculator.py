@@ -1,17 +1,17 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-from ExtinctionModelHelper import ExtinctionModelHelper
+from NewPrograms.ModelHelper import ModelHelper
+from NewPrograms.NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 
 
-class ModelCalculator:
+class Calculator:
     """
-    A class for computing density and extinction models on a grid and along lines of sight.
+    A class for computing density and extinction of the model and the network on a grid and along lines of sight.
 
     # Args:
         - `model`: Extinction model for computation.
-        - `builder`: Integral builder for computing network predictions.
         - `x_max`: Maximum x-coordinate for the grid.
         - `x_min`: Minimum x-coordinate for the grid.
         - `y_max`: Maximum y-coordinate for the grid.
@@ -24,7 +24,6 @@ class ModelCalculator:
 
     # Attributes:
         - `model`: Extinction model for computation.
-        - `builder`: Integral builder for computing network predictions.
         - `x_max`: Maximum x-coordinate for the grid.
         - `x_min`: Minimum x-coordinate for the grid.
         - `y_max`: Maximum y-coordinate for the grid.
@@ -47,20 +46,18 @@ class ModelCalculator:
 
     # Example:
         >>> # Instantiate a model calculator
-        >>> model_calculator = ModelCalculator(model, builder, x_max, x_min, y_max, y_min, step, max_distance, device,
-        >>>                                     network, config_file_path
-        >>>                                   )
+        >>> calculator = Calculator(model, x_max, x_min, y_max, y_min, step, max_distance, device,
+        >>>                         network, config_file_path
+        >>>                        )
         >>> 
         >>> # Compute density and extinction on a 2D grid
-        >>> model_calculator.density_extinction_grid()
+        >>> calculator.density_extinction_grid()
         >>> 
         >>> # Compute density and extinction along lines of sight
-        >>> model_calculator.density_extinction_sight()
+        >>> calculator.density_extinction_sight()
     """
-    def __init__(self, model, builder, x_max, x_min, y_max, y_min, step, max_distance, device, network,
-                 config_file_path):
+    def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path):
         self.model = model
-        self.builder = builder
         self.x_max = x_max
         self.x_min = x_min
         self.y_max = y_max
@@ -94,17 +91,17 @@ class ModelCalculator:
         print("Computing extinction on a 2D grid")
         for i in tqdm(range(len(x[:, 1])), desc='Rows'):
             for j in tqdm(range(len(x[1, :])), desc=f'Column number {i}', leave=False):
-                ell[i, j], r_model[i, j] = (ExtinctionModelHelper.
+                ell[i, j], r_model[i, j] = (ModelHelper.
                                             convert_cartesian_to_galactic_2D(x[i, j], y[i, j])
                                             )
-                extinction_model[i, j] = ExtinctionModelHelper.integ_d(ExtinctionModelHelper
+                extinction_model[i, j] = ModelHelper.integ_d(ModelHelper
                                                                        .compute_extinction_model_density,
                                                                        ell[i, j], 0., r_model[i, j], self.model
                                                                        )
                 
                 data = torch.Tensor([cosell[i, j], sinell[i, j], 2.*r_network[i, j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
-                extinction_network[i, j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1),
+                extinction_network[i, j] = NetworkHelper.integral(torch.transpose(data.to(self.device), 0, 1),
                                                                  self.network, min_distance=-1.
                                                                  )
                 
@@ -129,7 +126,7 @@ class ModelCalculator:
         print("Computing density on a 2D grid")
         for i in tqdm(range(len(x[:, 1])), desc='Rows'):
             for j in tqdm(range(len(x[1, :])), desc=f'Column number {i}', leave=False):
-                density_model[i, j] = ExtinctionModelHelper.compute_extinction_model_density(self.model, x[i, j],
+                density_model[i, j] = ModelHelper.compute_extinction_model_density(self.model, x[i, j],
                                                                                              y[i, j], 0.)
                 
                 data = torch.Tensor([cosell[i, j], sinell[i, j], 2.*r_network[i, j]/self.max_distance-1.]).float()
@@ -157,11 +154,11 @@ class ModelCalculator:
             for j in tqdm(range(len(distance)), desc=f'Distance number {i}', leave=False):
                 data = torch.Tensor([cosell[i], sinell[i], 2.*distance[j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
-                los_ext_network[i, j] = self.builder.integral(torch.transpose(data.to(self.device), 0, 1),
+                los_ext_network[i, j] = NetworkHelper.integral(torch.transpose(data.to(self.device), 0, 1),
                                                               self.network, min_distance=-1.
                                                               )
 
-                los_ext_true[i, j] = ExtinctionModelHelper.integ_d(ExtinctionModelHelper
+                los_ext_true[i, j] = ModelHelper.integ_d(ModelHelper
                                                                    .compute_extinction_model_density, ells[i],
                                                                    0., distance[j], self.model
                                                                    )
@@ -191,7 +188,7 @@ class ModelCalculator:
                 los_dens_network[i, j] = self.network.forward(data.to(self.device))
                 x = distance[j]*cosell[i]
                 y = distance[j]*sinell[i]
-                los_dens_true[i, j] = ExtinctionModelHelper.compute_extinction_model_density(self.model, x, y, 0.)
+                los_dens_true[i, j] = ModelHelper.compute_extinction_model_density(self.model, x, y, 0.)
                 
         np.savez(self.dens_los_filename, ells=ells, distance=distance, los_dens_true=los_dens_true,
                  los_dens_network=los_dens_network

@@ -5,12 +5,12 @@ import torch.nn.functional as f
 import numpy as np
 from MainTrainer import MainTrainer
 from CreateDataFile import CreateDataFile
-from ModelCalculator import ModelCalculator
-from ExtinctionModelLoader import ExtinctionModelLoader
+from Calculator import Calculator
+from ModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from ExtinctionNeuralNetBuilder import ExtinctionNeuralNetBuilder
+from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
-from ModelVisualizer import ModelVisualizer
+from Visualizer import Visualizer
 
 
 class MainProgram:
@@ -70,7 +70,6 @@ class MainProgram:
     def __init__(self):
         self.opti = None
         self.network = None
-        self.builder = None
         self.main_trainer = None
         self.compute_density = None
         self.batch_size = None
@@ -101,7 +100,7 @@ class MainProgram:
         if the model is new, it creates a new model, otherwise it loads the existing model.
         """
         model_filename = FileHelper.give_config_value(self.config_file_path, "model_file")
-        self.loader = ExtinctionModelLoader(model_filename)
+        self.loader = ModelLoader(model_filename)
         self.loader.check_existing_model()
         if self.loader.newmodel:
             self.loader.create_new_model()
@@ -209,7 +208,7 @@ class MainProgram:
         self.main_trainer = MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens,
                                         self.ext_loss_function, self.dens_loss_function,
                                         self.ext_reduction_method, self.dens_reduction_method,
-                                        self.learning_rate, self.device, self.dataset, self.builder,
+                                        self.learning_rate, self.device, self.dataset,
                                         self.network, self.opti, self.hidden_size, self.max_distance,
                                         self.config_file_path, self.batch_size
                                         )
@@ -219,7 +218,7 @@ class MainProgram:
         """
         Calculates the density and extinction values using the ModelCalculator class.
         """
-        calculator = ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5.,
+        calculator = Calculator(self.loader.model, 5.1, -5., 5.1, -5.,
                                      0.1, self.max_distance, self.device, self.network, self.config_file_path
                                      )
         calculator.compute_extinction_grid()
@@ -233,7 +232,7 @@ class MainProgram:
         Visualize the results (save the plot in the "Plots" subdirectory of the current test directory) using
         the ModelVisualizer class.
         """
-        visualizer = ModelVisualizer(self.config_file_path, self.dataset, self.max_distance)
+        visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
         if self.compute_density:
             visualizer.compare_densities()
         visualizer.compare_extinctions()
@@ -247,8 +246,7 @@ class MainProgram:
         self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.builder = ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
-        self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
+        self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
         self.get_max_distance()
         self.train()
         self.calculate_density_extinction()

@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from ExtinctionModelHelper import ExtinctionModelHelper
+from ModelHelper import ModelHelper
 from Dataset2D import Dataset2D
 
 
@@ -70,8 +70,8 @@ class ParallelProcessor:
         # Use a loop for parallel processing
         for i in range(star_number):
             pool.apply_async(
-                ExtinctionModelHelper.integ_d_async,
-                args=(i, ExtinctionModelHelper.compute_extinction_model_density, ell[i].data,
+                ModelHelper.integ_d_async,
+                args=(i, ModelHelper.compute_extinction_model_density, ell[i].data,
                       b[i].data, d[i].data, model
                       ),
                 callback=collect_result,

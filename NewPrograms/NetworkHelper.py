@@ -1,46 +1,22 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from ExtinctionNeuralNet import ExtinctionNeuralNet
+from ExtinctionNetwork import ExtinctionNetwork
 
 
-class ExtinctionNeuralNetBuilder:
+class NetworkHelper:
     """
     A utility class for building and training neural networks for extinction and density estimation.
 
-    # Args:
-        `device (torch.device)`: Device on which the neural network is running.
-        `hidden_size (int)`: Size of the hidden layer in the neural network.
-        `learning_rate (float)`: Learning rate for the Adam optimizer.
-
-    # Attributes:
-        `network (ExtinctionNeuralNet)`: The neural network model for extinction and density estimation.
-        `opti (optim.Adam)`: The Adam optimizer used for training.
-        `device (torch.device)`: Device on which the neural network is running.
-        `learning_rate (float)`: Learning rate for the Adam optimizer.
-
     # Methods:
         - `integral(tensor, network_model, min_distance=0., debug=0)`: Custom analytic integral of the network for
-            MSE loss.
-        - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization.
-        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer.
-        
-    # Example:
-        >>> # Example usage of ExtinctionNeuralNetBuilder
-        >>> hidden_size = 64
-        >>> learning_rate = 0.001
-
-        >>> # Create an instance of ExtinctionNeuralNetBuilder
-        >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        >>> builder = ExtinctionNeuralNetBuilder(device, hidden_size, learning_rate)
+            MSE loss. (Static method)
+        - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization. (Static method)
+        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer. (Static method)
     """
 
-    def __init__(self, device, hidden_size, learning_rate):
-        self.device = device
-        self.learning_rate = learning_rate
-        self.network, self.opti = self.create_net_integ(hidden_size)
-
-    def integral(self, tensor, network_model, min_distance=0.):
+    @staticmethod
+    def integral(tensor, network_model, min_distance=0.):
         """
         Custom analytic integral of the network ExtinctionNeuralNet to be used in MSE loss.
 
@@ -105,7 +81,8 @@ class ExtinctionNeuralNetBuilder:
 
         return result
 
-    def init_weights(self, model):
+    @staticmethod
+    def init_weights(model):
         """
         Function to initialize weights and biases for the given PyTorch model.
 
@@ -119,7 +96,8 @@ class ExtinctionNeuralNetBuilder:
             torch.nn.init.xavier_uniform_(model.weight)
             model.bias.data.fill_(0.1)
 
-    def create_net_integ(self, hidden_size):
+    @staticmethod
+    def create_net_integ(hidden_size, device, learning_rate):
         """
         Function to create the neural network and set the optimizer.
 
@@ -133,5 +111,5 @@ class ExtinctionNeuralNetBuilder:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and
                 the Adam optimizer.
         """
-        network = ExtinctionNeuralNet(hidden_size, self.device)
-        return network, optim.Adam(network.parameters(), lr=self.learning_rate)
+        network = ExtinctionNetwork(hidden_size, device)
+        return network, optim.Adam(network.parameters(), lr=learning_rate)
