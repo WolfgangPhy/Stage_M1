@@ -43,18 +43,6 @@ class Calculator:
         - `compute_density_grid()`: Compute density on a 2D grid.
         - `compute_extinction_sight()`: Compute extinction along lines of sight.
         - `compute_density_sight()`: Compute density along lines of sight.
-
-    # Example:
-        >>> # Instantiate a model calculator
-        >>> calculator = Calculator(model, x_max, x_min, y_max, y_min, step, max_distance, device,
-        >>>                         network, config_file_path
-        >>>                        )
-        >>> 
-        >>> # Compute density and extinction on a 2D grid
-        >>> calculator.density_extinction_grid()
-        >>> 
-        >>> # Compute density and extinction along lines of sight
-        >>> calculator.density_extinction_sight()
     """
     def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path):
         self.model = model

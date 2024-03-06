@@ -11,13 +11,6 @@ class FileHelper:
         - `init_test_directory()`: Initializes a test directory based on parameters from 'Parameters.json' (Static)
         - `give_config_value(config_file_path, key)`: Retrieves a specific value from a given
             configuration file. (Static)
-
-    # Example:
-    >>> # Example for initializing a test directory
-    >>> test_directory_path = FileHelper.init_test_directory()
-
-    >>> # Example for retrieving a config value
-    >>> data_file_path = FileHelper.give_config_value(test_directory_path, 'datafile')
     """
     
     @staticmethod

@@ -20,13 +20,6 @@ class CreateDataFile:
 
     # Methods:
         - `execute()`: Executes the process of creating the data file.
-
-    # Examples:
-        # Create an instance of CreateDataFile
-        >>> data_creator = CreateDataFile(star_number, model)
-
-        # Execute the data file creation process
-        >>> data_creator.execute()
     """
     def __init__(self, star_number, model, config_file_path):
         self.star_number = star_number

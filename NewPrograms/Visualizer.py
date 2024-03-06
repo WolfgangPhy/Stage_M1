@@ -38,15 +38,6 @@ class Visualizer:
         - `compare_densities()`: Compare true and network density predictions.
         - `compare_extinctions()`: Compare true and network extinction predictions.
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
-
-    # Example:
-        >>> # Instantiate Visualizer
-        >>> Visualizer = Visualizer(config_file_name, dataset, max_distance)
-        >>> # Visualize the model predictions
-        >>> Visualizer.loss_function()
-        >>> Visualizer.compare_densities()
-        >>> Visualizer.compare_extinctions()
-        >>> Visualizer.extinction_vs_distance()
     """
 
     def __init__(self, config_file_name, dataset, max_distance):

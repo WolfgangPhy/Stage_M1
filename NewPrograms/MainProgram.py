@@ -32,7 +32,6 @@ class MainProgram:
         - `loader (ExtinctionModelLoader)`: Instance of the model loader.
         - `dataset (torch.Tensor)`: Dataset for training.
         - `maintrainer (MainTrainer)`: Instance of the main trainer.
-        - `builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
         - `network (torch.nn.Module)`: Neural network model.
         - `opti (torch.optim)`: Optimization method.
         - `hidden_size (int)`: Size of the hidden layer.
@@ -56,16 +55,6 @@ class MainProgram:
         - `Visualize()`: Visualizes the results.
         - `execute()`: Executes the complete program, including loading parameters, setting them, creating a data file,
             and training.
-
-    # Example:
-        >>> if __name__ == "__main__":
-        >>>    start_time = time.time()
-            
-        >>>    main_program = MainProgram()
-        >>>    main_program.execute()
-            
-        >>>    process_time = time.time() - start_time
-        >>>    print("Process time: ", round(process_time, 0), " seconds")
     """
     def __init__(self):
         self.opti = None

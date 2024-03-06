@@ -74,14 +74,6 @@ class MainTrainer:
         - `init_training()`: Initializes the training process, setting up epoch-related variables.
         - `train_network()`: Performs the training iterations, updating the neural network parameters.
         - `run()`: Executes the main program, orchestrating the entire training process.
-
-
-    # Example:
-        >>> # Example usage of MainTrainer class
-        >>> main_trainer = MainTrainer()
-        >>> main_trainer.run()
-        ```
-
     """
     
     def __init__(self, epoch_number, nu_ext, nu_dens, ext_loss_function, dens_loss_function, ext_reduction_method,
@@ -249,7 +241,7 @@ class MainTrainer:
 
         """
         tstart = time.time()
-        self.trainer = NetworkTrainer(self.builder, self.ext_loss_function,
+        self.trainer = NetworkTrainer(self.network, self.device, self.opti,self.ext_loss_function,
                                                   self.dens_loss_function, self.ext_reduction_method,
                                                   self.dens_reduction_method
                                                   )

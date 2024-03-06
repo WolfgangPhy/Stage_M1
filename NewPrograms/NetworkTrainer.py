@@ -1,19 +1,17 @@
 import torch.nn.functional as F
-
+from NetworkHelper import NetworkHelper
 
 class NetworkTrainer:
     """
     A class for training the extinction neural network.
 
     # Args:
-        - `neural_network_builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
         - `ext_loss_function (callable)`: Loss function for extinction.
         - `dens_loss_function (callable)`: Loss function for density.
         - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
 
     # Attributes:
-        - `builder (ExtinctionNeuralNetBuilder)`: Instance of the neural network builder.
         - `ext_loss_function (callable)`: Loss function for extinction.
         - `dens_loss_function (callable)`: Loss function for density.
         - `ext_reduction_method (str)`: Method for reducing the extinction loss.
@@ -24,30 +22,13 @@ class NetworkTrainer:
             nu_dens)`: Performs one training step.
         - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, val_ext_total,
             val_dens_total)`: Performs one validation step.
-
-    # Example:
-        >>> # Example usage of ExtinctionNeuralNetTrainer
-        >>> hidden_size = 64
-        >>> learning_rate = 0.001
-        >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        >>> trainer = NetworkTrainer(builder)
-
-        >>> # Perform one training step
-        >>> in_batch = torch.randn((batch_size, 3))
-        >>> tar_batch = torch.randn((batch_size, 2))  # Assuming labels (E, sigma)
-        >>> nu_ext = 1.0
-        >>> nu_dens = 1.0
-        >>> loss_ext_total, loss_dens_total = trainer.take_step(in_batch, tar_batch, 0.0, 0.0, nu_ext, nu_dens)
-
-        >>> # Perform one validation step
-        >>> in_batch_val = torch.randn((val_batch_size, 3))
-        >>> tar_batch_val = torch.randn((val_batch_size, 2))  # Assuming validation labels (E, sigma)
-        >>> val_ext_total, val_dens_total = trainer.validation(in_batch_val, tar_batch_val, nu_ext, nu_dens, 0.0, 0.0)
     """
 
-    def __init__(self, neural_network_builder, ext_loss_function, dens_loss_function, ext_reduction_method,
+    def __init__(self, network, device, opti, ext_loss_function, dens_loss_function, ext_reduction_method,
                  dens_reduction_method):
-        self.builder = neural_network_builder
+        self.network = network
+        self.device = device
+        self.opti = opti
         self.ext_loss_function = ext_loss_function
         self.dens_loss_function = dens_loss_function
         self.ext_reduction_method = ext_reduction_method
@@ -78,8 +59,8 @@ class NetworkTrainer:
         """
 
         tar_batch = tar_batch.float().detach()
-        in_batch = in_batch.float().to(self.builder.device)
-        tar_batch = tar_batch.to(self.builder.device)
+        in_batch = in_batch.float().to(self.device)
+        tar_batch = tar_batch.to(self.device)
 
         # copy in_batch to new tensor and sets distance to 0
         y0 = tar_batch.clone().detach()
@@ -87,10 +68,10 @@ class NetworkTrainer:
 
         # compute ANN prediction for integration
         # density estimation at each location
-        dens = self.builder.network.forward(in_batch)
+        dens = self.network.forward(in_batch)
         # total extinction : in_batch in [-1,1] after rescaling -> pass the lower
         # integration bound to the code as default is 0
-        exthat = self.builder.integral(in_batch, self.builder.network, min_distance=-1.)
+        exthat = NetworkHelper.integral(in_batch, self.network, min_distance=-1.)
 
         # compute loss function for integration network 
         # total extinction must match observed value
@@ -120,13 +101,13 @@ class NetworkTrainer:
 
         # zero gradients before taking step (gradients are additive, if not set to zero then adds
         # to the previous gradients)
-        self.builder.opti.zero_grad()
+        self.opti.zero_grad()
 
         # compute gradients
         fullloss.backward()
 
         # do 1 optimisation step after minibatch
-        self.builder.opti.step()
+        self.opti.step()
 
         return loss_ext_total, loss_dens_total
 
@@ -157,17 +138,17 @@ class NetworkTrainer:
                 validation set.
         """
         tar_batch_validation_set = tar_batch_validation_set.float().detach()
-        in_batch_validation_set = in_batch_validation_set.float().to(self.builder.device)
-        tar_batch_validation_set = tar_batch_validation_set.to(self.builder.device)
+        in_batch_validation_set = in_batch_validation_set.float().to(self.device)
+        tar_batch_validation_set = tar_batch_validation_set.to(self.device)
 
         y0_val = tar_batch_validation_set.clone().detach()  # TODO delete ?
         y0_val = tar_batch_validation_set[:, 0].unsqueeze(1) * 0.
 
         # density estimation at each location
-        dens = self.builder.network.forward(in_batch_validation_set)
+        dens = self.network.forward(in_batch_validation_set)
 
         # total extinction
-        exthat = self.builder.integral(in_batch_validation_set, self.builder.network, min_distance=-1.)
+        exthat = NetworkHelper.integral(in_batch_validation_set, self.network, min_distance=-1.)
 
         # compute loss function for  network : L2 norm
         # total extinction must match observed value

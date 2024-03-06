@@ -24,19 +24,6 @@ class Dataset2D(Dataset):
     # Methods:
         - `__len__()` : Returns the size of the dataset.
         - `__getitem__(index)`: Returns the sample at the given index.
-        
-    # Examples:
-        Create an instance of the dataset:
-
-        >>> dataset = Dataset2D(ell_data, distance_data, K_data, error_data)
-        
-        Access the length of the dataset:
-
-        >>> len(dataset)
-        
-        Access a sample from the dataset:
-
-        >>> sample = dataset[0]
     """
     def __init__(self, ell, distance, K, error):
         self.ell = ell

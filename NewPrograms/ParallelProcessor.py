@@ -10,14 +10,6 @@ class ParallelProcessor:
 
     # Methods:
         - `process_parallel(model, pool, star_number, device, dtype)`: Process extinction model predictions in parallel.
-
-    # Example:
-        >>> # Instantiate a neural network model and a multiprocessing Pool
-        >>> your_model = YourExtinctionModel()
-        >>> your_pool = YourMultiprocessingPool()
-        >>> 
-        >>> # Process extinction model predictions in parallel
-        >>> processed_data = ParallelProcessor.process_parallel(your_model, your_pool, star_number, device, dtype)
     """
     @staticmethod
     def process_parallel(model, pool, star_number, device, dtype):
