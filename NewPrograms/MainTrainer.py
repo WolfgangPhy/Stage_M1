@@ -4,8 +4,8 @@ import csv
 import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader, random_split
-from ExtinctionNeuralNetTrainer import ExtinctionNeuralNetTrainer
-from ExtinctionNeuralNetHelper import ExtinctionNeuralNetHelper
+from ExtinctionNeuralNetTrainer import NeuralNetworkTrainer
+from ExtinctionNeuralNetHelper import NeuralNetworkHelper
 from FileHelper import FileHelper
 
 
@@ -216,7 +216,7 @@ class MainTrainer:
         The network is created with a hidden layer size determined by a formula based on the dataset size.
 
         """
-        self.network.apply(ExtinctionNeuralNetHelper.init_weights)  # TODO : init_wieghts do not return anything
+        self.network.apply(NeuralNetworkHelper.init_weights)  # TODO : init_wieghts do not return anything
         self.network.to(self.device) 
         self.network.train()
         
@@ -249,7 +249,7 @@ class MainTrainer:
 
         """
         tstart = time.time()
-        self.trainer = ExtinctionNeuralNetTrainer(self.builder, self.ext_loss_function,
+        self.trainer = NeuralNetworkTrainer(self.builder, self.ext_loss_function,
                                                   self.dens_loss_function, self.ext_reduction_method,
                                                   self.dens_reduction_method
                                                   )

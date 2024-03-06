@@ -4,7 +4,7 @@ import torch.optim as optim
 from ExtinctionNeuralNet import ExtinctionNeuralNet
 
 
-class ExtinctionNeuralNetHelper:
+class NeuralNetworkHelper:
     """
     A utility class for building and training neural networks for extinction and density estimation.
 

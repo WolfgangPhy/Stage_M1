@@ -6,9 +6,9 @@ import numpy as np
 from MainTrainer import MainTrainer
 from CreateDataFile import CreateDataFile
 from ModelCalculator import ModelCalculator
-from ExtinctionModelLoader import ExtinctionModelLoader
+from ExtinctionModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from NewPrograms.ExtinctionNeuralNetHelper import ExtinctionNeuralNetHelper
+from NewPrograms.ExtinctionNeuralNetHelper import NeuralNetworkHelper
 from FileHelper import FileHelper
 from ModelVisualizer import ModelVisualizer
 
@@ -100,7 +100,7 @@ class MainProgram:
         if the model is new, it creates a new model, otherwise it loads the existing model.
         """
         model_filename = FileHelper.give_config_value(self.config_file_path, "model_file")
-        self.loader = ExtinctionModelLoader(model_filename)
+        self.loader = ModelLoader(model_filename)
         self.loader.check_existing_model()
         if self.loader.newmodel:
             self.loader.create_new_model()
@@ -246,7 +246,7 @@ class MainProgram:
         self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.network, self.opti = ExtinctionNeuralNetHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
+        self.network, self.opti = NeuralNetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
         self.get_max_distance()
         self.train()
         self.calculate_density_extinction()

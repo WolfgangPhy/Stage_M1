@@ -1,7 +1,7 @@
 import torch.nn.functional as F
 
 
-class ExtinctionNeuralNetTrainer:
+class NeuralNetworkTrainer:
     """
     A class for training the extinction neural network.
 
