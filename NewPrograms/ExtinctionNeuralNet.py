@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 
-class ExtinctionNeuralNet(nn.Module):
+class ExtinctionNetwork(nn.Module):
     """
     Neural network model for extinction prediction.
 
@@ -26,7 +26,7 @@ class ExtinctionNeuralNet(nn.Module):
         tensor([0.1234], grad_fn=<AddmmBackward>)
     """
     def __init__(self, hidden_size, device):
-        super(ExtinctionNeuralNet, self).__init__()
+        super(ExtinctionNetwork, self).__init__()
         self.hidden_size = hidden_size
         self.linear1 = nn.Linear(3, self.hidden_size, bias=True).to(device)
         self.linear2 = nn.Linear(self.hidden_size, 1, bias=True).to(device)

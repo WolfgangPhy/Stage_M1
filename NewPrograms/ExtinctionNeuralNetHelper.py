@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from ExtinctionNeuralNet import ExtinctionNeuralNet
+from ExtinctionNeuralNet import ExtinctionNetwork
 
 
-class NeuralNetworkHelper:
+class NetworkHelper:
     """
     A utility class for building and training neural networks for extinction and density estimation.
 
@@ -111,5 +111,5 @@ class NeuralNetworkHelper:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and
                 the Adam optimizer.
         """
-        network = ExtinctionNeuralNet(hidden_size, device)
+        network = ExtinctionNetwork(hidden_size, device)
         return network, optim.Adam(network.parameters(), lr=learning_rate)

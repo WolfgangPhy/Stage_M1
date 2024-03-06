@@ -8,7 +8,7 @@ from CreateDataFile import CreateDataFile
 from ModelCalculator import ModelCalculator
 from ExtinctionModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from NewPrograms.ExtinctionNeuralNetHelper import NeuralNetworkHelper
+from NewPrograms.ExtinctionNeuralNetHelper import NetworkHelper
 from FileHelper import FileHelper
 from ModelVisualizer import ModelVisualizer
 
@@ -246,7 +246,7 @@ class MainProgram:
         self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.network, self.opti = NeuralNetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
+        self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
         self.get_max_distance()
         self.train()
         self.calculate_density_extinction()
