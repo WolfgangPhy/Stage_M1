@@ -1,7 +1,8 @@
 import torch
 import multiprocessing as mp
-import ParallelProcessor as pp
-import FileHelper as FHelper
+import ParallelProcessor as ParaProcess
+from FileHelper import FileHelper
+
 
 class CreateDataFile:
     """
@@ -45,14 +46,14 @@ class CreateDataFile:
         pool = mp.Pool(processor_num)
         
         # Process the model in parallel and get the dataset
-        dataset = pp.ParallelProcessor.process_parallel(
+        dataset = ParaProcess.ParallelProcessor.process_parallel(
             self.model, pool, self.star_number, device, dtype
         )
 
         # Close the pool
         pool.close()
 
-        dataset_filepath = FHelper.FileHelper.give_config_value(self.config_file_path, "datafile")
+        dataset_filepath = FileHelper.give_config_value(self.config_file_path, "datafile")
         torch.save(dataset, dataset_filepath)
 
         print("Done")

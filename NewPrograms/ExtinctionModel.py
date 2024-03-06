@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class ExtinctionModel:
     """
     Class to store a given model.
@@ -41,7 +42,3 @@ class ExtinctionModel:
             `int`: The length of the 'm_tot' array.
         """
         return len(self.m_tot)
-    
-        
-
-    

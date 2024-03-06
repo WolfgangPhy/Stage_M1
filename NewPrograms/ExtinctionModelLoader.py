@@ -1,6 +1,7 @@
 import pickle
 import os.path
-import ExtinctionModel as ExtinctionModel
+from ExtinctionModel import ExtinctionModel
+
 
 class ExtinctionModelLoader:
     """
@@ -41,7 +42,7 @@ class ExtinctionModelLoader:
         """
         Creates a new ExtinctionModel instance and saves it to the fiducial model file.
         """
-        self.model = ExtinctionModel.ExtinctionModel(15)
+        self.model = ExtinctionModel(15)
         with open(self.fiducial_model_filename, "wb") as file:
             pickle.dump(self.model, file)
 
@@ -51,4 +52,3 @@ class ExtinctionModelLoader:
         """
         with open(self.fiducial_model_filename, "rb") as file:
             self.model = pickle.load(file)
-

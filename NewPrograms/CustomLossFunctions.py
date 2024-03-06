@@ -1,6 +1,4 @@
-
-
-class CustomLossFunctions():
+class CustomLossFunctions:
     """
     A class containing custom loss functions for PyTorch models.
 
@@ -19,7 +17,8 @@ class CustomLossFunctions():
         Function to compute the log likelihood loss.
 
         This function implements the log likelihood loss function. It assumes that 'label' is a pair (extinction, sigma)
-        and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum, depending on the 'reduction' parameter.
+        and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum,
+        depending on the 'reduction' parameter.
 
         # Args:
             - `prediction (torch.Tensor)`: Model predictions.
@@ -32,9 +31,9 @@ class CustomLossFunctions():
         # Returns:
             - `torch.Tensor`: Value of the log likelihood loss.
         """
-        if reduction=='sum':
-            return ( ( ( prediction-label[:,0] )/label[:,1] )**2 ).sum()
-        elif reduction=='mean':
-            return ( ( ( prediction-label[:,0] )/label[:,1] )**2 ).mean()
-        else :
-            raise Exception('reduction value unkown. Should be sum or mean')
+        if reduction == 'sum':
+            return (((prediction-label[:, 0])/label[:, 1])**2).sum()
+        elif reduction == 'mean':
+            return (((prediction-label[:, 0])/label[:, 1])**2).mean()
+        else:
+            raise Exception('reduction value unknown. Should be sum or mean')

@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+
 class Dataset2D(Dataset):
     """
     PyTorch dataset for 2D extinction data.
@@ -68,4 +69,6 @@ class Dataset2D(Dataset):
                 - The second tensor contains the values associated with the sample 
                 as (total_absorption, error_on_absorption).
         """
-        return torch.tensor((self.cosell[index], self.sinell[index], self.distance[index])), torch.tensor((self.K[index], self.error[index]))
+        return (torch.tensor((self.cosell[index], self.sinell[index], self.distance[index])),
+                torch.tensor((self.K[index], self.error[index]))
+                )

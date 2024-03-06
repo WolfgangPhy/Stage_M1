@@ -1,16 +1,17 @@
-import MainTrainer as MainTrainer
-import CreateDataFile as Creator
-import ModelCalculator as Calculator
-import ExtinctionModelLoader as Loader
 import torch
 import time
 import json
-import torch.nn.functional as F
+import torch.nn.functional as f
 import numpy as np
-import CustomLossFunctions as LossFunctions
-import ExtinctionNeuralNetBuilder as Builder
-import FileHelper as FHelper
-import ModelVisualizer as Visualizer
+from MainTrainer import MainTrainer
+from CreateDataFile import CreateDataFile
+from ModelCalculator import ModelCalculator
+from ExtinctionModelLoader import ExtinctionModelLoader
+from CustomLossFunctions import CustomLossFunctions
+from ExtinctionNeuralNetBuilder import ExtinctionNeuralNetBuilder
+from FileHelper import FileHelper
+from ModelVisualizer import ModelVisualizer
+
 
 class MainProgram:
     """
@@ -47,39 +48,60 @@ class MainProgram:
         - `get_parameters_from_json()`: Loads parameters from the "Parameters.json" file.
         - `load_dataset()`: Loads the dataset for training.	
         - `set_parameters()`: Sets the program's parameters using loaded values.
-        - `check_and_assign_loss_function(loss_function, custom_loss_function)`: Assigns the loss function based on parameters.
+        - `check_and_assign_loss_function(loss_function, custom_loss_function)`: Assigns the loss function based
+            on parameters.
         - `create_data_file()`: Creates a data file for training.
         - `train()`: Initiates and runs the training process.
         - `calculate_density_extinction()`: Calculates the density and extinction values.
         - `Visualize()`: Visualizes the results.
-        - `execute()`: Executes the complete program, including loading parameters, setting them, creating a data file, and training.
+        - `execute()`: Executes the complete program, including loading parameters, setting them, creating a data file,
+            and training.
 
     # Example:
         >>> if __name__ == "__main__":
         >>>    start_time = time.time()
             
-        >>>    mainprogram = MainProgram()
-        >>>    mainprogram.execute()
+        >>>    main_program = MainProgram()
+        >>>    main_program.execute()
             
         >>>    process_time = time.time() - start_time
         >>>    print("Process time: ", round(process_time, 0), " seconds")
     """
     def __init__(self):
+        self.opti = None
+        self.network = None
+        self.builder = None
+        self.main_trainer = None
+        self.compute_density = None
+        self.batch_size = None
+        self.learning_rate = None
+        self.epoch_number = None
+        self.dens_reduction_method = None
+        self.ext_reduction_method = None
+        self.star_number = None
+        self.dens_loss_function = None
+        self.ext_loss_function = None
+        self.nu_dens = None
+        self.nu_ext = None
+        self.dataset = None
+        self.parameters = None
+        self.max_distance = None
+        self.hidden_size = None
+        self.loader = None
         self.get_parameters_from_json()
         self.set_parameters()
-        self.config_file_path = FHelper.FileHelper.init_test_directory()
+        self.config_file_path = FileHelper.init_test_directory()
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
         self.set_model()
-        
-        
+
     def set_model(self):
         """
         Sets the model for training using the ExtinctionModelLoader class.
         
         if the model is new, it creates a new model, otherwise it loads the existing model.
         """
-        model_filename = FHelper.FileHelper.give_config_value(self.config_file_path, "model_file")
-        self.loader = Loader.ExtinctionModelLoader(model_filename)
+        model_filename = FileHelper.give_config_value(self.config_file_path, "model_file")
+        self.loader = ExtinctionModelLoader(model_filename)
         self.loader.check_existing_model()
         if self.loader.newmodel:
             self.loader.create_new_model()
@@ -104,14 +126,14 @@ class MainProgram:
         """
         Loads parameters from the "Parameters.json" file and assigns them to the MainProgram "parameters" attribute.
         """
-        with open("Parameters.json") as f:
-            self.parameters = json.load(f)
+        with open("Parameters.json") as file:
+            self.parameters = json.load(file)
             
     def load_dataset(self):
         """
         Loads the dataset for training.
         """
-        datafile_path = FHelper.FileHelper.give_config_value(self.config_file_path, "datafile")
+        datafile_path = FileHelper.give_config_value(self.config_file_path, "datafile")
         
         self.dataset = torch.load(datafile_path, map_location=self.device)
           
@@ -121,8 +143,12 @@ class MainProgram:
         """
         self.nu_ext = self.parameters["nu_ext"]
         self.nu_dens = self.parameters["nu_dens"]
-        self.ext_loss_function = self.check_and_assign_loss_function(self.parameters["ext_loss_function"], self.parameters["ext_loss_function_custom"])
-        self.dens_loss_function = self.check_and_assign_loss_function(self.parameters["dens_loss_function"], self.parameters["dens_loss_function_custom"])
+        self.ext_loss_function = self.check_and_assign_loss_function(self.parameters["ext_loss_function"],
+                                                                     self.parameters["ext_loss_function_custom"]
+                                                                     )
+        self.dens_loss_function = self.check_and_assign_loss_function(self.parameters["dens_loss_function"],
+                                                                      self.parameters["dens_loss_function_custom"]
+                                                                      )
         self.star_number = self.parameters["star_number"]
         self.ext_reduction_method = self.parameters["ext_reduction_method"]
         self.dens_reduction_method = self.parameters["dens_reduction_method"]
@@ -136,13 +162,16 @@ class MainProgram:
         Assigns the loss function based on parameters.
         
         This method returns a callable loss function based on the given parameters.
-        If the loss_function is custome in return the corresponding callable from the CustomLossFunctions module.
+        If the loss_function is custom in return the corresponding callable from the CustomLossFunctions module.
         If the loss_function is not custom, it returns the corresponding callable from the torch.nn.functional module.
         
         # Important Note:
-            Some of the loss functions does not takes same parameters, for example, the loglike_loss function from the CustomLossFunctions module takes tar_batch parameters 
-            wich contains the extinction and the sigma, while the torch.nn.functional.mse_loss function only takes the extinction as target.
-            So be careful when using the loss functions, and make sure that the loss function you are using takes the right parameters.
+            Some of the loss functions does not take same parameters, for example, the loglike_loss function
+            from the CustomLossFunctions module takes tar_batch parameters
+            which contains the extinction and the sigma, while the torch.nn.functional.mse_loss function only takes
+            the extinction as target.
+            So be careful when using the loss functions, and make sure that the loss function you are using takes
+            the right parameters.
             Some try/catch are implemented to avoid some errors and clarify the problem.
 
         # Args:
@@ -156,50 +185,56 @@ class MainProgram:
             `callable`: The assigned loss function.
         """
         if custom_loss_function:
-            custom_loss_method = getattr(LossFunctions.CustomLossFunctions, loss_function, None)
+            custom_loss_method = getattr(CustomLossFunctions, loss_function, None)
             if custom_loss_method is not None and callable(custom_loss_method):
                 return custom_loss_method
             else:
-                raise ValueError(f"Méthode de perte personnalisée inconnue : {loss_function}")
-        elif loss_function in dir(F) and callable(getattr(F, loss_function)):
-            return getattr(F, loss_function)
+                raise ValueError(f"Unknown custom loss function : {loss_function}")
+        elif loss_function in dir(f) and callable(getattr(f, loss_function)):
+            return getattr(f, loss_function)
         else:
-            raise ValueError(f"Fonction de perte inconnue : {loss_function}")
+            raise ValueError(f"Unknown loss function : {loss_function}")
             
     def create_data_file(self):
         """
         Creates a data file for training using the CreateDataFile class.
         """
-        CreateDataFile = Creator.CreateDataFile(self.star_number, self.loader.model, self.config_file_path)
-        CreateDataFile.execute()
+        creator = CreateDataFile(self.star_number, self.loader.model, self.config_file_path)
+        creator.execute()
         
     def train(self):
         """
         Initiates and runs the training process using MainTrainer class.
         """
-        self.maintrainer = MainTrainer.MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens, self.ext_loss_function, 
-                                                        self.dens_loss_function, self.ext_reduction_method, self.dens_reduction_method,
-                                                        self.learning_rate, self.device, self.dataset, self.builder, self.network, self.opti, self.hidden_size,
-                                                        self.max_distance, self.config_file_path, self.batch_size)
-        self.maintrainer.run()
+        self.main_trainer = MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens,
+                                        self.ext_loss_function, self.dens_loss_function,
+                                        self.ext_reduction_method, self.dens_reduction_method,
+                                        self.learning_rate, self.device, self.dataset, self.builder,
+                                        self.network, self.opti, self.hidden_size, self.max_distance,
+                                        self.config_file_path, self.batch_size
+                                        )
+        self.main_trainer.run()
         
     def calculate_density_extinction(self):
         """
         Calculates the density and extinction values using the ModelCalculator class.
         """
-        calculator = Calculator.ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5., 0.1, self.max_distance, self.device, self.network, self.config_file_path)
+        calculator = ModelCalculator(self.loader.model, self.builder, 5.1, -5., 5.1, -5.,
+                                     0.1, self.max_distance, self.device, self.network, self.config_file_path
+                                     )
         calculator.compute_extinction_grid()
         calculator.compute_extinction_sight()
-        if(self.compute_density):
+        if self.compute_density:
             calculator.compute_density_grid()
             calculator.compute_density_sight()
         
-    def Visualize(self):
+    def visualize(self):
         """
-        Visualize the results (saave the plot in the "Plots" subsirectory of the current test directory) using the ModelVisualizer class.
+        Visualize the results (save the plot in the "Plots" subdirectory of the current test directory) using
+        the ModelVisualizer class.
         """
-        visualizer = Visualizer.ModelVisualizer(self.config_file_path,self.dataset, self.max_distance)
-        if(self.compute_density):
+        visualizer = ModelVisualizer(self.config_file_path, self.dataset, self.max_distance)
+        if self.compute_density:
             visualizer.compare_densities()
         visualizer.compare_extinctions()
         visualizer.extinction_vs_distance()
@@ -209,21 +244,22 @@ class MainProgram:
         """
         Executes the complete program, including loading parameters, setting them, creating a data file, and training.
         """
-        #self.create_data_file()
+        self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.builder = Builder.ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
+        self.builder = ExtinctionNeuralNetBuilder(self.device, self.hidden_size, self.learning_rate)
         self.network, self.opti = self.builder.create_net_integ(self.hidden_size)
         self.get_max_distance()
         self.train()
         self.calculate_density_extinction()
-        self.Visualize()
-        
+        self.visualize()
+
+
 if __name__ == "__main__":
     start_time = time.time()
     
-    mainprogram = MainProgram()
-    mainprogram.execute()
+    main_program = MainProgram()
+    main_program.execute()
     
     process_time = time.time() - start_time
     print("Process time: ", round(process_time, 0), " seconds")

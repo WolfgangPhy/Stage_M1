@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class ExtinctionNeuralNet(nn.Module):
     """
     Neural network model for extinction prediction.

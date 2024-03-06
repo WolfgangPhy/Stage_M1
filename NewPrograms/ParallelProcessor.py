@@ -1,7 +1,8 @@
 import numpy as np
 import torch
-import ExtinctionModelHelper as Helper
-import Dataset2D as ds
+from ExtinctionModelHelper import ExtinctionModelHelper
+from Dataset2D import Dataset2D
+
 
 class ParallelProcessor:
     """
@@ -69,8 +70,10 @@ class ParallelProcessor:
         # Use a loop for parallel processing
         for i in range(star_number):
             pool.apply_async(
-                Helper.ExtinctionModelHelper.integ_d_async,
-                args=(i, Helper.ExtinctionModelHelper.compute_extinction_model_density, ell[i].data, b[i].data, d[i].data, model),
+                ExtinctionModelHelper.integ_d_async,
+                args=(i, ExtinctionModelHelper.compute_extinction_model_density, ell[i].data,
+                      b[i].data, d[i].data, model
+                      ),
                 callback=collect_result,
                 error_callback=error_callback
             )
@@ -85,11 +88,11 @@ class ParallelProcessor:
 
         print("Adding errors")
         for i in range(star_number):
-            error[i] = K[i].item() * np.random.uniform(low=0.01, high=0.1) #TODO
+            error[i] = K[i].item() * np.random.uniform(low=0.01, high=0.1)  # TODO
             K[i] = K[i].item() + np.random.normal(scale=error[i].item())
 
         # Return the processed dataset
-        return ds.Dataset2D(ell, d, K, error)
+        return Dataset2D(ell, d, K, error)
     
 
     
