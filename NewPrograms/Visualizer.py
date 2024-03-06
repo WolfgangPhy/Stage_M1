@@ -6,7 +6,7 @@ from FileHelper import FileHelper
 import os
 
 
-class ModelVisualizer:
+class Visualizer:
     """
     A class providing methods for visualizing extinction model predictions.
     

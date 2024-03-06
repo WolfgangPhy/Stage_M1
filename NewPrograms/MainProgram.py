@@ -5,12 +5,12 @@ import torch.nn.functional as f
 import numpy as np
 from MainTrainer import MainTrainer
 from CreateDataFile import CreateDataFile
-from ModelCalculator import ModelCalculator
-from ExtinctionModelLoader import ModelLoader
+from ModelCalculator import Calculator
+from NewPrograms.ModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from NewPrograms.ExtinctionNeuralNetHelper import NetworkHelper
+from NewPrograms.NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
-from ModelVisualizer import ModelVisualizer
+from ModelVisualizer import Visualizer
 
 
 class MainProgram:
@@ -218,7 +218,7 @@ class MainProgram:
         """
         Calculates the density and extinction values using the ModelCalculator class.
         """
-        calculator = ModelCalculator(self.loader.model, 5.1, -5., 5.1, -5.,
+        calculator = Calculator(self.loader.model, 5.1, -5., 5.1, -5.,
                                      0.1, self.max_distance, self.device, self.network, self.config_file_path
                                      )
         calculator.compute_extinction_grid()
@@ -232,7 +232,7 @@ class MainProgram:
         Visualize the results (save the plot in the "Plots" subdirectory of the current test directory) using
         the ModelVisualizer class.
         """
-        visualizer = ModelVisualizer(self.config_file_path, self.dataset, self.max_distance)
+        visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
         if self.compute_density:
             visualizer.compare_densities()
         visualizer.compare_extinctions()

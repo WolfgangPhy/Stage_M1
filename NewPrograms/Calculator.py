@@ -1,12 +1,12 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-from ExtinctionModelHelper import ModelHelper
-from ExtinctionNeuralNetHelper import NetworkHelper
+from NewPrograms.ModelHelper import ModelHelper
+from NewPrograms.NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 
 
-class ModelCalculator:
+class Calculator:
     """
     A class for computing density and extinction models on a grid and along lines of sight.
 
