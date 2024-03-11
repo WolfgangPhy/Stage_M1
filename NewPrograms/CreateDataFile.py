@@ -1,6 +1,6 @@
 import torch
 import multiprocessing as mp
-import ParallelProcessor as ParaProcess
+from ParallelProcessor import ParallelProcessor
 from FileHelper import FileHelper
 
 
@@ -39,7 +39,7 @@ class CreateDataFile:
         pool = mp.Pool(processor_num)
         
         # Process the model in parallel and get the dataset
-        dataset = ParaProcess.ParallelProcessor.process_parallel(
+        dataset = ParallelProcessor.process_parallel(
             self.model, pool, self.star_number, device, dtype
         )
 

@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-from NewPrograms.ModelHelper import ModelHelper
-from NewPrograms.NetworkHelper import NetworkHelper
+from ModelHelper import ModelHelper
+from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 
 
@@ -11,7 +11,7 @@ class Calculator:
     A class for computing density and extinction of the model and the network on a grid and along lines of sight.
 
     # Args:
-        - `model`: Extinction model for computation.
+        - `model (ExtinctionModel)`: Extinction model for computation.
         - `x_max`: Maximum x-coordinate for the grid.
         - `x_min`: Minimum x-coordinate for the grid.
         - `y_max`: Maximum y-coordinate for the grid.

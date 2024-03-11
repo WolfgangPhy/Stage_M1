@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import pandas as pd
 import os
+import pickle
 from FileHelper import FileHelper
+from ModelHelper import ModelHelper
 
 
 class Visualizer:
@@ -81,7 +82,7 @@ class Visualizer:
             self.dens_grid_datas = np.load(self.dens_grid_filename)
         if os.path.exists(self.ext_los_filename):
             self.ext_sight_datas = np.load(self.ext_los_filename)
-        # self.dens_sight_datas = np.load(self.dens_los_filename)
+        #self.dens_sight_datas = np.load(self.dens_los_filename)
         lossfile = FileHelper.give_config_value(self.config_file_name, "lossfile")
         valfile = FileHelper.give_config_value(self.config_file_name, "valfile")
         self.lossdatas = pd.read_csv(lossfile)
@@ -149,220 +150,59 @@ class Visualizer:
         fig.colorbar(cs3, ax=ax3)
         plt.savefig(extinction_plot_path)
         # plt.show()
-
-    def extinction_vs_distance(self):
-        """
-        Plot true and network extinction along lines of sight and save the plot in the Plots subdirectory of
-        the current test directory.
-        """
+  
+    def extinction_vs_distance_2(self):
         ells = self.ext_sight_datas['ells']
         distance = self.ext_sight_datas['distance']
         los_ext_true = self.ext_sight_datas['los_ext_true']
         los_ext_network = self.ext_sight_datas['los_ext_network']
         extinction_los_plot_path = FileHelper.give_config_value(self.config_file_name, "extinction_los_plot")
-
-        fig, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8)) = plt.subplots(2, 4, figsize=(35, 20))
+        
+        fig, axes = plt.subplots(2, 4, figsize=(35, 20))
         delta = 0.5
-        ttl = 'l=' + str(ells[0])
-        ax1.set_title(ttl)
-        ax1.plot(distance, los_ext_true[0, :], label='True extinction')
-        ax1.plot(distance, los_ext_network[0, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[0] - delta < self.dataset.ell[i].item() <= ells[0] + delta:
-                xdata.append((self.dataset.distance[i].item()))
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr1 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(np.abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr1[i] = np.var(los_ext_network[0, i] - ydata[idx])
-            else:
-                recerr1[i] = los_ext_network[0, i] * los_ext_network[0, i]
-        ax1.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax1.set_xlabel('d (kpc)')
-        ax1.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[1])
-        ax2.set_title(ttl)
-        ax2.plot(distance, los_ext_true[1, :], label='True extinction')
-        ax2.plot(distance, los_ext_network[1, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[1] - delta < self.dataset.ell[i].item() <= ells[1] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr2 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr2[i] = np.var(los_ext_network[1, i] - ydata[idx])
-            else:
-                recerr2[i] = los_ext_network[1, i] * los_ext_network[1, i]
-        ax2.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax2.set_xlabel('d (kpc)')
-        ax2.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[2])
-        ax3.set_title(ttl)
-        ax3.plot(distance, los_ext_true[2, :], label='True extinction')
-        ax3.plot(distance, los_ext_network[2, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[2] - delta < self.dataset.ell[i].item() <= ells[2] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr3 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr3[i] = np.var(los_ext_network[2, i] - ydata[idx])
-            else:
-                recerr3[i] = los_ext_network[2, i] * los_ext_network[2, i]
-        ax3.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax3.set_xlabel('d (kpc)')
-        ax3.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[3])
-        ax4.set_title(ttl)
-        ax4.plot(distance, los_ext_true[3, :], label='True extinction')
-        ax4.plot(distance, los_ext_network[3, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[3] - delta < self.dataset.ell[i].item() <= ells[3] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr4 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr4[i] = np.var(los_ext_network[3, i] - ydata[idx])
-            else:
-                recerr4[i] = los_ext_network[3, i] * los_ext_network[3, i]
-        ax4.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax4.set_xlabel('d (kpc)')
-        ax4.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[4])
-        ax5.set_title(ttl)
-        ax5.plot(distance, los_ext_true[4, :], label='True extinction')
-        ax5.plot(distance, los_ext_network[4, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[4] - delta < self.dataset.ell[i].item() <= ells[4] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr5 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr5[i] = np.var(los_ext_network[4, i] - ydata[idx])
-            else:
-                recerr5[i] = los_ext_network[4, i] * los_ext_network[4, i]
-        ax5.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax5.set_xlabel('d (kpc)')
-        ax5.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[5])
-        ax6.set_title(ttl)
-        ax6.plot(distance, los_ext_true[5, :], label='True extinction')
-        ax6.plot(distance, los_ext_network[5, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[5] - delta < self.dataset.ell[i].item() <= ells[5] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr6 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr6[i] = np.var(los_ext_network[5, i] - ydata[idx])
-            else:
-                recerr6[i] = los_ext_network[5, i] * los_ext_network[5, i]
-        ax6.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax6.set_xlabel('d (kpc)')
-        ax6.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[6])
-        ax7.set_title(ttl)
-        ax7.plot(distance, los_ext_true[6, :], label='True extinction')
-        ax7.plot(distance, los_ext_network[6, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[6] - delta < self.dataset.ell[i].item() <= ells[6] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr7 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr7[i] = np.var(los_ext_network[6, i] - ydata[idx])
-            else:
-                recerr7[i] = los_ext_network[6, i] * los_ext_network[6, i]
-        ax7.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax7.set_xlabel('d (kpc)')
-        ax7.set_ylabel('K (mag)')
-
-        ttl = 'l=' + str(ells[7])
-        ax8.set_title(ttl)
-        ax8.plot(distance, los_ext_true[7, :], label='True extinction')
-        ax8.plot(distance, los_ext_network[7, :], label='Network extinction')
-        xdata = []
-        ydata = []
-        errdata = []
-        for i in range(self.dataset.__len__()):
-            if ells[7] - delta < self.dataset.ell[i].item() <= ells[7] + delta:
-                xdata.append((1. + self.dataset.distance[i].item()) * self.max_distance / 2.)
-                ydata.append(self.dataset.K[i])
-                errdata.append(self.dataset.error[i].item())
-        xdata = np.array(xdata)
-        ydata = np.array(ydata)
-        recerr8 = distance * 0.
-        for i in range(len(distance)):
-            idx = np.where(abs(distance[i] - xdata) < 0.2)
-            if len(idx[0]) > 0:
-                recerr8[i] = np.var(los_ext_network[7, i] - ydata[idx])
-            else:
-                recerr8[i] = los_ext_network[7, i] * los_ext_network[7, i]
-        ax8.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-        ax8.set_xlabel('d (kpc)')
-        ax8.set_ylabel('K (mag)')
-
+        
+        for i in range(len(ells)):
+            ax = axes[i//4, i%4]
+            ttl = 'l=' + str(ells[i])
+            ax.set_title(ttl)
+            ax.plot(distance, los_ext_true[i, :], label='True extinction')
+            ax.plot(distance, los_ext_network[i, :], label='Network extinction')
+            xdata = []
+            ydata = []
+            errdata = []
+            for j in range(self.dataset.__len__()):
+                if ells[i] - delta < self.dataset.ell[j].item() <= ells[i] + delta:
+                    xdata.append((self.dataset.distance[j].item()))
+                    ydata.append(self.dataset.K[j])
+                    errdata.append(self.dataset.error[j].item())
+            xdata = np.array(xdata)
+            ydata = np.array(ydata)
+            recerr = distance * 0.
+            for j in range(len(distance)):
+                idx = np.where(abs(distance[j] - xdata) < 0.2)
+                if len(idx[0]) > 0:
+                    recerr[j] = np.var(los_ext_network[i, j] - ydata[idx])
+                else:
+                    recerr[j] = los_ext_network[i, j] * los_ext_network[i, j]
+            ax.errorbar(xdata, ydata, yerr=errdata, fmt='o')
+            ax.set_xlabel('d (kpc)')
+            ax.set_ylabel('K (mag)')
+            
         plt.legend()
         plt.savefig(extinction_los_plot_path)
-        # plt.show()
+        
+    def plot_model(self):
+        file_model = FileHelper.give_config_value(self.config_file_name, "model_file")
+        with open(file_model,"rb") as file:
+            model = pickle.load(file)
+            file.close()
+        
+        X,Y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
+        dens = X*0.
+        for i in range(len(X[:,1])):
+            for j in range(len(X[1,:])):
+                dens[i,j] = ModelHelper.compute_extinction_model_density(model, X[i, j], Y[i, j], 0.)
+                
+        plt.pcolormesh(X, Y, dens, shading='auto', cmap=plt.cm.gist_yarg)
+        plt.show()
+        
