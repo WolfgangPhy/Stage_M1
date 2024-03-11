@@ -11,32 +11,32 @@ class Calculator:
     A class for computing density and extinction of the model and the network on a grid and along lines of sight.
 
     # Args:
-        - `model`: Extinction model for computation.
-        - `x_max`: Maximum x-coordinate for the grid.
-        - `x_min`: Minimum x-coordinate for the grid.
-        - `y_max`: Maximum y-coordinate for the grid.
-        - `y_min`: Minimum y-coordinate for the grid.
-        - `step`: Step size for the grid.
-        - `max_distance`: Maximum distance for normalization.
-        - `device`: Device (CPU/GPU) for PyTorch operations.
-        - `network`: Neural network for predictions.
-        - `config_file_path`: Path to the current test configuration file.
+        - `model (ExtinctionModel)`: Extinction model for computation.
+        - `x_max (int)`: Maximum x-coordinate for the grid.
+        - `x_min (int)`: Minimum x-coordinate for the grid.
+        - `y_max (int)`: Maximum y-coordinate for the grid.
+        - `y_min (int)`: Minimum y-coordinate for the grid.
+        - `step (int)`: Step size for the grid.
+        - `max_distance (float)`: Maximum distance for normalization.
+        - `device (torch.device)`: Device (CPU/GPU) for PyTorch operations.
+        - `network (torch.nn.Module)`: Neural network for predictions.
+        - `config_file_path (str)`: Path to the current test configuration file.
 
     # Attributes:
-        - `model`: Extinction model for computation.
-        - `x_max`: Maximum x-coordinate for the grid.
-        - `x_min`: Minimum x-coordinate for the grid.
-        - `y_max`: Maximum y-coordinate for the grid.
-        - `y_min`: Minimum y-coordinate for the grid.
-        - `step`: Step size for the grid.
-        - `max_distance`: Maximum distance for normalization.
-        - `device`: Device (CPU/GPU) for PyTorch operations.
-        - `network`: Neural network for predictions.
-        - `config_file_path`: Path to the current test configuration file.
-        - `ext_grid_filename`: Filename for the extinction grid file.
-        - `ext_los_filename`: Filename for the extinction lines of sight file.
-        - `dens_grid_filename`: Filename for the density grid file.
-        - `dens_los_filename`: Filename for the density lines of sight file.
+        - `model (ExtinctionModel)`: Extinction model for computation.
+        - `x_max (int)`: Maximum x-coordinate for the grid.
+        - `x_min (int)`: Minimum x-coordinate for the grid.
+        - `y_max (int)`: Maximum y-coordinate for the grid.
+        - `y_min (int)`: Minimum y-coordinate for the grid.
+        - `step (int)`: Step size for the grid.
+        - `max_distance (float)`: Maximum distance for normalization.
+        - `device (torch.device)`: Device (CPU/GPU) for PyTorch operations.
+        - `network (torch.nn.Module)`: Neural network for predictions.
+        - `config_file_path (str)`: Path to the current test configuration file.
+        - `ext_grid_filename (str)`: Filename for the extinction grid file.
+        - `ext_los_filename (str)`: Filename for the extinction lines of sight file.
+        - `dens_grid_filename (str)`: Filename for the density grid file.
+        - `dens_los_filename (str)`: Filename for the density lines of sight file.
 
     # Methods:
         - `compute_extinction_grid()`: Compute extinction on a 2D grid.
