@@ -13,12 +13,12 @@ class Visualizer:
     A class providing methods for visualizing extinction model predictions.
     
     # Args:
-        - `config_file_name (str)`: Name of the configuration file.
+        - `config_file_path (str)`: Name of the configuration file.
         - `dataset (ExtinctionDataset)`: Instance of the extinction dataset.
         - `max_distance (float)`: Maximum distance in the dataset.
     
     # Attributes:
-        - `config_file_name (str)`: Name of the configuration file.
+        - `config_file_path (str)`: Name of the configuration file.
         - `ext_grid_filename (str)`: Filename for the extinction grid data.
         - `dens_grid_filename (str)`: Filename for the density grid data.
         - `ext_los_filename (str)`: Filename for the extinction line-of-sight data.
@@ -41,17 +41,17 @@ class Visualizer:
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
     """
 
-    def __init__(self, config_file_name, dataset, max_distance):
+    def __init__(self, config_file_path, dataset, max_distance):
         self.valdatas = None
         self.lossdatas = None
         self.ext_sight_datas = None
         self.dens_grid_datas = None
         self.ext_grid_datas = None
-        self.config_file_name = config_file_name
-        self.ext_grid_filename = FileHelper.give_config_value(self.config_file_name, "ext_grid_file")
-        self.dens_grid_filename = FileHelper.give_config_value(self.config_file_name, "dens_grid_file")
-        self.ext_los_filename = FileHelper.give_config_value(self.config_file_name, "ext_los_file")
-        self.dens_los_filename = FileHelper.give_config_value(self.config_file_name, "dens_los_file")
+        self.config_file_path = config_file_path
+        self.ext_grid_filename = FileHelper.give_config_value(self.config_file_path, "ext_grid_file")
+        self.dens_grid_filename = FileHelper.give_config_value(self.config_file_path, "dens_grid_file")
+        self.ext_los_filename = FileHelper.give_config_value(self.config_file_path, "ext_los_file")
+        self.dens_los_filename = FileHelper.give_config_value(self.config_file_path, "dens_los_file")
         self.dataset = dataset
         self.max_distance = max_distance
         self.load_datas()
@@ -60,7 +60,7 @@ class Visualizer:
         """
         Plot the training and validation loss and save the plot in the Plots subdirectory of the current test directory.
         """
-        loss_plot_path = FileHelper.give_config_value(self.config_file_name, "loss_plot")
+        loss_plot_path = FileHelper.give_config_value(self.config_file_path, "loss_plot")
         sns.set_theme()
         fig, ax = plt.subplots(1, 1, figsize=(15, 10))
         sns.lineplot(data=self.lossdatas, x='Epoch', y='TotalLoss', label='Training loss', ax=ax)
@@ -83,8 +83,8 @@ class Visualizer:
         if os.path.exists(self.ext_los_filename):
             self.ext_sight_datas = np.load(self.ext_los_filename)
         #self.dens_sight_datas = np.load(self.dens_los_filename)
-        lossfile = FileHelper.give_config_value(self.config_file_name, "lossfile")
-        valfile = FileHelper.give_config_value(self.config_file_name, "valfile")
+        lossfile = FileHelper.give_config_value(self.config_file_path, "lossfile")
+        valfile = FileHelper.give_config_value(self.config_file_path, "valfile")
         self.lossdatas = pd.read_csv(lossfile)
         self.valdatas = pd.read_csv(valfile)
 
@@ -97,7 +97,7 @@ class Visualizer:
         y = self.dens_grid_datas['Y']
         dens_true = self.dens_grid_datas['density_model']
         dens_network = self.dens_grid_datas['density_network']
-        density_plot_path = FileHelper.give_config_value(self.config_file_name, "density_plot")
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_plot")
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
         cs = ax1.set_title('True density')
@@ -129,7 +129,7 @@ class Visualizer:
         y = self.ext_grid_datas['Y']
         ext_true = self.ext_grid_datas['extinction_model']
         ext_network = self.ext_grid_datas['extinction_network']
-        extinction_plot_path = FileHelper.give_config_value(self.config_file_name, "extinction_plot")
+        extinction_plot_path = FileHelper.give_config_value(self.config_file_path, "extinction_plot")
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
         cs = ax1.set_title('True Extinction')
@@ -156,7 +156,7 @@ class Visualizer:
         distance = self.ext_sight_datas['distance']
         los_ext_true = self.ext_sight_datas['los_ext_true']
         los_ext_network = self.ext_sight_datas['los_ext_network']
-        extinction_los_plot_path = FileHelper.give_config_value(self.config_file_name, "extinction_los_plot")
+        extinction_los_plot_path = FileHelper.give_config_value(self.config_file_path, "extinction_los_plot")
         
         fig, axes = plt.subplots(2, 4, figsize=(35, 20))
         delta = 0.5
@@ -192,7 +192,8 @@ class Visualizer:
         plt.savefig(extinction_los_plot_path)
         
     def plot_model(self):
-        file_model = FileHelper.give_config_value(self.config_file_name, "model_file")
+        file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
+        file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
         with open(file_model,"rb") as file:
             model = pickle.load(file)
             file.close()
@@ -203,6 +204,6 @@ class Visualizer:
             for j in range(len(X[1,:])):
                 dens[i,j] = ModelHelper.compute_extinction_model_density(model, X[i, j], Y[i, j], 0.)
                 
-        plt.pcolormesh(X, Y, dens, shading='auto', cmap=plt.cm.gist_yarg)
-        plt.show()
+        plt.pcolormesh(X, Y, dens, shading='auto', cmap="inferno")
+        plt.savefig(file_model_plot)
         
