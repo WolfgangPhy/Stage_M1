@@ -3,7 +3,7 @@ class CustomLossFunctions:
     A class containing custom loss functions for PyTorch models.
 
     # Methods:
-    - loglike_loss(prediction, label, reduction_method): Computes the log likelihood loss. (Static)
+        - loglike_loss(prediction, label, reduction_method): Computes the log likelihood loss. (Static)
     """
     @staticmethod
     def loglike_loss(prediction, label, reduction):

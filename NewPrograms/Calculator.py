@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-from NewPrograms.ModelHelper import ModelHelper
-from NewPrograms.NetworkHelper import NetworkHelper
+from ModelHelper import ModelHelper
+from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 
 

@@ -28,7 +28,7 @@ class MainTrainer:
         - `learning_rate (float)`: Learning rate for updating network parameters.
         - `device (torch.device)`: Computing device for running the neural network.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
-        - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
+        - `network (ExtinctionNetwork)`: Neural network model for extinction and density estimation.
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
         - `hidden_size (int)`: Size of the hidden layer in the neural network.
         - `max_distance (float)`: Maximum distance in the dataset.
@@ -38,10 +38,10 @@ class MainTrainer:
     # Attributes:
         - `logfile (file)`: Logfile for recording training progress and results.
         - `dataset (torch.Dataset)`: Dataset containing training and validation samples.
-        - `trainer (ExtinctionNeuralNetTrainer)`: Trainer for the extinction neural network.
+        - `trainer (NetworkTrainer)`: Trainer for the extinction neural network.
         - `train_loader (torch.utils.data.DataLoader)`: Dataloader for training minibatches.
         - `val_loader (torch.utils.data.DataLoader)`: Dataloader for validation minibatches.
-        - `network (ExtinctionNeuralNet)`: Neural network model for extinction and density estimation.
+        - `network (ExtinctionNetwork)`: Neural network model for extinction and density estimation.
         - `opti (torch.optim.Adam)`: Adam optimizer for updating network parameters.
         - `epoch_number (int)`: Number of epochs for training the neural network.
         - `epoch (int)`: Current epoch in the training process.
@@ -210,7 +210,7 @@ class MainTrainer:
         """
         self.network.apply(NetworkHelper.init_weights)  # TODO : init_wieghts do not return anything
         self.network.to(self.device) 
-        self.network.train()
+        self.network.train() # Set the network to training mode
         
     def init_training(self):
         """
@@ -258,7 +258,7 @@ class MainTrainer:
             # loop over minibatches
             nbatch = 0
             for in_batch, tar_batch in self.train_loader:
-                nbatch = nbatch+1
+                nbatch += 1
                 self.loss_ext_total, self.loss_dens_total = self.trainer.take_step(in_batch, tar_batch,
                                                                                    self.loss_ext_total,
                                                                                    self.loss_dens_total,

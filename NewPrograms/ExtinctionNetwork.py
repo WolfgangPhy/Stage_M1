@@ -28,9 +28,9 @@ class ExtinctionNetwork(nn.Module):
     def __init__(self, hidden_size, device):
         super(ExtinctionNetwork, self).__init__()
         self.hidden_size = hidden_size
-        self.linear1 = nn.Linear(3, self.hidden_size, bias=True).to(device)
-        self.linear2 = nn.Linear(self.hidden_size, 1, bias=True).to(device)
-        self.sigmoid = nn.Sigmoid().to(device)
+        self.linear1 = nn.Linear(3, self.hidden_size, bias=True)
+        self.linear2 = nn.Linear(self.hidden_size, 1, bias=True)
+        self.sigmoid = nn.Sigmoid()
         
     def forward(self, tensor):
         """
