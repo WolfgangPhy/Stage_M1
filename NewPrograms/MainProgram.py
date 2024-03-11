@@ -222,24 +222,24 @@ class MainProgram:
         the ModelVisualizer class.
         """
         visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
-        visualizer.plot_model()
-        if self.compute_density:
-            visualizer.compare_densities()
-        visualizer.compare_extinctions()
-        visualizer.extinction_vs_distance_2()
-        visualizer.loss_function()
+        #visualizer.plot_model()
+        #if self.compute_density:
+        #    visualizer.compare_densities()
+        #visualizer.compare_extinctions()
+        visualizer.extinction_vs_distance()
+        #visualizer.loss_function()
         
     def execute(self):
         """
         Executes the complete program, including loading parameters, setting them, creating a data file, and training.
         """
-        self.create_data_file()
+        #self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
+        #self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
         self.get_max_distance()
-        self.train()
-        self.calculate_density_extinction()
+        #self.train()
+        #self.calculate_density_extinction()
         self.visualize()
 
 

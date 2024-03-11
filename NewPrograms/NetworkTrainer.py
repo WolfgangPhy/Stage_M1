@@ -142,7 +142,7 @@ class NetworkTrainer:
         in_batch_validation_set = in_batch_validation_set.float().to(self.device)
         tar_batch_validation_set = tar_batch_validation_set.to(self.device)
 
-        y0_val = tar_batch_validation_set.clone().detach()  # TODO delete ?
+        y0_val = tar_batch_validation_set.clone().detach()
         y0_val = tar_batch_validation_set[:, 0].unsqueeze(1) * 0.
 
         # density estimation at each location

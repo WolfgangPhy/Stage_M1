@@ -208,7 +208,7 @@ class MainTrainer:
         The network is created with a hidden layer size determined by a formula based on the dataset size.
 
         """
-        self.network.apply(NetworkHelper.init_weights)  # TODO : init_wieghts do not return anything
+        self.network.apply(NetworkHelper.init_weights)
         self.network.to(self.device) 
         self.network.train() # Set the network to training mode
         

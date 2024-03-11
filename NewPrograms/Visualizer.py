@@ -150,8 +150,8 @@ class Visualizer:
         fig.colorbar(cs3, ax=ax3)
         plt.savefig(extinction_plot_path)
         # plt.show()
-  
-    def extinction_vs_distance_2(self):
+        
+    def extinction_vs_distance(self):
         ells = self.ext_sight_datas['ells']
         distance = self.ext_sight_datas['distance']
         los_ext_true = self.ext_sight_datas['los_ext_true']
@@ -172,7 +172,7 @@ class Visualizer:
             errdata = []
             for j in range(self.dataset.__len__()):
                 if ells[i] - delta < self.dataset.ell[j].item() <= ells[i] + delta:
-                    xdata.append((self.dataset.distance[j].item()))
+                    xdata.append(self.dataset.distance[j].item())
                     ydata.append(self.dataset.K[j])
                     errdata.append(self.dataset.error[j].item())
             xdata = np.array(xdata)
