@@ -1,8 +1,8 @@
 {
     "nu_ext": 1.0,
-    "nu_dens": 1.0,
-    "ext_loss_function": "mse_loss",
-    "ext_loss_function_custom": false,
+    "nu_dens": 0.0,
+    "ext_loss_function": "log_like",
+    "ext_loss_function_custom": true,
     "dens_loss_function": "mse_loss",
     "dens_loss_function_custom": false,
     "star_number": 10000,

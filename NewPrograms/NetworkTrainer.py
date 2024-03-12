@@ -105,14 +105,21 @@ class NetworkTrainer:
             else:
                 print(e)
         # density at point in_batch must be positive
-        loss_dens = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0, reduction=self.dens_reduction_method)
+        if nu_dens > 0.0:
+            loss_dens = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0, reduction=self.dens_reduction_method)
 
         # combine loss functions
-        fullloss = loss_dens + loss_extinction
+        if nu_dens > 0.0:
+            fullloss = loss_dens + loss_extinction
+        else:
+            fullloss = loss_extinction
 
         # compute total loss of epoch (for monitoring)
         loss_ext_total += loss_extinction.item()
-        loss_dens_total += loss_dens.item()
+        if nu_dens > 0.0:
+            loss_dens_total += loss_dens.item()
+        else:
+            loss_dens_total = 0.0
 
         # zero gradients before taking step (gradients are additive, if not set to zero then adds
         # to the previous gradients)
@@ -181,9 +188,14 @@ class NetworkTrainer:
                 print(e)
 
         # density at point in_batch must be positive
-        loss_density = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0_val, reduction=self.dens_reduction_method)
+        if nu_dens > 0.0:
+            loss_density = nu_dens * self.dens_loss_function(F.relu(-1.*dens), y0_val,
+                                                             reduction=self.dens_reduction_method)
 
-        val_dens_total += loss_density.item()
+        if nu_dens > 0.0:
+            val_dens_total += loss_density.item()
+        else:
+            val_dens_total = 0.0
         val_ext_total += loss_extinction.item()
 
         return val_ext_total, val_dens_total
