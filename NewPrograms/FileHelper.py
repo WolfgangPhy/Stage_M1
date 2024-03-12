@@ -73,6 +73,7 @@ class FileHelper:
             config_data['ext_los_file'] = os.path.join('./', directory_name, config_data['ext_los_file'][2:])
             config_data['dens_los_file'] = os.path.join('./', directory_name, config_data['dens_los_file'][2:])
             config_data['density_plot'] = os.path.join('./', directory_name, config_data['density_plot'][2:])
+            config_data['density_los_plot'] = os.path.join('./', directory_name, config_data['density_los_plot'][2:])
             config_data['extinction_plot'] = os.path.join('./', directory_name, config_data['extinction_plot'][2:])
             config_data['extinction_los_plot'] = os.path.join('./', directory_name,
                                                               config_data['extinction_los_plot'][2:]
