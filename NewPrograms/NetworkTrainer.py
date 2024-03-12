@@ -1,6 +1,7 @@
 import torch.nn.functional as F
 from NetworkHelper import NetworkHelper
 
+
 class NetworkTrainer:
     """
     A class for training the extinction neural network.

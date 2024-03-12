@@ -117,11 +117,11 @@ class NetworkHelper:
                 the Adam optimizer.
         """
         if is_new_network:
-            network = ExtinctionNetwork(hidden_size, device)
+            network = ExtinctionNetwork(hidden_size)
         else:
             network_file = FileHelper.give_config_value(config_file_path, "outfile") + f"_e{epoch_number}.pt"
             checkpoint = torch.load(network_file, map_location='cpu')
-            network = ExtinctionNetwork(hidden_size, device)
+            network = ExtinctionNetwork(hidden_size)
             network.load_state_dict(checkpoint['integ_state_dict'])
             network.eval()
             network.to(device)

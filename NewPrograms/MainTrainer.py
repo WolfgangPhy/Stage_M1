@@ -212,7 +212,7 @@ class MainTrainer:
         """
         self.network.apply(NetworkHelper.init_weights)
         self.network.to(self.device) 
-        self.network.train() # Set the network to training mode
+        self.network.train()  # Set the network to training mode
         
     def init_training(self):
         """
@@ -243,10 +243,9 @@ class MainTrainer:
 
         """
         tstart = time.time()
-        self.trainer = NetworkTrainer(self.network, self.device, self.opti,self.ext_loss_function,
-                                                  self.dens_loss_function, self.ext_reduction_method,
-                                                  self.dens_reduction_method
-                                                  )
+        self.trainer = NetworkTrainer(self.network, self.device, self.opti, self.ext_loss_function,
+                                      self.dens_loss_function, self.ext_reduction_method, self.dens_reduction_method
+                                      )
         for idx in tqdm(range(self.epoch_number+1)):
         
             # set start time of epoch and epoch number

@@ -79,17 +79,17 @@ class Visualizer:
     def plot_model(self):
         file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
         file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
-        with open(file_model,"rb") as file:
+        with open(file_model, "rb") as file:
             model = pickle.load(file)
             file.close()
         
-        X,Y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
-        dens = X*0.
-        for i in range(len(X[:,1])):
-            for j in range(len(X[1,:])):
-                dens[i,j] = ModelHelper.compute_extinction_model_density(model, X[i, j], Y[i, j], 0.)
+        x, y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
+        dens = x*0.
+        for i in range(len(x[:, 1])):
+            for j in range(len(x[1, :])):
+                dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
                 
-        plt.pcolormesh(X, Y, dens, shading='auto', cmap="inferno")
+        plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
         plt.savefig(file_model_plot)
        
     def loss_function(self):
@@ -183,7 +183,7 @@ class Visualizer:
         delta = 0.5
         
         for i in range(len(ells)):
-            ax = axes[i//4, i%4]
+            ax = axes[i//4, i % 4]
             ttl = 'l=' + str(ells[i])
             ax.set_title(ttl)
             sns.lineplot(x=distance, y=los_ext_true[i, :], ax=ax, label='True extinction')
@@ -224,7 +224,7 @@ class Visualizer:
         delta = 0.5
         
         for i in range(len(ells)):
-            ax = axes[i//4, i%4]
+            ax = axes[i//4, i % 4]
             ttl = 'l=' + str(ells[i])
             ax.set_title(ttl)
             

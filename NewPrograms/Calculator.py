@@ -82,16 +82,15 @@ class Calculator:
                 ell[i, j], r_model[i, j] = (ModelHelper.
                                             convert_cartesian_to_galactic_2D(x[i, j], y[i, j])
                                             )
-                extinction_model[i, j] = ModelHelper.integ_d(ModelHelper
-                                                                       .compute_extinction_model_density,
-                                                                       ell[i, j], 0., r_model[i, j], self.model
-                                                                       )
+                extinction_model[i, j] = ModelHelper.integ_d(ModelHelper.compute_extinction_model_density,
+                                                             ell[i, j], 0., r_model[i, j], self.model
+                                                             )
                 
                 data = torch.Tensor([cosell[i, j], sinell[i, j], 2.*r_network[i, j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
                 extinction_network[i, j] = NetworkHelper.integral(torch.transpose(data.to(self.device), 0, 1),
-                                                                 self.network, min_distance=-1.
-                                                                 )
+                                                                  self.network, min_distance=-1.
+                                                                  )
                 
         np.savez(self.ext_grid_filename, extinction_model=extinction_model, extinction_network=extinction_network,
                  X=x, Y=y
@@ -114,8 +113,7 @@ class Calculator:
         print("Computing density on a 2D grid")
         for i in tqdm(range(len(x[:, 1])), desc='Rows'):
             for j in tqdm(range(len(x[1, :])), desc=f'Column number {i}', leave=False):
-                density_model[i, j] = ModelHelper.compute_extinction_model_density(self.model, x[i, j],
-                                                                                             y[i, j], 0.)
+                density_model[i, j] = ModelHelper.compute_extinction_model_density(self.model, x[i, j], y[i, j], 0.)
                 
                 data = torch.Tensor([cosell[i, j], sinell[i, j], 2.*r_network[i, j]/self.max_distance-1.]).float()
                 
@@ -143,13 +141,12 @@ class Calculator:
                 data = torch.Tensor([cosell[i], sinell[i], 2.*distance[j]/self.max_distance-1.]).float()
                 data = data.unsqueeze(1)
                 los_ext_network[i, j] = NetworkHelper.integral(torch.transpose(data.to(self.device), 0, 1),
-                                                              self.network, min_distance=-1.
-                                                              )
+                                                               self.network, min_distance=-1.
+                                                               )
 
-                los_ext_true[i, j] = ModelHelper.integ_d(ModelHelper
-                                                                   .compute_extinction_model_density, ells[i],
-                                                                   0., distance[j], self.model
-                                                                   )
+                los_ext_true[i, j] = ModelHelper.integ_d(ModelHelper.compute_extinction_model_density, ells[i],
+                                                         0., distance[j], self.model
+                                                         )
                 
         np.savez(self.ext_los_filename, ells=ells, distance=distance, los_ext_true=los_ext_true,
                  los_ext_network=los_ext_network

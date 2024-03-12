@@ -198,10 +198,10 @@ class ModelHelper:
         
         for i in range(len(exctinction_model.x0)):
             density += ModelHelper.gauss3d(x, y, z, exctinction_model.x0[i], exctinction_model.y0[i],
-                                                     exctinction_model.z0[i], exctinction_model.m_tot[i],
-                                                     exctinction_model.s1[i],
-                                                     exctinction_model.s2[i], exctinction_model.s3[i],
-                                                     exctinction_model.a1[i], exctinction_model.a2[i]
-                                                     )
+                                           exctinction_model.z0[i], exctinction_model.m_tot[i],
+                                           exctinction_model.s1[i],
+                                           exctinction_model.s2[i], exctinction_model.s3[i],
+                                           exctinction_model.a1[i], exctinction_model.a2[i]
+                                           )
         return density
     

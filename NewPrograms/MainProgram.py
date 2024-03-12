@@ -208,8 +208,8 @@ class MainProgram:
         Calculates the density and extinction values using the ModelCalculator class.
         """
         calculator = Calculator(self.loader.model, 5.1, -5., 5.1, -5.,
-                                     0.1, self.max_distance, self.device, self.network, self.config_file_path
-                                     )
+                                0.1, self.max_distance, self.device, self.network, self.config_file_path
+                                )
         calculator.compute_extinction_grid()
         calculator.compute_extinction_sight()
         calculator.compute_density_grid()
