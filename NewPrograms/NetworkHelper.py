@@ -28,8 +28,7 @@ class NetworkHelper:
         # Args:
             - `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
             - `network_model (ExtinctionNeuralNet)`: The neural network model used for the integration.
-            - `xmin (float, optional)`: Minimum value for integration. Defaults to 0.
-            - `debug (int, optional)`: Debugging flag. Defaults to 0.
+            - `min_distance (float, optional)`: Minimum value for integration. Defaults to 0.
 
         # Returns:
             `torch.tensor`: Result of the custom analytic integral for each sample in the batch.

@@ -8,10 +8,10 @@ class ModelLoader:
     A utility class for loading and managing ExtinctionModel instances.
 
     # Args:
-        - `fiducial_model (str)`: File name for the fiducial model pickle file.
+        - `fiducial_model_filename (str)`: File name for the fiducial model pickle file.
 
     # Attributes:
-        - `fiducial_model (str)`: File name for the fiducial model pickle file.
+        - `fiducial_model_filename (str)`: File name for the fiducial model pickle file.
         - `newmodel (bool)`: Flag indicating whether a new model is being created.
         - `model (ExtinctionModel)`: The ExtinctionModel instance.
 

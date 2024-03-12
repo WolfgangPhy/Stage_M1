@@ -10,12 +10,18 @@ class NetworkTrainer:
         - `dens_loss_function (callable)`: Loss function for density.
         - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
+        - `network (ExtinctionNetwork)`: The extinction neural network.
+        - `device (str)`: The device to be used for training (e.g. "cpu" or "cuda").
+        - `opti (torch.optim)`: The optimizer to be used for training.
 
     # Attributes:
         - `ext_loss_function (callable)`: Loss function for extinction.
         - `dens_loss_function (callable)`: Loss function for density.
         - `ext_reduction_method (str)`: Method for reducing the extinction loss.
         - `dens_reduction_method (str)`: Method for reducing the density loss.
+        - `network (ExtinctionNetwork)`: The extinction neural network.
+        - `device (str)`: The device to be used for training (e.g. "cpu" or "cuda").
+        - `opti (torch.optim)`: The optimizer to be used for training.
         
     # Methods:
         - `take_step(in_batch, tar_batch, loss_ext_total, loss_dens_total, nu_ext,
