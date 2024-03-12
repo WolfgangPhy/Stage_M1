@@ -248,7 +248,7 @@ class MainProgram:
             This method executes the complete program, including loading parameters, setting them, creating a data file,
             and training.
         """
-        #self.create_data_file()
+        self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
         self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate,
@@ -256,8 +256,8 @@ class MainProgram:
                                                                  self.config_file_path
                                                                  )
         self.get_max_distance()
-        #self.train()
-        #self.calculate_density_extinction()
+        self.train()
+        self.calculate_density_extinction()
         self.visualize()
 
 
