@@ -75,7 +75,6 @@ class NetworkTrainer:
 
         # compute loss function for integration network 
         # total extinction must match observed value
-        #TODO: vérifier si les erreurs ne sont pas nécessaires
         try:
             loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch[:, 0],
                                                               reduction=self.ext_reduction_method
@@ -153,7 +152,6 @@ class NetworkTrainer:
 
         # compute loss function for  network : L2 norm
         # total extinction must match observed value
-        #TODO: vérifier si les erreurs ne sont pas nécessaires
         try:
             loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch_validation_set[:, 0],
                                                               reduction=self.ext_reduction_method
