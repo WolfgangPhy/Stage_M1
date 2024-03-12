@@ -64,6 +64,8 @@ class MainTrainer:
         - `lossfile_path (str)`: Path to the logfile for recording training loss values.
         - `valfile_path (str)`: Path to the logfile for recording validation loss values.
         - `batch_size (int)`: Size of the minibatches for training and validation.
+        - `val_ext_total (float)`: Total loss for extinction estimation on the validation set.	
+        - `val_dens_total (float)`: Total loss for density estimation on the validation set.		
         
     # Methods:
         - `init_files_path()`: Initializes the path for the files used in the training process. 

@@ -38,13 +38,13 @@ class MainProgram:
         - `max_distance (float)`: Maximum distance in the dataset.
         - `parameters (dict)`: Dictionary of current test parameters.
         - `batch_size (int)`: Batch size for training.
+        - `is_new_network (bool)`: Flag indicating whether the network is new.	
         
     # Methods:
         - `get_parameters_from_json()`: Loads parameters from the "Parameters.json" file.
         - `set_model()`: Sets the model for training.
         - `set_hidden_size()`: Sets the size of the hidden layer.
         - `get_max_distance()`: Sets the maximum distance in the dataset.
-        - `get_parameters_from_json()`: Loads parameters from the "Parameters.json" file.
         - `load_dataset()`: Loads the dataset for training.	
         - `set_parameters()`: Sets the program's parameters using loaded values.
         - `check_and_assign_loss_function(loss_function, custom_loss_function)`: Assigns the loss function based
@@ -60,7 +60,6 @@ class MainProgram:
         self.opti = None
         self.network = None
         self.main_trainer = None
-        self.compute_density = None
         self.batch_size = None
         self.learning_rate = None
         self.epoch_number = None

@@ -39,6 +39,8 @@ class Visualizer:
         - `compare_densities()`: Compare true and network density predictions.
         - `compare_extinctions()`: Compare true and network extinction predictions.
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
+        - `density_vs_distance()`: Plot true and network density along lines of sight.	
+        - `plot_model()`: Plot the model and save the plot.
     """
 
     def __init__(self, config_file_path, dataset, max_distance):
@@ -47,6 +49,7 @@ class Visualizer:
         self.ext_sight_datas = None
         self.dens_grid_datas = None
         self.ext_grid_datas = None
+        self.dens_sight_datas = None
         self.config_file_path = config_file_path
         self.ext_grid_filename = FileHelper.give_config_value(self.config_file_path, "ext_grid_file")
         self.dens_grid_filename = FileHelper.give_config_value(self.config_file_path, "dens_grid_file")
