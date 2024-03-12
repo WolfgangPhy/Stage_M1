@@ -123,9 +123,6 @@ class NetworkHelper:
             - `is_new_network (bool)`: Flag indicating whether to create a new network or load an existing one.
             - `epoch_number (int)`: The epoch number for which the network is being created.
             - `config_file_path (str)`: The path to the configuration file.
-            
-        # Raises:
-            `FileNotFoundError`: If the network file does not exist.
 
         # Returns:
             `tuple[ExtinctionNetwork, optim.Adam]`: A tuple containing the created neural network and
