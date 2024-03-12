@@ -107,6 +107,11 @@ class NetworkHelper:
 
         # Args:
             - `hidden_size (int)`: Size of the hidden layer in the neural network.
+            - `device (torch.device)`: The device (CPU or GPU) on which the model is to be trained.
+            - `learning_rate (float)`: The learning rate for the Adam optimizer.
+            - `is_new_network (bool)`: Flag indicating whether to create a new network or load an existing one.
+            - `epoch_number (int)`: The epoch number for which the network is being created.
+            - `config_file_path (str)`: The path to the configuration file.
 
         # Returns:
             `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and
