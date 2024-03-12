@@ -76,6 +76,7 @@ class MainProgram:
         self.max_distance = None
         self.hidden_size = None
         self.loader = None
+        self.is_new_network = None
         self.get_parameters_from_json()
         self.set_parameters()
         self.config_file_path = FileHelper.init_test_directory()
@@ -143,7 +144,7 @@ class MainProgram:
         self.epoch_number = self.parameters["epoch_number"]
         self.learning_rate = self.parameters["learning_rate"]
         self.batch_size = self.parameters["batch_size"]
-        self.compute_density = self.parameters["compute_density"]
+        self.is_new_network = self.parameters["is_new_network"]
         
     def check_and_assign_loss_function(self, loss_function, custom_loss_function):
         """
@@ -212,9 +213,8 @@ class MainProgram:
                                      )
         calculator.compute_extinction_grid()
         calculator.compute_extinction_sight()
-        if self.compute_density:
-            calculator.compute_density_grid()
-            calculator.compute_density_sight()
+        calculator.compute_density_grid()
+        calculator.compute_density_sight()
         
     def visualize(self):
         """
@@ -222,24 +222,27 @@ class MainProgram:
         the ModelVisualizer class.
         """
         visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
-        #visualizer.plot_model()
-        #if self.compute_density:
-        #    visualizer.compare_densities()
-        #visualizer.compare_extinctions()
+        visualizer.plot_model()
+        visualizer.compare_densities()
+        visualizer.density_vs_distance()
+        visualizer.compare_extinctions()
         visualizer.extinction_vs_distance()
-        #visualizer.loss_function()
+        visualizer.loss_function()
         
     def execute(self):
         """
         Executes the complete program, including loading parameters, setting them, creating a data file, and training.
         """
-        #self.create_data_file()
+        self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        #self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate)
+        self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate,
+                                                                 self.is_new_network, self.epoch_number,
+                                                                 self.config_file_path
+                                                                 )
         self.get_max_distance()
-        #self.train()
-        #self.calculate_density_extinction()
+        self.train()
+        self.calculate_density_extinction()
         self.visualize()
 
 

@@ -25,7 +25,7 @@ class FileHelper:
             parameters = json.load(param_file)
         
         directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items() if key not
-                                   in ["ext_loss_function_custom", "dens_loss_function_custom"]]
+                                   in ["ext_loss_function_custom", "dens_loss_function_custom", "is_new_network"]]
                                   )
         if not os.path.exists(directory_name):
             os.makedirs(directory_name)

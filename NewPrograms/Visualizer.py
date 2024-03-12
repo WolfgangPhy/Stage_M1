@@ -55,7 +55,40 @@ class Visualizer:
         self.dataset = dataset
         self.max_distance = max_distance
         self.load_datas()
-
+        
+    def load_datas(self):
+        """
+        Load grid and line-of-sight data.
+        """
+        if os.path.exists(self.ext_grid_filename):
+            self.ext_grid_datas = np.load(self.ext_grid_filename)
+        if os.path.exists(self.dens_grid_filename):
+            self.dens_grid_datas = np.load(self.dens_grid_filename)
+        if os.path.exists(self.ext_los_filename):
+            self.ext_sight_datas = np.load(self.ext_los_filename)
+        if os.path.exists(self.dens_los_filename):
+            self.dens_sight_datas = np.load(self.dens_los_filename)
+        lossfile = FileHelper.give_config_value(self.config_file_path, "lossfile")
+        valfile = FileHelper.give_config_value(self.config_file_path, "valfile")
+        self.lossdatas = pd.read_csv(lossfile)
+        self.valdatas = pd.read_csv(valfile)
+        
+    def plot_model(self):
+        file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
+        file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
+        with open(file_model,"rb") as file:
+            model = pickle.load(file)
+            file.close()
+        
+        X,Y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
+        dens = X*0.
+        for i in range(len(X[:,1])):
+            for j in range(len(X[1,:])):
+                dens[i,j] = ModelHelper.compute_extinction_model_density(model, X[i, j], Y[i, j], 0.)
+                
+        plt.pcolormesh(X, Y, dens, shading='auto', cmap="inferno")
+        plt.savefig(file_model_plot)
+       
     def loss_function(self):
         """
         Plot the training and validation loss and save the plot in the Plots subdirectory of the current test directory.
@@ -71,22 +104,6 @@ class Visualizer:
         ax.legend()
         plt.savefig(loss_plot_path)
         # plt.show()
-
-    def load_datas(self):
-        """
-        Load grid and line-of-sight data.
-        """
-        if os.path.exists(self.ext_grid_filename):
-            self.ext_grid_datas = np.load(self.ext_grid_filename)
-        if os.path.exists(self.dens_grid_filename):
-            self.dens_grid_datas = np.load(self.dens_grid_filename)
-        if os.path.exists(self.ext_los_filename):
-            self.ext_sight_datas = np.load(self.ext_los_filename)
-        #self.dens_sight_datas = np.load(self.dens_los_filename)
-        lossfile = FileHelper.give_config_value(self.config_file_path, "lossfile")
-        valfile = FileHelper.give_config_value(self.config_file_path, "valfile")
-        self.lossdatas = pd.read_csv(lossfile)
-        self.valdatas = pd.read_csv(valfile)
 
     def compare_densities(self):
         """
@@ -158,6 +175,7 @@ class Visualizer:
         los_ext_network = self.ext_sight_datas['los_ext_network']
         extinction_los_plot_path = FileHelper.give_config_value(self.config_file_path, "extinction_los_plot")
         
+        sns.set_theme()
         fig, axes = plt.subplots(2, 4, figsize=(35, 20))
         delta = 0.5
         
@@ -165,8 +183,8 @@ class Visualizer:
             ax = axes[i//4, i%4]
             ttl = 'l=' + str(ells[i])
             ax.set_title(ttl)
-            ax.plot(distance, los_ext_true[i, :], label='True extinction')
-            ax.plot(distance, los_ext_network[i, :], label='Network extinction')
+            sns.lineplot(x=distance, y=los_ext_true[i, :], ax=ax, label='True extinction')
+            sns.lineplot(x=distance, y=los_ext_network[i, :], ax=ax, label='Network extinction')
             xdata = []
             ydata = []
             errdata = []
@@ -191,19 +209,27 @@ class Visualizer:
         plt.legend()
         plt.savefig(extinction_los_plot_path)
         
-    def plot_model(self):
-        file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
-        file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
-        with open(file_model,"rb") as file:
-            model = pickle.load(file)
-            file.close()
+    def density_vs_distance(self):
+        ells = self.dens_sight_datas['ells']
+        distance = self.dens_sight_datas['distance']
+        los_dens_true = self.dens_sight_datas['los_dens_true']
+        los_dens_network = self.dens_sight_datas['los_dens_network']
+        density_los_plot_path = FileHelper.give_config_value(self.config_file_path, "density_los_plot")
         
-        X,Y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
-        dens = X*0.
-        for i in range(len(X[:,1])):
-            for j in range(len(X[1,:])):
-                dens[i,j] = ModelHelper.compute_extinction_model_density(model, X[i, j], Y[i, j], 0.)
-                
-        plt.pcolormesh(X, Y, dens, shading='auto', cmap="inferno")
-        plt.savefig(file_model_plot)
+        sns.set_theme()
+        fig, axes = plt.subplots(2, 4, figsize=(35, 20))
+        delta = 0.5
         
+        for i in range(len(ells)):
+            ax = axes[i//4, i%4]
+            ttl = 'l=' + str(ells[i])
+            ax.set_title(ttl)
+            
+            sns.lineplot(x=distance, y=los_dens_true[i, :], ax=ax, label='True density')
+            sns.lineplot(x=distance, y=los_dens_network[i, :], ax=ax, label='Network density')
+            
+            ax.set_xlabel('d (kpc)')
+            ax.set_ylabel('Density (cm^-3)')
+            
+        plt.legend()
+        plt.savefig(density_los_plot_path)
