@@ -1,3 +1,4 @@
+import sys
 import torch.nn.functional as F
 from NetworkHelper import NetworkHelper
 
@@ -178,14 +179,12 @@ class NetworkTrainer:
                                                               reduction=self.ext_reduction_method
                                                               )
         except RuntimeError as e:
-            if "The size of tensor a (500) must match the size of tensor b (2) at non-singleton dimension 1" in str(e):
-                print("This error is probably due to the fact that the target batch has a different shape than"
-                      " expected. Please check the shape of the target batch and try again.")
-                print("For more information please check the \"Important Note\" in the documentation of the"
+            print(e)
+            print("This error is probably due to the fact that the target batch has a different shape than")
+            print("expected. Please check the shape of the target batch and try again.")
+            print("For more information please check the \"Important Note\" in the documentation of the"
                       " \"check_and_assign_loss_function\" method in the MainProgram")
-                raise e
-            else:
-                print(e)
+            sys.exit()
 
         # density at point in_batch must be positive
         if nu_dens > 0.0:
