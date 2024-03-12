@@ -7,6 +7,7 @@ class CustomLossFunctions:
         
     # Example:
         The following example demonstrates how to use the CustomLossFunctions class to compute the log likelihood loss.
+        
         >>> loss = CustomLossFunctions.loglike_loss(prediction, label, 'mean')
     """
     @staticmethod

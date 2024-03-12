@@ -23,6 +23,7 @@ class CreateDataFile:
         
     # Example:
         The following example demonstrates how to create a data file using the CreateDataFile class.
+        
         >>> creator = CreateDataFile(100, model, "config.json")
         >>> creator.execute()
     """

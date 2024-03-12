@@ -20,12 +20,14 @@ class ExtinctionNetwork(nn.Module):
 
     # Examples:
         The following example shows how to do a forward pass using the ExtinctionNetwork class.
+        
         >>> network = ExtinctionNetwork(hidden_size=128)
         >>> network.to(device)
         >>> input_tensor = torch.randn(1, 3, device=device)
         >>> output = network(input_tensor)
         
         Or using forward explicitly:
+        
         >>> output = network.forward(input_tensor)
     """
     def __init__(self, hidden_size):
