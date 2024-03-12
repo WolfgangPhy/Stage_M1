@@ -152,9 +152,6 @@ class NetworkTrainer:
             - `val_ext_total (float)`: Total loss for extinction in the validation set.
             - `val_dens_total (float)`: Total loss for density in the validation set.
             
-        # Raises:
-            - `RuntimeError`: If the target batch has a different shape than expected.
-            
         # Returns:
             `tuple[float, float]`: Total loss for extinction in the validation set, Total loss for density in the
                 validation set.
