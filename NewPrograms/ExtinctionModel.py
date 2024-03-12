@@ -4,7 +4,9 @@ import numpy as np
 class ExtinctionModel:
     """
     Class to store a given model.
-    It stores the total mass, the location, the size, and the orientation of the clouds.
+    
+    # Remarks:
+        It stores the total mass, the location, the size, and the orientation of the clouds.
 
     # Args:
         - `N (int)`: Number of clouds to generate.
@@ -36,7 +38,7 @@ class ExtinctionModel:
 
     def __len__(self):
         """
-        Returns the total number of samples.
+        Gives the total number of samples.
 
         # Returns:
             `int`: The length of the 'm_tot' array.

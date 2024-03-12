@@ -4,15 +4,20 @@ class CustomLossFunctions:
 
     # Methods:
         - loglike_loss(prediction, label, reduction_method): Computes the log likelihood loss. (Static)
+        
+    # Example:
+        The following example demonstrates how to use the CustomLossFunctions class to compute the log likelihood loss.
+        >>> loss = CustomLossFunctions.loglike_loss(prediction, label, 'mean')
     """
     @staticmethod
     def loglike_loss(prediction, label, reduction):
         """
         Function to compute the log likelihood loss.
 
-        This function implements the log likelihood loss function. It assumes that 'label' is a pair (extinction, sigma)
-        and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum,
-        depending on the 'reduction' parameter.
+        # Remarks:
+            This function implements the log likelihood loss function. It assumes that 'label' is a pair (extinction,
+            sigma) and returns <((x - label(E)) / label(sigma))**2>, where <.> is either the mean or the sum,
+            depending on the 'reduction' parameter.
 
         # Args:
             - `prediction (torch.Tensor)`: Model predictions.

@@ -62,6 +62,10 @@ class Visualizer:
     def load_datas(self):
         """
         Load grid and line-of-sight data.
+        
+        # Remarks:
+            This method loads the grid and line-of-sight data from the files specified in the configuration file.
+            It checks if the files exist and loads the data if they do.
         """
         if os.path.exists(self.ext_grid_filename):
             self.ext_grid_datas = np.load(self.ext_grid_filename)
@@ -77,6 +81,9 @@ class Visualizer:
         self.valdatas = pd.read_csv(valfile)
         
     def plot_model(self):
+        """
+        Plot the model (the dataset file) and save the plot in the 'Plots' subdirectory of the current test directory.
+        """
         file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
         file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
         with open(file_model, "rb") as file:
@@ -94,7 +101,7 @@ class Visualizer:
        
     def loss_function(self):
         """
-        Plot the training and validation loss and save the plot in the Plots subdirectory of the current test directory.
+        Plot the training and validation loss and save the plot in the 'Plots' subdirectory of the current test directory.
         """
         loss_plot_path = FileHelper.give_config_value(self.config_file_path, "loss_plot")
         sns.set_theme()
@@ -110,8 +117,13 @@ class Visualizer:
 
     def compare_densities(self):
         """
-        Compare true and network density predictions and save the plot in the Plots subdirectory of the current
+        Compare true and network density predictions and save the plot in the 'Plots' subdirectory of the current
         test directory.
+        
+        # Plot Structure:
+            - True density map.
+            - Network density map.
+            - True-Network density map.
         """
         x = self.dens_grid_datas['X']
         y = self.dens_grid_datas['Y']
@@ -144,6 +156,11 @@ class Visualizer:
         """
         Compare true and network extinction predictions and save the plot in the Plots subdirectory
         of the current test directory.
+        
+        # Plot Structure:
+            - True extinction map.
+            - Network extinction map.
+            - True-Network extinction map.
         """
         x = self.ext_grid_datas['X']
         y = self.ext_grid_datas['Y']
@@ -172,6 +189,12 @@ class Visualizer:
         # plt.show()
         
     def extinction_vs_distance(self):
+        """
+        Plot true and network extinction along lines of sight and save the plot in the 'Plots' subdirectory of the
+        
+        # Plot Structure:
+            The plot contains 8 subplots, each showing the true and network extinction along a line of sight.
+        """
         ells = self.ext_sight_datas['ells']
         distance = self.ext_sight_datas['distance']
         los_ext_true = self.ext_sight_datas['los_ext_true']
@@ -213,6 +236,12 @@ class Visualizer:
         plt.savefig(extinction_los_plot_path)
         
     def density_vs_distance(self):
+        """
+        Plot true and network density along lines of sight.
+        
+        # Plot Structure:
+            The plot contains 8 subplots, each showing the true and network density along a line of sight.
+        """
         ells = self.dens_sight_datas['ells']
         distance = self.dens_sight_datas['distance']
         los_dens_true = self.dens_sight_datas['los_dens_true']

@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class ExtinctionNetwork(nn.Module):
     """
-    Neural network model for extinction prediction.
+    Neural network model for extinction and density predictions.
 
     # Args:
         - `hidden_size (int)`: Number of hidden units in the neural network.
@@ -19,11 +19,14 @@ class ExtinctionNetwork(nn.Module):
         - `forward(tensor)`: Forward pass of the neural network.
 
     # Examples:
+        The following example shows how to do a forward pass using the ExtinctionNetwork class.
         >>> network = ExtinctionNetwork(hidden_size=128)
-        >>> input_tensor = torch.tensor([1.0, 2.0, 3.0])
-        >>> output = model(input_tensor)
-        >>> print(output)
-        tensor([0.1234], grad_fn=<AddmmBackward>)
+        >>> network.to(device)
+        >>> input_tensor = torch.randn(1, 3, device=device)
+        >>> output = network(input_tensor)
+        
+        Or using forward explicitly:
+        >>> output = network.forward(input_tensor)
     """
     def __init__(self, hidden_size):
         super(ExtinctionNetwork, self).__init__()
@@ -35,12 +38,16 @@ class ExtinctionNetwork(nn.Module):
     def forward(self, tensor):
         """
         Forward pass of the neural network.
+        
+        # Remarks:
+            This method can be called implicitly by passing the input tensor to the network.
 
         # Args:
             - `tensor (torch.Tensor)`: Input tensor of shape (batch_size, 3).
 
         # Returns:
             `torch.Tensor`: Output tensor of shape (batch_size, 1).
+            
         """
         out = self.linear1(tensor)
         out = self.sigmoid(out)

@@ -29,6 +29,14 @@ class NetworkTrainer:
             nu_dens)`: Performs one training step.
         - `validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, val_ext_total,
             val_dens_total)`: Performs one validation step.
+            
+    # Example:
+        The following example demonstrates how to use the `NetworkTrainer` class to train the extinction neural network.
+        >>> trainer = NetworkTrainer(network, device, opti, ext_loss_function, dens_loss_function, ext_reduction_method,
+        >>>                          dens_reduction_method)
+        >>> trainer.take_step(in_batch, tar_batch, loss_ext_total, loss_dens_total, nu_ext, nu_dens)
+        >>> trainer.validation(in_batch_validation_set, tar_batch_validation_set, nu_ext, nu_dens, val_ext_total,
+        >>>                     val_dens_total)
     """
 
     def __init__(self, network, device, opti, ext_loss_function, dens_loss_function, ext_reduction_method,
@@ -45,10 +53,9 @@ class NetworkTrainer:
         """
         Function to perform one training step.
 
-        This function executes one training step for the neural network model.
-        It updates the model's parameters based on the provided input (in_batch) and target (tar_batch) batches.
-        The loss function is a combination of log likelihood loss for total extinction and
-        mean squared error loss for density estimation.
+        # Remarks:
+            This function executes one training step for the neural network.
+            It updates the network's parameters based on the provided input (in_batch) and target (tar_batch) batches.
 
         # Args:
             - `in_batch (torch.Tensor)`: Input batch for the neural network.
@@ -123,11 +130,10 @@ class NetworkTrainer:
         """
         Function to perform one validation step.
 
-        This function executes one validation step for the neural network model.
-        It evaluates the model's performance on the validation set based on the provided input (in_batch_validation_set)
-        and target (tar_batch_validation_set) batches.
-        The loss function is a combination of log likelihood loss for total extinction and
-        mean squared error loss for density estimation.
+        # Remarks:
+            This function executes one validation step for the neural network.
+            It evaluates the network's performance on the validation set based on the provided input
+            (in_batch_validation_set) and target (tar_batch_validation_set) batches.
 
         # Args:
             - `in_batch_validation_set (torch.Tensor)`: Input batch for the validation set.

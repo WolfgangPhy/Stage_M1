@@ -1,9 +1,9 @@
 {
-    "datafile": "./PyTorchFiles/fiducial_model2D.pt",
+    "datafile": "./PyTorchFiles/DataSet.pt",
     "outfile": "./PyTorchFiles/Network",
     "logfile": "./OutputFiles/Network.log",
-    "lossfile": "./OutputFiles/network_loss.csv",
-    "valfile": "./OutputFiles/network_validation.csv",
+    "lossfile": "./OutputFiles/Network_loss.csv",
+    "valfile": "./OutputFiles/Network_validation.csv",
     "ext_grid_file" : "./NpzFiles/extinction_grid.npz",
     "dens_grid_file" : "./NpzFiles/density_grid.npz",
     "ext_los_file" : "./NpzFiles/extinction_los.npz",

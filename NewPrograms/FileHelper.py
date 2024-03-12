@@ -8,17 +8,30 @@ class FileHelper:
     A utility class for file-related operations.
 
     # Methods:
-        - `init_test_directory()`: Initializes a test directory based on parameters from 'Parameters.json' (Static)
+        - `init_test_directory()`: Initializes a test directory based on parameters from 'Parameters.json'. (Static)
         - `give_config_value(config_file_path, key)`: Retrieves a specific value from a given
             configuration file. (Static)
+            
+    # Example:
+        The following example demonstrates how to use the FileHelper class to initialize a test directory and retrieve
+        a specific value from a configuration file (here the `DataSet2D` of the current test).
+        >>> config_file_path = FileHelper.init_test_directory()
+        >>> value = FileHelper.give_config_value(config_file_path, 'datafile')
     """
     
     @staticmethod
     def init_test_directory():
         """
         Initializes a test directory based on parameters from 'Parameters.json'.
+        
+        # Remarks:
+            The test directory is created based on the parameters from 'Parameters.json' and the
+            directory name is formed by concatenating the parameter keys and values. If the directory
+            already exists, the user is prompted to decide whether to proceed with calculations in that
+            directory. If the user chooses to proceed, the path to the configuration file in the test
+            directory is returned. Otherwise, a ValueError is raised.
 
-        Returns:
+        # Returns:
             `str`: The path to the config file in the test directory.
         """
         with open('Parameters.json') as param_file:
@@ -75,11 +88,11 @@ class FileHelper:
         """
         Retrieves a specific value from a given configuration file.
 
-        Args:
+        # Args:
         - `config_file_path (str)`: Path to the configuration file.
         - `key (str)`: Key for the desired value in the configuration file.
 
-        Returns:
+        # Returns:
         - `Any`: The value associated with the specified key in the configuration file.
         """
         with open(config_file_path) as config_file:

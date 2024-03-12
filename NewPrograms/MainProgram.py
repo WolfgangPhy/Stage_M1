@@ -55,6 +55,11 @@ class MainProgram:
         - `Visualize()`: Visualizes the results.
         - `execute()`: Executes the complete program, including loading parameters, setting them, creating a data file,
             and training.
+            
+    # Example:
+        The following example demonstrates how to use the MainProgram class to execute the complete program.
+        >>> main_program = MainProgram()
+        >>> main_program.execute()
     """
     def __init__(self):
         self.opti = None
@@ -84,9 +89,10 @@ class MainProgram:
 
     def set_model(self):
         """
-        Sets the model for training using the ExtinctionModelLoader class.
+        Sets the model for training using the `ModelLoader` class.
         
-        if the model is new, it creates a new model, otherwise it loads the existing model.
+        # Remarks:
+            If the model is new, it creates a new model, otherwise it loads the existing model.
         """
         model_filename = FileHelper.give_config_value(self.config_file_path, "model_file")
         self.loader = ModelLoader(model_filename)
@@ -112,7 +118,7 @@ class MainProgram:
     
     def get_parameters_from_json(self):
         """
-        Loads parameters from the "Parameters.json" file and assigns them to the MainProgram "parameters" attribute.
+        Loads parameters from the "Parameters.json" file and assigns them to the MainProgram `parameters` attribute.
         """
         with open("Parameters.json") as file:
             self.parameters = json.load(file)
@@ -127,7 +133,7 @@ class MainProgram:
           
     def set_parameters(self):
         """
-        Sets the program's parameters using loaded values in the "parameters" dictionary.
+        Sets the program's parameters using loaded values in the `parameters` dictionary.
         """
         self.nu_ext = self.parameters["nu_ext"]
         self.nu_dens = self.parameters["nu_dens"]
@@ -149,14 +155,16 @@ class MainProgram:
         """
         Assigns the loss function based on parameters.
         
-        This method returns a callable loss function based on the given parameters.
-        If the loss_function is custom in return the corresponding callable from the CustomLossFunctions module.
-        If the loss_function is not custom, it returns the corresponding callable from the torch.nn.functional module.
+        # Remarks:
+            This method returns a callable loss function based on the given parameters.
+            If the loss_function is custom in return the corresponding callable from the `CustomLossFunctions` module.
+            If the loss_function is not custom, it returns the corresponding callable from the `torch.nn.functional`
+            module.
         
         # Important Note:
             Some of the loss functions does not take same parameters, for example, the loglike_loss function
-            from the CustomLossFunctions module takes tar_batch parameters
-            which contains the extinction and the sigma, while the torch.nn.functional.mse_loss function only takes
+            from the `CustomLossFunctions` module takes tar_batch parameters
+            which contains the extinction and the sigma, while the `torch.nn.functional.mse_loss` function only takes
             the extinction as target.
             So be careful when using the loss functions, and make sure that the loss function you are using takes
             the right parameters.
@@ -185,14 +193,14 @@ class MainProgram:
             
     def create_data_file(self):
         """
-        Creates a data file for training using the CreateDataFile class.
+        Creates a data file for training using the `CreateDataFile` class.
         """
         creator = CreateDataFile(self.star_number, self.loader.model, self.config_file_path)
         creator.execute()
         
     def train(self):
         """
-        Initiates and runs the training process using MainTrainer class.
+        Initiates and runs the training process using `MainTrainer` class.
         """
         self.main_trainer = MainTrainer(self.epoch_number, self.nu_ext, self.nu_dens,
                                         self.ext_loss_function, self.dens_loss_function,
@@ -205,7 +213,7 @@ class MainProgram:
         
     def calculate_density_extinction(self):
         """
-        Calculates the density and extinction values using the ModelCalculator class.
+        Calculates the density and extinction values using the `Calculator` class.
         """
         calculator = Calculator(self.loader.model, 5.1, -5., 5.1, -5.,
                                 0.1, self.max_distance, self.device, self.network, self.config_file_path
@@ -217,8 +225,11 @@ class MainProgram:
         
     def visualize(self):
         """
-        Visualize the results (save the plot in the "Plots" subdirectory of the current test directory) using
-        the ModelVisualizer class.
+        Visualize the results.
+        
+        # Remarks:
+            This method visualizes the results using the `Visualizer` class and saves the plots in the "Plots"
+            subdirectory of the current test directory.
         """
         visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
         visualizer.plot_model()
@@ -230,7 +241,11 @@ class MainProgram:
         
     def execute(self):
         """
-        Executes the complete program, including loading parameters, setting them, creating a data file, and training.
+        Executes the complete program.
+        
+        # Remarks:
+            This method executes the complete program, including loading parameters, setting them, creating a data file,
+            and training.
         """
         self.create_data_file()
         self.load_dataset()

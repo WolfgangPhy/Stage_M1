@@ -10,15 +10,22 @@ class ParallelProcessor:
 
     # Methods:
         - `process_parallel(model, pool, star_number, device, dtype)`: Process extinction model predictions in parallel.
+        
+    # Example:
+        The following example demonstrates how to use the `ParallelProcessor` class to process extinction model
+        predictions.
+        >>> pool = multiprocessing.Pool(proocessor_num)
+        >>> processed_dataset = ParallelProcessor.process_parallel(model, pool, star_number, device, dtype)
     """
     @staticmethod
     def process_parallel(model, pool, star_number, device, dtype):
         """
         Process extinction model predictions in parallel.
 
-        This method uses parallel processing to compute extinction model predictions for a given number of stars.
-        It utilizes a multiprocessing pool to distribute the workload across multiple processes.
-        The method returns a processed dataset containing the computed results.
+        # Remarks:
+            This method uses parallel processing to compute extinction model predictions for a given number of stars.
+            It utilizes a multiprocessing pool to distribute the workload across multiple processes.
+            The method returns a processed dataset containing the computed results.
 
         # Args:
             - `model(ExtinctionModel)`: An extinction model for computation.
@@ -29,14 +36,6 @@ class ParallelProcessor:
 
         # Returns:
             `Dataset2D`: A processed dataset containing computed results.
-
-        # Example:
-            >>> # Instantiate a neural network model and a multiprocessing Pool
-            >>> your_model = YourExtinctionModel()
-            >>> your_pool = YourMultiprocessingPool()
-            >>> 
-            >>> # Process extinction model predictions in parallel
-            >>> processed_data = ParallelProcessor.process_parallel(your_model, your_pool, star_number, device, dtype)
         """
         results = []
         progress_index = 0

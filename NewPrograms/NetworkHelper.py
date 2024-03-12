@@ -11,23 +11,31 @@ class NetworkHelper:
 
     # Methods:
         - `integral(tensor, network_model, min_distance=0., debug=0)`: Custom analytic integral of the network for
-            MSE loss. (Static method)
-        - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization. (Static method)
-        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer. (Static method)
+            MSE loss. (Static)
+        - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization. (Static)
+        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer. (Static)
+        
+    # Example:
+        The following example demonstrates how to use the `NetworkHelper` class to build and intit network weights.
+        >>> network, optimizer = NetworkHelper.create_net_integ(hidden_size=128, device=device, learning_rate=0.001,
+        >>>                                                    is_new_network=True, epoch_number=0,
+        >>>                                                    config_file_path=config_file_path)
+        >>> NetworkHelper.init_weights(network)
     """
 
     @staticmethod
     def integral(tensor, network_model, min_distance=0.):
         """
-        Custom analytic integral of the network ExtinctionNeuralNet to be used in MSE loss.
+        Custom analytic integral of the network `ExtinctionNetwork` to be used in MSE loss.
 
-        This function calculates a custom analytic integral of the network ExtinctionNeuralNet,
-        as specified in the Equation 15a and Equation 15b of Lloyd et al. 2020,
-        to be used in Mean Squared Error (MSE) loss during training.
+        # Remarks:
+            This function calculates a custom analytic integral of the network `ExtinctionNetwork`,
+            as specified in the Equation 15a and Equation 15b of Lloyd et al. 2020,
+            to be used in Mean Squared Error (MSE) loss during training.
 
         # Args:
             - `tensor (torch.Tensor)`: Input tensor of size (batch_size, 3).
-            - `network_model (ExtinctionNeuralNet)`: The neural network model used for the integration.
+            - `network_model (ExtinctionNetwork)`: The neural network model used for the integration.
             - `min_distance (float, optional)`: Minimum value for integration. Defaults to 0.
 
         # Returns:
@@ -86,8 +94,9 @@ class NetworkHelper:
         """
         Function to initialize weights and biases for the given PyTorch model.
 
-        This function initializes the weights and biases of the linear layers in the model
-        using Xavier (Glorot) uniform initialization for weights and sets bias values to 0.1.
+        # Remarks:
+            This function initializes the weights and biases of the linear layers in the model
+            using Xavier (Glorot) uniform initialization for weights and sets bias values to 0.1.
 
         # Args:
             - `model (torch.nn.Module)`: The PyTorch model for which weights and biases need to be initialized.
@@ -101,8 +110,9 @@ class NetworkHelper:
         """
         Function to create the neural network and set the optimizer.
 
-        This function creates an instance of the ExtinctionNeuralNet neural network with the specified
-        hidden size and initializes an Adam optimizer with the given learning rate.
+        # Remarks:
+            This function creates an instance of the `ExtinctionNetwork` neural network with the specified
+            hidden size and initializes an Adam optimizer with the given learning rate.
 
         # Args:
             - `hidden_size (int)`: Size of the hidden layer in the neural network.
@@ -113,7 +123,7 @@ class NetworkHelper:
             - `config_file_path (str)`: The path to the configuration file.
 
         # Returns:
-            `tuple[ExtinctionNeuralNet, optim.Adam]`: A tuple containing the created neural network and
+            `tuple[ExtinctionNetwork, optim.Adam]`: A tuple containing the created neural network and
                 the Adam optimizer.
         """
         if is_new_network:

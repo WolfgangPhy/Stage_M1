@@ -13,9 +13,10 @@ class MainTrainer:
     """
     Main program for training a neural network for extinction and density estimation.
 
-    This class encapsulates the main workflow for training a neural network, including configuring,
-    setting up log files, preparing the dataset, creating the network, initializing training, and executing
-    training steps.
+    # Remarks:
+        This class encapsulates the main workflow for training a neural network, including configuring,
+        setting up log files, preparing the dataset, creating the network, initializing training, and executing
+        training steps. The training process is orchestrated by the `run` method, which calls the other methods.
     
     # Args:
         - `epoch_number (int)`: Number of epochs for training the neural network.
@@ -76,6 +77,15 @@ class MainTrainer:
         - `init_training()`: Initializes the training process, setting up epoch-related variables.
         - `train_network()`: Performs the training iterations, updating the neural network parameters.
         - `run()`: Executes the main program, orchestrating the entire training process.
+        
+    # Examples:
+        The following example shows how to train a neural network using the MainTrainer class.
+        >>> main_trainer = MainTrainer(epoch_number=1000, nu_ext=0.1, nu_dens=0.1, ext_loss_function=ext_loss_function,
+        >>>                            dens_loss_function=dens_loss_function, ext_reduction_method='mean',
+        >>>                            dens_reduction_method='mean', learning_rate=0.001, device=device,
+        >>>                            dataset=dataset, network=network, opti=opti, hidden_size=128,
+        >>>                            max_distance=20., config_file_path='Config.json', batch_size=32)
+        >>> main_trainer.run()
     """
     
     def __init__(self, epoch_number, nu_ext, nu_dens, ext_loss_function, dens_loss_function, ext_reduction_method,
@@ -126,9 +136,10 @@ class MainTrainer:
         """
         Set up the logfile for logging information during training.
 
-        This method initializes and configures the log file based on the configuration settings.
-        It writes information about Python and PyTorch versions, CUDA devices (if available),
-        the selected computing device, the specified datafile, and the expected storage location for maps.
+        # Remarks:
+            This method initializes and configures the log file based on the configuration settings.
+            It writes information about Python and PyTorch versions, CUDA devices (if available),
+            the selected computing device, the specified datafile, and the expected storage location for maps.
 
         """
         self.logfile = open(self.logfile_path, 'w')
@@ -148,8 +159,9 @@ class MainTrainer:
         """
         Set up CSV files for logging training and validation metrics.
 
-        This method creates and initializes CSV files for logging training and validation metrics. 
-        It opens the specified files, writes the header row, and then closes the files.
+        # Remarks:
+            This method creates and initializes CSV files for logging training and validation metrics. 
+            It opens the specified files, writes the header row, and then closes the files.
 
         # Files created:
             - `lossfile`: CSV file for training metrics.
@@ -174,9 +186,9 @@ class MainTrainer:
         """
         Prepare the dataset for training and validation.
 
-        This method loads the dataset from the specified datafile, computes normalization coefficients,
-        and prepares training and validation datasets along with corresponding data loaders.
-
+        # Remarks:
+            This method loads the dataset from the specified datafile, computes normalization coefficients,
+            and prepares training and validation datasets along with corresponding data loaders.
         """
 
         # Limits of the dataset of our sample
@@ -206,9 +218,9 @@ class MainTrainer:
         """
         Create the neural network.
 
-        This method initializes and configures the neural network for extinction and density estimation.
-        The network is created with a hidden layer size determined by a formula based on the dataset size.
-
+        # Remarks:
+            This method initializes and configures the neural network for extinction and density estimation.
+            The network is created with a hidden layer size determined by a formula based on the dataset size.
         """
         self.network.apply(NetworkHelper.init_weights)
         self.network.to(self.device) 
@@ -218,11 +230,11 @@ class MainTrainer:
         """
         Initialize the training process.
 
-        This method sets up the initial conditions for the training process.
-        It initializes the training epoch and specifies Lagrange multipliers for loss calculations.
-        The variables `nu_ext` and `nu_dens` are used by the loss function during training.
-        The initialization details are logged into the logfile.
-
+        # Remarks:
+            This method sets up the initial conditions for the training process.
+            It initializes the training epoch and specifies Lagrange multipliers for loss calculations.
+            The variables `nu_ext` and `nu_dens` are used by the loss function during training.
+            The initialization details are logged into the logfile.
         """
         # initialize epoch
         try:
@@ -237,10 +249,11 @@ class MainTrainer:
         """
         Train the neural network.
 
-        This method trains the neural network using the specified training configuration.
-        It iterates through the specified number of epochs, performing training steps on each minibatch.
-        The training progress, losses, and validation performance are logged into the logfile.
-
+        # Remarks:
+            This method trains the neural network using the specified training configuration.
+            It iterates through the specified number of epochs, performing training steps on each minibatch.
+            The training progress, losses, and validation performance are logged into the logfile.
+            The trained model is saved to the output file every 10000 epochs and at the last step.
         """
         tstart = time.time()
         self.trainer = NetworkTrainer(self.network, self.device, self.opti, self.ext_loss_function,
@@ -322,7 +335,7 @@ class MainTrainer:
         
     def run(self):
         """
-        Execute the main trainer
+        Execute the main trainer.
         """
 
         self.init_files_path()

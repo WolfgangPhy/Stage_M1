@@ -6,7 +6,7 @@ from FileHelper import FileHelper
 
 class CreateDataFile:
     """
-    Class for creating a data file based on an extinction model.
+    Class for creating a data file based on an extinction model (ExtinctionModel).
 
     # Args:
         - `star_number (int)`: Number of stars to be used in the data file.
@@ -20,6 +20,11 @@ class CreateDataFile:
 
     # Methods:
         - `execute()`: Executes the process of creating the data file.
+        
+    # Example:
+        The following example demonstrates how to create a data file using the CreateDataFile class.
+        >>> creator = CreateDataFile(100, model, "config.json")
+        >>> creator.execute()
     """
     def __init__(self, star_number, model, config_file_path):
         self.star_number = star_number

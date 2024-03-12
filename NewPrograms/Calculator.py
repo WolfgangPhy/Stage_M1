@@ -43,6 +43,15 @@ class Calculator:
         - `compute_density_grid()`: Compute density on a 2D grid.
         - `compute_extinction_sight()`: Compute extinction along lines of sight.
         - `compute_density_sight()`: Compute density along lines of sight.
+        
+    # Example:
+        The following code snippet demonstrates the usage of the Calculator class to compute extinction and density
+        along lines of sight.
+        
+        >>> calculator = Calculator(model, x_max, x_min, y_max, y_min, step,
+                                    max_distance, device, network, config_file_path)
+        >>> calculator.compute_extinction_sight()
+        >>> calculator.compute_density_sight()
     """
     def __init__(self, model, x_max, x_min, y_max, y_min, step, max_distance, device, network, config_file_path):
         self.model = model
@@ -64,6 +73,12 @@ class Calculator:
         """
         Compute extinction on a 2D grid.
         Save the results in a NumPy file in the NpzFiles subdirectory of the current test directory.
+        
+        # File structure:
+            - `extinction_model (np.ndarray)`: Extinction values from the model (true values).
+            - `extinction_network (np.ndarray)`: Extinction values from the network (predicted values).
+            - `X (np.ndarray)`: X-coordinates of the grid.
+            - `Y (np.ndarray)`: Y-coordinates of the grid.
         """
         
         x, y = np.mgrid[self.x_min:self.x_max:self.step, self.y_min:self.y_max:self.step]
@@ -100,6 +115,12 @@ class Calculator:
         """
         Compute density on a 2D grid.
         Save the results in a NumPy file in the NpzFiles subdirectory of the current test directory.
+        
+        # File structure:
+            - `density_model (np.ndarray)`: Density values from the model (true values).
+            - `density_network (np.ndarray)`: Density values from the network (predicted values).
+            - `X (np.ndarray)`: X-coordinates of the grid.
+            - `Y (np.ndarray)`: Y-coordinates of the grid.
         """
         
         x, y = np.mgrid[self.x_min:self.x_max:self.step, self.y_min:self.y_max:self.step]
@@ -125,6 +146,12 @@ class Calculator:
         """
         Compute extinction along lines of sight.
         Save the results in the NpzFiles subdirectory of the current test directory.
+        
+        # File structure:
+            - `ells (np.ndarray)`: Ell values for the lines of sight.
+            - `distance (np.ndarray)`: Distance values for the lines of sight.
+            - `los_ext_true (np.ndarray)`: True extinction values along the lines of sight.
+            - `los_ext_network (np.ndarray)`: Predicted extinction values along the lines of sight.
         """
         ells = np.arange(0., 360., 45.)
         cosell = np.cos(ells*np.pi/180.)
@@ -156,6 +183,12 @@ class Calculator:
         """
         Compute density along lines of sight.
         Save the results in the NpzFiles subdirectory of the current test directory.
+        
+        # File structure:
+            - `ells (np.ndarray)`: Ell values for the lines of sight.
+            - `distance (np.ndarray)`: Distance values for the lines of sight.
+            - `los_dens_true (np.ndarray)`: True density values along the lines of sight.
+            - `los_dens_network (np.ndarray)`: Predicted density values along the lines of sight.
         """
         ells = np.arange(0., 360., 45.)
         cosell = np.cos(ells*np.pi/180.)
