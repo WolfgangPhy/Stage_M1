@@ -17,6 +17,7 @@ class NetworkHelper:
         
     # Example:
         The following example demonstrates how to use the `NetworkHelper` class to build and intit network weights.
+        
         >>> network, optimizer = NetworkHelper.create_net_integ(hidden_size=128, device=device, learning_rate=0.001,
         >>>                                                    is_new_network=True, epoch_number=0,
         >>>                                                    config_file_path=config_file_path)

@@ -26,9 +26,11 @@ class ModelHelper:
             
     # Examples:
         The following example shows how to convert from galactic coordinates to cartesian coordinates.
+        
         >>> x, y, z = ModelHelper.convert_galactic_to_cartesian_3D(ell, b, d)
         
         The following example shows how to compute the density of the model at a given point in the Galactic plane.
+        
         >>> density = ModelHelper.compute_extinction_model_density(extinction_model, x, y, z)
     
     """

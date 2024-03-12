@@ -14,6 +14,7 @@ class ParallelProcessor:
     # Example:
         The following example demonstrates how to use the `ParallelProcessor` class to process extinction model
         predictions.
+        
         >>> pool = multiprocessing.Pool(proocessor_num)
         >>> processed_dataset = ParallelProcessor.process_parallel(model, pool, star_number, device, dtype)
     """

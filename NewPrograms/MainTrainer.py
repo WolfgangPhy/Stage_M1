@@ -80,6 +80,7 @@ class MainTrainer:
         
     # Examples:
         The following example shows how to train a neural network using the MainTrainer class.
+        
         >>> main_trainer = MainTrainer(epoch_number=1000, nu_ext=0.1, nu_dens=0.1, ext_loss_function=ext_loss_function,
         >>>                            dens_loss_function=dens_loss_function, ext_reduction_method='mean',
         >>>                            dens_reduction_method='mean', learning_rate=0.001, device=device,

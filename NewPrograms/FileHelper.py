@@ -15,6 +15,7 @@ class FileHelper:
     # Example:
         The following example demonstrates how to use the FileHelper class to initialize a test directory and retrieve
         a specific value from a configuration file (here the `DataSet2D` of the current test).
+        
         >>> config_file_path = FileHelper.init_test_directory()
         >>> value = FileHelper.give_config_value(config_file_path, 'datafile')
     """

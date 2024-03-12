@@ -32,6 +32,7 @@ class NetworkTrainer:
             
     # Example:
         The following example demonstrates how to use the `NetworkTrainer` class to train the extinction neural network.
+        
         >>> trainer = NetworkTrainer(network, device, opti, ext_loss_function, dens_loss_function, ext_reduction_method,
         >>>                          dens_reduction_method)
         >>> trainer.take_step(in_batch, tar_batch, loss_ext_total, loss_dens_total, nu_ext, nu_dens)

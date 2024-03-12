@@ -23,6 +23,7 @@ class ModelLoader:
     # Example:
         The following example demonstrates how to use the ModelLoader class to load and manage `ExtinctionModel`
         instances.
+        
         >>> loader = ModelLoader("fiducial_model.pkl")
         >>> loader.check_existing_model()
         >>> if loader.is_new_model:

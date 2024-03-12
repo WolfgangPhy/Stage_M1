@@ -58,6 +58,7 @@ class MainProgram:
             
     # Example:
         The following example demonstrates how to use the MainProgram class to execute the complete program.
+        
         >>> main_program = MainProgram()
         >>> main_program.execute()
     """

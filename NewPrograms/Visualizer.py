@@ -41,6 +41,12 @@ class Visualizer:
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
         - `density_vs_distance()`: Plot true and network density along lines of sight.	
         - `plot_model()`: Plot the model and save the plot.
+        
+    # Example:
+        The following example demonstrates how to use the `Visualizer` class to compare true and network extinction.
+        
+        >>> visualizer = Visualizer("config.json", dataset, 20.)
+        >>> visualizer.compare_extinctions()
     """
 
     def __init__(self, config_file_path, dataset, max_distance):
