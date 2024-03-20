@@ -92,7 +92,7 @@ class NetworkTrainer:
         # compute loss function for integration network 
         # total extinction must match observed value
         try:
-            loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch[:, 0],
+            loss_extinction = nu_ext * self.ext_loss_function(exthat, tar_batch,
                                                               reduction=self.ext_reduction_method
                                                               )
         except RuntimeError as e:

@@ -43,6 +43,7 @@ class NetworkHelper:
         # Returns:
             `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
         """
+        # TODO : Corriger doc
         # Equation 15b of Lloyd and al 2020 -> Phi_j for each neuron
         # Li_1(x) = -ln(1-x) for x \in C
         batch_size = tensor.size()[0]
