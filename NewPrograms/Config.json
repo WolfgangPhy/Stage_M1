@@ -1,5 +1,5 @@
 {
-    "datafile": "./PyTorchFiles/DataSet.pt",
+    "datafile": "./DataSet.pt",
     "outfile": "./PyTorchFiles/Network",
     "logfile": "./OutputFiles/Network.log",
     "lossfile": "./OutputFiles/Network_loss.csv",

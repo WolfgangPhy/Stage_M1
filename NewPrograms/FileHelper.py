@@ -63,7 +63,6 @@ class FileHelper:
         
         with open(os.path.join(directory_name, 'Config.json')) as param_file:
             config_data = json.load(param_file)
-            config_data['datafile'] = os.path.join('./', directory_name, config_data['datafile'][2:])
             config_data['outfile'] = os.path.join('./', directory_name, config_data['outfile'][2:])
             config_data['logfile'] = os.path.join('./', directory_name, config_data['logfile'][2:])
             config_data['lossfile'] = os.path.join('./', directory_name, config_data['lossfile'][2:])
