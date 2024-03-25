@@ -109,7 +109,7 @@ class NetworkHelper:
             model.bias.data.fill_(0.1)
 
     @staticmethod
-    def create_net_integ(hidden_size, device, learning_rate, is_new_network, epoch_number, config_file_path):
+    def create_net_integ(hidden_size, device, learning_rate, is_new_network, checkpoint_epoch, config_file_path):
         """
         Function to create the neural network and set the optimizer.
 
@@ -132,7 +132,7 @@ class NetworkHelper:
         if is_new_network:
             network = ExtinctionNetwork(hidden_size)
         else:
-            network_file = FileHelper.give_config_value(config_file_path, "outfile") + f"_e{epoch_number}.pt"
+            network_file = FileHelper.give_config_value(config_file_path, "outfile") + f"_e{checkpoint_epoch}.pt"
             try:
                 checkpoint = torch.load(network_file, map_location='cpu')
                 network = ExtinctionNetwork(hidden_size)

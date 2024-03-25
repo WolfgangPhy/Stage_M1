@@ -80,8 +80,10 @@ class MainProgram:
         self.parameters = None
         self.max_distance = None
         self.hidden_size = None
+        self.checkpoint_epoch = None # DOC ajouter à la doc
         self.loader = None
         self.is_new_network = None
+        self.is_new_datafile = None # DOC ajouter à la doc
         self.get_parameters_from_json()
         self.set_parameters()
         self.config_file_path = FileHelper.init_test_directory()
@@ -151,6 +153,7 @@ class MainProgram:
         self.learning_rate = self.parameters["learning_rate"]
         self.batch_size = self.parameters["batch_size"]
         self.is_new_network = self.parameters["is_new_network"]
+        self.checkpoint_epoch = self.parameters["checkpoint_epoch"]
         
     def check_and_assign_loss_function(self, loss_function, custom_loss_function):
         """
@@ -248,17 +251,19 @@ class MainProgram:
             This method executes the complete program, including loading parameters, setting them, creating a data file,
             and training.
         """
-        # self.create_data_file()
+        if(self.is_new_datafile):
+            self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
         self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate,
-                                                                 self.is_new_network, self.epoch_number,
+                                                                 self.is_new_network, self.checkpoint_epoch,
                                                                  self.config_file_path
                                                                  )
         self.get_max_distance()
-        self.train()
+        if self.is_new_network:
+            self.train()
         self.calculate_density_extinction()
-        self.visualize()
+        self.visualize() # TODO : Plots files sont écrasés à chaque exécution - Ajouter au README.md
 
 
 if __name__ == "__main__":

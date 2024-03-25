@@ -1,5 +1,5 @@
 {
-    "nu_ext": 0.0,
+    "nu_ext": 1.0,
     "nu_dens": 0.0,
     "ext_loss_function": "mse_loss",
     "ext_loss_function_custom": false,
@@ -11,5 +11,7 @@
     "epoch_number": 16000,
     "learning_rate": 0.001,
     "batch_size": 500,
-    "is_new_network": true
+    "is_new_network": false,
+    "checkpoint_epoch": 4000,
+    "is_new_datafile": false
 }
