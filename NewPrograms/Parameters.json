@@ -6,12 +6,13 @@
     "dens_loss_function": "mse_loss",
     "dens_loss_function_custom": false,
     "star_number": 10000,
-    "ext_reduction_method": "sum",
-    "dens_reduction_method": "sum",
-    "epoch_number": 16000,
+    "ext_reduction_method": "mean",
+    "dens_reduction_method": "mean",
+    "epoch_number": 1000000,
     "learning_rate": 0.001,
     "batch_size": 500,
     "is_new_network": false,
     "checkpoint_epoch": 4000,
     "is_new_datafile": false
+    "is_new_network": true
 }
