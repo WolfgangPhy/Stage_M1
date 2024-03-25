@@ -1,5 +1,5 @@
 {
-    "nu_ext": 1.0,
+    "nu_ext": 0.0,
     "nu_dens": 0.0,
     "ext_loss_function": "loglike_loss",
     "ext_loss_function_custom": true,

@@ -319,7 +319,7 @@ class MainTrainer:
                                             )
             
             # save model every 10000 epoch and last step
-            if self.epoch % 1000 == 0 or self.epoch == self.epoch_number:
+            if self.epoch % 10000 == 0 or self.epoch == self.epoch_number:
                 fname1 = '{}_e{}.pt'.format(self.outfile_path, self.epoch)
                 self.network.to('cpu')
                 torch.save({
