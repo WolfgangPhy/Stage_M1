@@ -88,7 +88,7 @@ class MainProgram:
         self.set_parameters()
         self.config_file_path = FileHelper.init_test_directory()
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
-        self.set_model()
+        self.set_model() 
 
     def set_model(self):
         """
