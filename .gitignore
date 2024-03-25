@@ -235,4 +235,5 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 error.txt
 nohup.out
+input.txt
 
