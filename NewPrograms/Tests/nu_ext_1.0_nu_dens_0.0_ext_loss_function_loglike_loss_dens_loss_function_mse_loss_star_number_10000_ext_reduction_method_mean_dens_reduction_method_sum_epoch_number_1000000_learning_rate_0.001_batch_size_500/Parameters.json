@@ -11,7 +11,7 @@
     "epoch_number": 1000000,
     "learning_rate": 0.001,
     "batch_size": 500,
-    "is_new_network": true,
-    "checkpoint_epoch": 420000,
+    "is_new_network": false,
+    "checkpoint_epoch": 429000,
     "is_new_datafile": false
 }
