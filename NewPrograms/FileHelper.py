@@ -42,48 +42,50 @@ class FileHelper:
                                    in ["ext_loss_function_custom", "dens_loss_function_custom", "is_new_network", 
                                        "checkpoint_epoch", "is_new_datafile"]]
                                   )
-        if not os.path.exists(directory_name):
-            os.makedirs(directory_name)
+        test_directory = os.path.join("Tests", directory_name)
+        
+        if not os.path.exists(test_directory):
+            os.makedirs(test_directory)
         elif input("Directory already exists. Do you want to do calculations in this directory? (y/n): ") == "y":
-            return os.path.join(directory_name, "Config.json")
+            return os.path.join(test_directory, "Config.json")
         else:
             raise ValueError("Directory already exists")
             
-        npz_directory = os.path.join(directory_name, "NpzFiles")
-        torch_directory = os.path.join(directory_name, "PyTorchFiles")
-        output_directory = os.path.join(directory_name, "OutputFiles")
-        plot_directory = os.path.join(directory_name, "Plots")
+        npz_directory = os.path.join(test_directory, "NpzFiles")
+        torch_directory = os.path.join(test_directory, "PyTorchFiles")
+        output_directory = os.path.join(test_directory, "OutputFiles")
+        plot_directory = os.path.join(test_directory, "Plots")
         
         os.makedirs(npz_directory)
         os.makedirs(torch_directory)
         os.makedirs(output_directory)
         os.makedirs(plot_directory)
         
-        shutil.copy('Parameters.json', directory_name)
-        shutil.copy('Config.json', directory_name)
+        shutil.copy('Parameters.json', test_directory)
+        shutil.copy('Config.json', test_directory)
         
-        with open(os.path.join(directory_name, 'Config.json')) as param_file:
+        with open(os.path.join(test_directory, 'Config.json')) as param_file:
             config_data = json.load(param_file)
-            config_data['outfile'] = os.path.join('./', directory_name, config_data['outfile'][2:])
-            config_data['logfile'] = os.path.join('./', directory_name, config_data['logfile'][2:])
-            config_data['lossfile'] = os.path.join('./', directory_name, config_data['lossfile'][2:])
-            config_data['valfile'] = os.path.join('./', directory_name, config_data['valfile'][2:])
-            config_data['ext_grid_file'] = os.path.join('./', directory_name, config_data['ext_grid_file'][2:])
-            config_data['dens_grid_file'] = os.path.join('./', directory_name, config_data['dens_grid_file'][2:])
-            config_data['ext_los_file'] = os.path.join('./', directory_name, config_data['ext_los_file'][2:])
-            config_data['dens_los_file'] = os.path.join('./', directory_name, config_data['dens_los_file'][2:])
-            config_data['density_plot'] = os.path.join('./', directory_name, config_data['density_plot'][2:])
-            config_data['density_los_plot'] = os.path.join('./', directory_name, config_data['density_los_plot'][2:])
-            config_data['extinction_plot'] = os.path.join('./', directory_name, config_data['extinction_plot'][2:])
-            config_data['extinction_los_plot'] = os.path.join('./', directory_name,
+            config_data['outfile'] = os.path.join('./', test_directory, config_data['outfile'][2:])
+            config_data['logfile'] = os.path.join('./', test_directory, config_data['logfile'][2:])
+            config_data['lossfile'] = os.path.join('./', test_directory, config_data['lossfile'][2:])
+            config_data['valfile'] = os.path.join('./', test_directory, config_data['valfile'][2:])
+            config_data['ext_grid_file'] = os.path.join('./', test_directory, config_data['ext_grid_file'][2:])
+            config_data['dens_grid_file'] = os.path.join('./', test_directory, config_data['dens_grid_file'][2:])
+            config_data['ext_los_file'] = os.path.join('./', test_directory, config_data['ext_los_file'][2:])
+            config_data['dens_los_file'] = os.path.join('./', test_directory, config_data['dens_los_file'][2:])
+            config_data['density_plot'] = os.path.join('./', test_directory, config_data['density_plot'][2:])
+            config_data['density_los_plot'] = os.path.join('./', test_directory, config_data['density_los_plot'][2:])
+            config_data['extinction_plot'] = os.path.join('./', test_directory, config_data['extinction_plot'][2:])
+            config_data['extinction_los_plot'] = os.path.join('./', test_directory,
                                                               config_data['extinction_los_plot'][2:]
                                                               )
-            config_data['loss_plot'] = os.path.join('./', directory_name, config_data['loss_plot'][2:])
+            config_data['loss_plot'] = os.path.join('./', test_directory, config_data['loss_plot'][2:])
             
-            with open(os.path.join(directory_name, 'Config.json'), 'w') as new_config_file:
+            with open(os.path.join(test_directory, 'Config.json'), 'w') as new_config_file:
                 json.dump(config_data, new_config_file, indent=4)
            
-        return os.path.join(directory_name, "Config.json")
+        return os.path.join(test_directory, "Config.json")
 
     @staticmethod
     def give_config_value(config_file_path, key):
