@@ -236,4 +236,5 @@ fabric.properties
 error.txt
 nohup.out
 input.txt
+gitlog.txt
 
