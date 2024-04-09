@@ -38,7 +38,9 @@ class MainProgram:
         - `max_distance (float)`: Maximum distance in the dataset.
         - `parameters (dict)`: Dictionary of current test parameters.
         - `batch_size (int)`: Batch size for training.
-        - `is_new_network (bool)`: Flag indicating whether the network is new.	
+        - `is_new_network (bool)`: Flag indicating whether the network is new.
+        - `is_new_datafile (bool)`: Flag indicating whether the data file is new.
+        - `checkpoint_epoch (int)`: Epoch number for checkpointing.	
         
     # Methods:
         - `get_parameters_from_json()`: Loads parameters from the "Parameters.json" file.
@@ -80,10 +82,10 @@ class MainProgram:
         self.parameters = None
         self.max_distance = None
         self.hidden_size = None
-        self.checkpoint_epoch = None # DOC ajouter à la doc
+        self.checkpoint_epoch = None
         self.loader = None
         self.is_new_network = None
-        self.is_new_datafile = None # DOC ajouter à la doc
+        self.is_new_datafile = None
         self.get_parameters_from_json()
         self.set_parameters()
         self.config_file_path = FileHelper.init_test_directory()
