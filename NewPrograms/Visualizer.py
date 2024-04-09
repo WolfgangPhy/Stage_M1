@@ -336,6 +336,20 @@ class Visualizer:
             
         plt.legend()
         plt.savefig(density_los_plot_path)
+        
+    def star_map(self):
+        distance = self.dataset.distance
+        cosell = self.dataset.cosell
+        sinell = self.dataset.sinell
+        
+        x = distance * cosell
+        y = distance * sinell
+        x = x.cpu().numpy()
+        y = y.cpu().numpy()
+        
+        sns.set_theme()
+        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=0.1, legend=False)
+        plt.savefig("star_map.png")
 
     @staticmethod
     def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):

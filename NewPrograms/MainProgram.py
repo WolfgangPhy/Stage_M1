@@ -8,7 +8,6 @@ from CreateDataFile import CreateDataFile
 from Calculator import Calculator
 from ModelLoader import ModelLoader
 from CustomLossFunctions import CustomLossFunctions
-from NetworkHelper import NetworkHelper
 from FileHelper import FileHelper
 from Visualizer import Visualizer
 
@@ -273,6 +272,7 @@ class MainProgram:
             subdirectory of the current test directory.
         """
         visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
+        visualizer.star_map()
         visualizer.plot_model()
         visualizer.compare_densities()
         visualizer.density_vs_distance()
@@ -282,6 +282,7 @@ class MainProgram:
         if self.is_new_datafile:
             visualizer.model_histogram()
         visualizer.network_density_histogram()
+        
 
     def execute(self):
         """
