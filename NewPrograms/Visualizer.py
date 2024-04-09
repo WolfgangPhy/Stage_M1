@@ -149,9 +149,9 @@ class Visualizer:
         cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', cmap=palette, norm=divnorm)
         cs = ax2.set_title('Network density')
         cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', cmap=palette, norm=divnorm)
-        cs = ax3.set_title('True-Network (%)')
+        cs = ax3.set_title('True-Network')
         cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), shading='auto',
-                             cmap=palette, norm=divnorm)
+                             cmap='seismic', norm=divnorm)
         ax1.set_xlabel('X (kpc)')
         ax1.set_ylabel('Y (kpc)')
         ax2.set_xlabel('X (kpc)')
@@ -163,6 +163,68 @@ class Visualizer:
         fig.colorbar(cs3, ax=ax3)
         plt.savefig(density_plot_path)
         # plt.show()
+        
+    def model_histogram(self):
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens_true = self.dens_grid_datas['density_model']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "model_historgram_plot")
+
+        df = pd.DataFrame({'X': x.flatten(), 'Y': y.flatten(), 'Density': dens_true.flatten()})
+
+        # Crée un jointplot avec histogrammes marginaux
+        g = sns.jointplot(data=df, x='X', y='Y', kind='hist', bins=(len(x), len(y)))
+
+        g.ax_marg_y.cla()
+        g.ax_marg_x.cla()
+        
+        norm = colors.TwoSlopeNorm(vcenter=0)
+        
+        sns.heatmap(data=dens_true.reshape(len(x), len(y)).T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
+                    yticklabels=10, square=True, norm=norm)
+        g.ax_joint.set_xticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.set_yticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.invert_yaxis()
+        
+        g.ax_marg_y.barh(np.arange(0.5, len(y)), np.sum(dens_true, axis=0), color='cornflowerblue')
+        g.ax_marg_x.bar(np.arange(0.5, len(x)), np.sum(dens_true, axis=1), color='cornflowerblue')
+
+        g.ax_marg_x.tick_params(axis='x', bottom=False, labelbottom=False)
+        g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+
+        plt.savefig(density_plot_path)
+        
+    def network_density_histogram(self):
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "network_density_histogram_plot")
+
+        df = pd.DataFrame({'X': x.flatten(), 'Y': y.flatten(), 'Density': dens_network.flatten()})
+        norm = colors.TwoSlopeNorm(vcenter=0)
+
+        g = sns.jointplot(data=df, x='X', y='Y', kind='hist', bins=(len(x), len(y)))
+
+        g.ax_marg_y.cla()
+        g.ax_marg_x.cla()
+        
+        sns.heatmap(data=dens_network.reshape(len(x), len(y)).T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
+                    yticklabels=10, square=True, norm=norm)
+        g.ax_joint.set_xticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.set_yticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.invert_yaxis()
+        
+        g.ax_marg_y.barh(np.arange(0.5, len(y)), np.sum(dens_network, axis=0), color='cornflowerblue')
+        g.ax_marg_x.bar(np.arange(0.5, len(x)), np.sum(dens_network, axis=1), color='cornflowerblue')
+
+        g.ax_marg_x.tick_params(axis='x', bottom=False, labelbottom=False)
+        g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+
+        plt.savefig(density_plot_path)
 
     def compare_extinctions(self):
         """
