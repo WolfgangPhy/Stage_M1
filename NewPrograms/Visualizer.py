@@ -348,7 +348,7 @@ class Visualizer:
         y = y.cpu().numpy()
         
         sns.set_theme()
-        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=0.1, legend=False)
+        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=1, legend=False)
         plt.savefig("star_map.png")
 
     @staticmethod
