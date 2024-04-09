@@ -9,6 +9,8 @@ import os
 import pickle
 from FileHelper import FileHelper
 from ModelHelper import ModelHelper
+import matplotlib.patches as patches
+from matplotlib.patches import Circle
 
 
 class Visualizer:
@@ -161,8 +163,20 @@ class Visualizer:
         fig.colorbar(cs1, ax=ax1)
         fig.colorbar(cs2, ax=ax2)
         fig.colorbar(cs3, ax=ax3)
+        
+        # Ajouter un cercle de rayon 5.5 centré en (0, 0)
+        circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
+        circle1 = plt.Circle((0, 0), 5.5, color='white', fill=False)
+        circle2 = plt.Circle((0, 0), 5.5, color='black', fill=False)
+        ax1.add_artist(circle)
+        ax2.add_artist(circle1)
+        ax3.add_artist(circle2)
+        
+        ax1.set_aspect('equal', adjustable='box')
+        ax2.set_aspect('equal', adjustable='box')
+        ax3.set_aspect('equal', adjustable='box')
+
         plt.savefig(density_plot_path)
-        # plt.show()
         
     def model_histogram(self):
         x = self.dens_grid_datas['X']
@@ -348,7 +362,14 @@ class Visualizer:
         y = y.cpu().numpy()
         
         sns.set_theme()
-        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=1, legend=False)
+        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=1, legend=False, alpha=0.8)
+        
+        # Ajouter un carré de 5 par 5 centré en (0, 0)
+        ax = plt.gca()
+        square = patches.Rectangle((-5, -5), 10, 10, linewidth=1, edgecolor='r', facecolor='none')
+        ax.add_patch(square)
+        ax.set_aspect('equal', adjustable='box')
+        
         plt.savefig("star_map.png")
 
     @staticmethod
