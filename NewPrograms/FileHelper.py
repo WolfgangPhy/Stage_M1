@@ -40,7 +40,7 @@ class FileHelper:
         
         directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items() if key not
                                    in ["ext_loss_function_custom", "dens_loss_function_custom", "is_new_network", 
-                                       "checkpoint_epoch", "is_new_datafile"]]
+                                       "checkpoint_epoch", "is_new_datafile", "learning_rate"]]
                                   )
         test_directory = os.path.join("Tests", directory_name)
         
@@ -66,21 +66,21 @@ class FileHelper:
         
         with open(os.path.join(test_directory, 'Config.json')) as param_file:
             config_data = json.load(param_file)
-            config_data['outfile'] = os.path.join('./Tests', test_directory, config_data['outfile'][2:])
-            config_data['logfile'] = os.path.join('./Tests', test_directory, config_data['logfile'][2:])
-            config_data['lossfile'] = os.path.join('./Tests', test_directory, config_data['lossfile'][2:])
-            config_data['valfile'] = os.path.join('./Tests', test_directory, config_data['valfile'][2:])
-            config_data['ext_grid_file'] = os.path.join('./Tests', test_directory, config_data['ext_grid_file'][2:])
-            config_data['dens_grid_file'] = os.path.join('./Tests', test_directory, config_data['dens_grid_file'][2:])
-            config_data['ext_los_file'] = os.path.join('./Tests', test_directory, config_data['ext_los_file'][2:])
-            config_data['dens_los_file'] = os.path.join('./Tests', test_directory, config_data['dens_los_file'][2:])
-            config_data['density_plot'] = os.path.join('./Tests', test_directory, config_data['density_plot'][2:])
-            config_data['density_los_plot'] = os.path.join('./Tests', test_directory, config_data['density_los_plot'][2:])
-            config_data['extinction_plot'] = os.path.join('./Tests', test_directory, config_data['extinction_plot'][2:])
-            config_data['extinction_los_plot'] = os.path.join('./Tests', test_directory,
+            config_data['outfile'] = os.path.join('./', test_directory, config_data['outfile'][2:])
+            config_data['logfile'] = os.path.join('./', test_directory, config_data['logfile'][2:])
+            config_data['lossfile'] = os.path.join('./', test_directory, config_data['lossfile'][2:])
+            config_data['valfile'] = os.path.join('./', test_directory, config_data['valfile'][2:])
+            config_data['ext_grid_file'] = os.path.join('./', test_directory, config_data['ext_grid_file'][2:])
+            config_data['dens_grid_file'] = os.path.join('./', test_directory, config_data['dens_grid_file'][2:])
+            config_data['ext_los_file'] = os.path.join('./', test_directory, config_data['ext_los_file'][2:])
+            config_data['dens_los_file'] = os.path.join('./', test_directory, config_data['dens_los_file'][2:])
+            config_data['density_plot'] = os.path.join('./', test_directory, config_data['density_plot'][2:])
+            config_data['density_los_plot'] = os.path.join('./', test_directory, config_data['density_los_plot'][2:])
+            config_data['extinction_plot'] = os.path.join('./', test_directory, config_data['extinction_plot'][2:])
+            config_data['extinction_los_plot'] = os.path.join('./', test_directory,
                                                               config_data['extinction_los_plot'][2:]
                                                               )
-            config_data['loss_plot'] = os.path.join('./Tests', test_directory, config_data['loss_plot'][2:])
+            config_data['loss_plot'] = os.path.join('./', test_directory, config_data['loss_plot'][2:])
             
             with open(os.path.join(test_directory, 'Config.json'), 'w') as new_config_file:
                 json.dump(config_data, new_config_file, indent=4)

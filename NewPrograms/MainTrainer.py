@@ -260,7 +260,7 @@ class MainTrainer:
         self.trainer = NetworkTrainer(self.network, self.device, self.opti, self.ext_loss_function,
                                       self.dens_loss_function, self.ext_reduction_method, self.dens_reduction_method
                                       )
-        for idx in tqdm(range(self.epoch_number+1)):
+        for idx in range(self.epoch_number+1):
         
             # set start time of epoch and epoch number
             t0 = time.time()

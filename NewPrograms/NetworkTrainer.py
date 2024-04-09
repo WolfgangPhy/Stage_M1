@@ -131,6 +131,7 @@ class NetworkTrainer:
 
         # do 1 optimisation step after minibatch
         self.opti.step()
+        print("Leanring rate: ", self.opti.param_groups[0]['lr'])
 
         return loss_ext_total, loss_dens_total
 

@@ -257,14 +257,14 @@ class MainProgram:
             self.create_data_file()
         self.load_dataset()
         self.set_hidden_size()
-        self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate,
-                                                                 self.is_new_network, self.checkpoint_epoch,
-                                                                 self.config_file_path
-                                                                 )
+        #self.network, self.opti = NetworkHelper.create_net_integ(self.hidden_size, self.device, self.learning_rate,
+        #                                                         self.is_new_network, self.checkpoint_epoch,
+        #                                                         self.config_file_path
+        #                                                         )
         self.get_max_distance()
         if self.is_new_network:
             self.train()
-        self.calculate_density_extinction()
+        #self.calculate_density_extinction()
         self.visualize() # TODO : Plots files sont écrasés à chaque exécution - Ajouter au README.md
 
 

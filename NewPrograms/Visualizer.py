@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib import colors
 plt.switch_backend('agg')
 import seaborn as sns
 import pandas as pd
@@ -139,14 +141,17 @@ class Visualizer:
         density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_plot")
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
+        divnorm = colors.TwoSlopeNorm(vcenter=0)
+        palette = plt.cm.get_cmap("twilight")
+        palette = palette.reversed()
+        palette = self.truncate_colormap(palette, 0.1, 0.9)
         cs = ax1.set_title('True density')
-        cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', vmin=0., vmax=30, cmap="inferno")
+        cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', cmap=palette, norm=divnorm)
         cs = ax2.set_title('Network density')
-        cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', vmin=0., vmax=30,
-                             cmap="inferno")
+        cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', cmap=palette, norm=divnorm)
         cs = ax3.set_title('True-Network (%)')
-        cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), vmin=-2, vmax=2, shading='auto',
-                             cmap="inferno")
+        cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), shading='auto',
+                             cmap=palette, norm=divnorm)
         ax1.set_xlabel('X (kpc)')
         ax1.set_ylabel('Y (kpc)')
         ax2.set_xlabel('X (kpc)')
@@ -175,23 +180,20 @@ class Visualizer:
         ext_network = self.ext_grid_datas['extinction_network']
         extinction_plot_path = FileHelper.give_config_value(self.config_file_path, "extinction_plot")
 
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(25, 10))
+        palette = plt.cm.get_cmap("twilight")
+        palette = self.truncate_colormap(palette, 0.0, 0.5)
+        palette = palette.reversed()
         cs = ax1.set_title('True Extinction')
-        cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap="inferno")
+        cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap=palette, vmin=0.)
         cs = ax2.set_title('Network Extinction')
-        cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap="inferno")
-        cs = ax3.set_title('True-Network (%)')
-        cs3 = ax3.pcolormesh(x, y, np.abs(ext_true - ext_network) / ext_true * 100., vmin=0, vmax=50, shading='auto',
-                             cmap="inferno")
+        cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap=palette, vmin=0.) 
         ax1.set_xlabel('X (kpc)')
         ax1.set_ylabel('Y (kpc)')
         ax2.set_xlabel('X (kpc)')
         ax2.set_ylabel('Y (kpc)')
-        ax3.set_xlabel('X (kpc)')
-        ax3.set_ylabel('Y (kpc)')
         fig.colorbar(cs1, ax=ax1)
         fig.colorbar(cs2, ax=ax2)
-        fig.colorbar(cs3, ax=ax3)
         plt.savefig(extinction_plot_path)
         # plt.show()
         
@@ -272,3 +274,15 @@ class Visualizer:
             
         plt.legend()
         plt.savefig(density_los_plot_path)
+
+    @staticmethod
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+        '''
+        https://stackoverflow.com/a/18926541
+        '''
+        if isinstance(cmap, str):
+            cmap = plt.get_cmap(cmap)
+        new_cmap = mpl.colors.LinearSegmentedColormap.from_list(
+            'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+            cmap(np.linspace(minval, maxval, n)))
+        return new_cmap
