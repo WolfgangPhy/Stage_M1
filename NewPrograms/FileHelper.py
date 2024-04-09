@@ -40,7 +40,7 @@ class FileHelper:
         
         directory_name = "_".join([f"{key}_{value}" for key, value in parameters.items() if key not
                                    in ["ext_loss_function_custom", "dens_loss_function_custom", "is_new_network", 
-                                       "checkpoint_epoch", "is_new_datafile"]]
+                                       "checkpoint_epoch", "is_new_datafile", "learning_rate"]]
                                   )
         test_directory = os.path.join("Tests", directory_name)
         
