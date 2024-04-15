@@ -46,6 +46,9 @@ class Visualizer:
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
         - `density_vs_distance()`: Plot true and network density along lines of sight.	
         - `plot_model()`: Plot the model and save the plot.
+        - `star_map()`: Plot the star map.
+        - `density_true_vs_network()`: Plot true density vs network density.
+        - `density_difference_vs_network()`: Plot the difference between the true and network density.
         
     # Example:
         The following example demonstrates how to use the `Visualizer` class to compare true and network extinction.
@@ -107,6 +110,9 @@ class Visualizer:
             for j in range(len(x[1, :])):
                 dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
                 
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.xlabel('X (kpc)')
+        plt.ylabel('Y (kpc)')
         plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
         plt.savefig(file_model_plot)
        
@@ -160,9 +166,12 @@ class Visualizer:
         ax2.set_ylabel('Y (kpc)')
         ax3.set_xlabel('X (kpc)')
         ax3.set_ylabel('Y (kpc)')
-        fig.colorbar(cs1, ax=ax1)
-        fig.colorbar(cs2, ax=ax2)
-        fig.colorbar(cs3, ax=ax3)
+        cbar1 = fig.colorbar(cs1, ax=ax1)
+        cbar2 = fig.colorbar(cs2, ax=ax2)
+        cbar3 = fig.colorbar(cs3, ax=ax3)
+        cbar1.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270)
+        cbar2.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270)
+        cbar3.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270)
         
         # Ajouter un cercle de rayon 5.5 centré en (0, 0)
         circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
@@ -207,6 +216,11 @@ class Visualizer:
         g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+        
+        g.ax_joint.set_xlabel('X (kpc)')
+        g.ax_joint.set_ylabel('Y (kpc)')
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)')
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)')
 
         plt.savefig(density_plot_path)
         
@@ -237,6 +251,11 @@ class Visualizer:
         g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+        
+        g.ax_joint.set_xlabel('X (kpc)')
+        g.ax_joint.set_ylabel('Y (kpc)')
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)')
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)')
 
         plt.savefig(density_plot_path)
 
@@ -369,6 +388,9 @@ class Visualizer:
         square = patches.Rectangle((-5, -5), 10, 10, linewidth=1, edgecolor='r', facecolor='none')
         ax.add_patch(square)
         ax.set_aspect('equal', adjustable='box')
+
+        plt.xlabel('X (kpc)')
+        plt.ylabel('Y (kpc)')
         
         plt.savefig("star_map.png")
 
@@ -383,3 +405,59 @@ class Visualizer:
             'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
             cmap(np.linspace(minval, maxval, n)))
         return new_cmap
+        
+    def density_true_vs_network(self):
+        """
+        Plot true density vs network density.
+        """
+        dens_true = self.dens_grid_datas['density_model']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_true_vs_network_plot")
+        
+        X = self.dens_grid_datas['X']
+        Y = self.dens_grid_datas['Y']
+        distance = np.sqrt(X**2 + Y**2)
+        
+        mask = np.where(distance <= self.max_distance)
+        
+        dens_true = dens_true[mask]
+        dens_network = dens_network[mask]
+
+        line = np.linspace(0, max(dens_network.flatten()), 100)
+        sns.set_theme()
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.set_title('True density vs Network density')
+        sns.scatterplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
+        sns.lineplot(x=line, y=line, color='red', ax=ax)
+        ax.set_xlabel('Network density (kpc$^{-2}$)')
+        ax.set_ylabel('True density (kpc$^{-2}$)')
+        plt.savefig(density_plot_path)
+        
+    def density_difference_vs_network(self):
+        """
+        Plot the difference between the true and network density in function of the network density.
+        """
+        dens_true = self.dens_grid_datas['density_model']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_difference_vs_network_plot")
+        
+        X = self.dens_grid_datas['X']
+        Y = self.dens_grid_datas['Y']
+        distance = np.sqrt(X**2 + Y**2)
+        
+        mask = np.where(distance <= self.max_distance)
+        
+        dens_true = dens_true[mask]
+        dens_network = dens_network[mask]
+        
+        x_line = np.linspace(0, max(dens_true.flatten()), 100)
+        sns.set_theme()
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.set_title('Difference between True and Network density vs Network density')
+        sns.scatterplot(x = dens_true.flatten(), y = dens_true.flatten() - dens_network.flatten(), ax = ax)
+        sns.lineplot(x = x_line, y = np.zeros(100), color = 'red', ax = ax)
+        ax.set_xlabel('True density (kpc$^{-2}$)')
+        ax.set_ylabel('True density - Network density (kpc$^{-2}$)')
+        plt.savefig(density_plot_path)
+        
+    # 
