@@ -11,10 +11,11 @@ class NetworkHelper:
     A utility class for building and training neural networks for extinction and density estimation.
 
     # Methods:
-        - `integral(tensor, network_model, min_distance=0., debug=0)`: Custom analytic integral of the network for
+        - `integral(tensor, network_model, min_distance=0.)`: Custom analytic integral of the network for
             MSE loss. (Static)
         - `init_weights(model)`: Initializes weights and biases using Xavier uniform initialization. (Static)
-        - `create_net_integ(hidden_size)`: Creates a neural network and sets up the optimizer. (Static)
+        - `create_net_integ(hidden_size, device, learning_rate, is_new_network, checkpoint_epoch,
+            config_file_path)`: Creates a neural network and sets up the optimizer. (Static)
         
     # Example:
         The following example demonstrates how to use the `NetworkHelper` class to build and intit network weights.
@@ -43,7 +44,6 @@ class NetworkHelper:
         # Returns:
             `torch.tensor`: Result of the custom analytic integral for each sample in the batch.
         """
-        # TODO : Corriger doc
         # Equation 15b of Lloyd and al 2020 -> Phi_j for each neuron
         # Li_1(x) = -ln(1-x) for x \in C
         batch_size = tensor.size()[0]

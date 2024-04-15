@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib import colors
 plt.switch_backend('agg')
 import seaborn as sns
 import pandas as pd
@@ -7,6 +9,8 @@ import os
 import pickle
 from FileHelper import FileHelper
 from ModelHelper import ModelHelper
+import matplotlib.patches as patches
+from matplotlib.patches import Circle
 
 
 class Visualizer:
@@ -139,14 +143,17 @@ class Visualizer:
         density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_plot")
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
+        divnorm = colors.TwoSlopeNorm(vcenter=0)
+        palette = plt.cm.get_cmap("twilight")
+        palette = palette.reversed()
+        palette = self.truncate_colormap(palette, 0.1, 0.9)
         cs = ax1.set_title('True density')
-        cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', vmin=0., vmax=30, cmap="inferno")
+        cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', cmap=palette, norm=divnorm)
         cs = ax2.set_title('Network density')
-        cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', vmin=0., vmax=30,
-                             cmap="inferno")
-        cs = ax3.set_title('True-Network (%)')
-        cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), vmin=-2, vmax=2, shading='auto',
-                             cmap="inferno")
+        cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', cmap=palette, norm=divnorm)
+        cs = ax3.set_title('True-Network')
+        cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), shading='auto',
+                             cmap='seismic', norm=divnorm)
         ax1.set_xlabel('X (kpc)')
         ax1.set_ylabel('Y (kpc)')
         ax2.set_xlabel('X (kpc)')
@@ -156,8 +163,82 @@ class Visualizer:
         fig.colorbar(cs1, ax=ax1)
         fig.colorbar(cs2, ax=ax2)
         fig.colorbar(cs3, ax=ax3)
+        
+        # Ajouter un cercle de rayon 5.5 centré en (0, 0)
+        circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
+        circle1 = plt.Circle((0, 0), 5.5, color='white', fill=False)
+        circle2 = plt.Circle((0, 0), 5.5, color='black', fill=False)
+        ax1.add_artist(circle)
+        ax2.add_artist(circle1)
+        ax3.add_artist(circle2)
+        
+        ax1.set_aspect('equal', adjustable='box')
+        ax2.set_aspect('equal', adjustable='box')
+        ax3.set_aspect('equal', adjustable='box')
+
         plt.savefig(density_plot_path)
-        # plt.show()
+        
+    def model_histogram(self):
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens_true = self.dens_grid_datas['density_model']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "model_historgram_plot")
+
+        df = pd.DataFrame({'X': x.flatten(), 'Y': y.flatten(), 'Density': dens_true.flatten()})
+
+        # Crée un jointplot avec histogrammes marginaux
+        g = sns.jointplot(data=df, x='X', y='Y', kind='hist', bins=(len(x), len(y)))
+
+        g.ax_marg_y.cla()
+        g.ax_marg_x.cla()
+        
+        norm = colors.TwoSlopeNorm(vcenter=0)
+        
+        sns.heatmap(data=dens_true.reshape(len(x), len(y)).T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
+                    yticklabels=10, square=True, norm=norm)
+        g.ax_joint.set_xticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.set_yticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.invert_yaxis()
+        
+        g.ax_marg_y.barh(np.arange(0.5, len(y)), np.sum(dens_true, axis=0), color='cornflowerblue')
+        g.ax_marg_x.bar(np.arange(0.5, len(x)), np.sum(dens_true, axis=1), color='cornflowerblue')
+
+        g.ax_marg_x.tick_params(axis='x', bottom=False, labelbottom=False)
+        g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+
+        plt.savefig(density_plot_path)
+        
+    def network_density_histogram(self):
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "network_density_histogram_plot")
+
+        df = pd.DataFrame({'X': x.flatten(), 'Y': y.flatten(), 'Density': dens_network.flatten()})
+        norm = colors.TwoSlopeNorm(vcenter=0)
+
+        g = sns.jointplot(data=df, x='X', y='Y', kind='hist', bins=(len(x), len(y)))
+
+        g.ax_marg_y.cla()
+        g.ax_marg_x.cla()
+        
+        sns.heatmap(data=dens_network.reshape(len(x), len(y)).T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
+                    yticklabels=10, square=True, norm=norm)
+        g.ax_joint.set_xticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.set_yticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
+        g.ax_joint.invert_yaxis()
+        
+        g.ax_marg_y.barh(np.arange(0.5, len(y)), np.sum(dens_network, axis=0), color='cornflowerblue')
+        g.ax_marg_x.bar(np.arange(0.5, len(x)), np.sum(dens_network, axis=1), color='cornflowerblue')
+
+        g.ax_marg_x.tick_params(axis='x', bottom=False, labelbottom=False)
+        g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
+        g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+
+        plt.savefig(density_plot_path)
 
     def compare_extinctions(self):
         """
@@ -175,23 +256,20 @@ class Visualizer:
         ext_network = self.ext_grid_datas['extinction_network']
         extinction_plot_path = FileHelper.give_config_value(self.config_file_path, "extinction_plot")
 
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(35, 10))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(25, 10))
+        palette = plt.cm.get_cmap("twilight")
+        palette = self.truncate_colormap(palette, 0.0, 0.5)
+        palette = palette.reversed()
         cs = ax1.set_title('True Extinction')
-        cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap="inferno")
+        cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap=palette, vmin=0.)
         cs = ax2.set_title('Network Extinction')
-        cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap="inferno")
-        cs = ax3.set_title('True-Network (%)')
-        cs3 = ax3.pcolormesh(x, y, np.abs(ext_true - ext_network) / ext_true * 100., vmin=0, vmax=50, shading='auto',
-                             cmap="inferno")
+        cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap=palette, vmin=0.) 
         ax1.set_xlabel('X (kpc)')
         ax1.set_ylabel('Y (kpc)')
         ax2.set_xlabel('X (kpc)')
         ax2.set_ylabel('Y (kpc)')
-        ax3.set_xlabel('X (kpc)')
-        ax3.set_ylabel('Y (kpc)')
         fig.colorbar(cs1, ax=ax1)
         fig.colorbar(cs2, ax=ax2)
-        fig.colorbar(cs3, ax=ax3)
         plt.savefig(extinction_plot_path)
         # plt.show()
         
@@ -272,3 +350,36 @@ class Visualizer:
             
         plt.legend()
         plt.savefig(density_los_plot_path)
+        
+    def star_map(self):
+        distance = self.dataset.distance
+        cosell = self.dataset.cosell
+        sinell = self.dataset.sinell
+        
+        x = distance * cosell
+        y = distance * sinell
+        x = x.cpu().numpy()
+        y = y.cpu().numpy()
+        
+        sns.set_theme()
+        sns.scatterplot(x=x, y=y, hue=self.dataset.K, palette='viridis', size=1, legend=False, alpha=0.8)
+        
+        # Ajouter un carré de 5 par 5 centré en (0, 0)
+        ax = plt.gca()
+        square = patches.Rectangle((-5, -5), 10, 10, linewidth=1, edgecolor='r', facecolor='none')
+        ax.add_patch(square)
+        ax.set_aspect('equal', adjustable='box')
+        
+        plt.savefig("star_map.png")
+
+    @staticmethod
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+        '''
+        https://stackoverflow.com/a/18926541
+        '''
+        if isinstance(cmap, str):
+            cmap = plt.get_cmap(cmap)
+        new_cmap = mpl.colors.LinearSegmentedColormap.from_list(
+            'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+            cmap(np.linspace(minval, maxval, n)))
+        return new_cmap

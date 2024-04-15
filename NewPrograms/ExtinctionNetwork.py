@@ -7,7 +7,6 @@ class ExtinctionNetwork(nn.Module):
 
     # Args:
         - `hidden_size (int)`: Number of hidden units in the neural network.
-        - `device (torch.device)`: Device to run the neural network on.
 
     # Attributes:
         - `hidden_size (int)`: Number of hidden units.
