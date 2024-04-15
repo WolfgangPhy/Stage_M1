@@ -272,6 +272,7 @@ class MainTrainer:
 
             # loop over minibatches
             nbatch = 0
+            full_loss=0.
             for in_batch, tar_batch in self.train_loader:
                 nbatch += 1
                 self.loss_ext_total, self.loss_dens_total = self.trainer.take_step(in_batch, tar_batch,
@@ -279,6 +280,10 @@ class MainTrainer:
                                                                                    self.loss_dens_total,
                                                                                    self.nu_ext, self.nu_dens
                                                                                    )
+                full_loss += self.loss_ext_total+self.loss_dens_total
+            
+            # print learning rate and epoch
+            print("Epoch : ",idx," Learning rate :", self.opti.param_groups[0]['lr']," Loss: ",full_loss)
             
             # add up loss function contributions
             full_loss = self.loss_dens_total+self.loss_ext_total  # /(nbatch*1.) TODO
