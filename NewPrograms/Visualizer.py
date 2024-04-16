@@ -439,7 +439,7 @@ class Visualizer:
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
         ax.set_title('True density vs Network density', fontsize=15)
-        sns.scatterplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
+        sns.regplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
         sns.lineplot(x=line, y=line, color='red', ax=ax)
         ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=15)
         ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=15)
