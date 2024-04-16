@@ -108,6 +108,7 @@ class Visualizer:
                 dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
                 
         plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
+        plt.gca().set_aspect('equal', adjustable='box')
         plt.savefig(file_model_plot)
        
     def loss_function(self):
