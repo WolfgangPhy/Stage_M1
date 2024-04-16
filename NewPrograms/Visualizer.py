@@ -11,6 +11,7 @@ from FileHelper import FileHelper
 from ModelHelper import ModelHelper
 import matplotlib.patches as patches
 from matplotlib.patches import Circle
+import json
 
 
 class Visualizer:
@@ -98,37 +99,45 @@ class Visualizer:
         """
         Plot the model (the dataset file) and save the plot in the 'Plots' subdirectory of the current test directory.
         """
-        file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
         file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
-        with open(file_model, "rb") as file:
-            model = pickle.load(file)
-            file.close()
         
-        x, y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
-        dens = x*0.
-        for i in range(len(x[:, 1])):
-            for j in range(len(x[1, :])):
-                dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens = self.dens_grid_datas['density_model']
                 
-        plt.gca().set_aspect('equal', adjustable='box')
-        plt.xlabel('X (kpc)', fontsize=20)
-        plt.ylabel('Y (kpc)', fontsize=20)
-        plt.tick_params(axis='both', which='major', labelsize=20)
-        plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
-        plt.gca().set_aspect('equal', adjustable='box')
+        palette = plt.cm.get_cmap("twilight")
+        palette = palette.reversed()
+        palette = self.truncate_colormap(palette, 0.5, 1)
+        fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.pcolormesh(x, y, dens, shading='auto', cmap=palette)
+        ax.invert_yaxis()
+        ax.set_title('Cloud map', fontsize=20)
+        ax.set_xlabel('X (kpc)', fontsize=20)
+        ax.set_ylabel('Y (kpc)', fontsize=20)
+        ax.tick_params(axis='both', which='major', labelsize=20)
+        ax.set_aspect('equal', adjustable='box')
         plt.savefig(file_model_plot)
        
     def loss_function(self):
         """
         Plot the training and validation loss and save the plot in the 'Plots' subdirectory of the current test directory.
         """
+        with open("Parameters.json", "r") as file:
+            params = json.load(file)
         loss_plot_path = FileHelper.give_config_value(self.config_file_path, "loss_plot")
         sns.set_theme()
-        fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
         sns.lineplot(data=self.lossdatas, x='Epoch', y='TotalLoss', label='Training loss', ax=ax)
         sns.lineplot(data=self.valdatas, x='Epoch', y='TotalValLoss', label='Validation loss', ax=ax)
-        ax.set_xlabel('Epochs', fontsize=20)
-        ax.set_ylabel('Loss', fontsize=20)
+        if(params["ext_loss_function"] == "loglike_loss"):
+            if(params["ext_reduction_method"] == "sum"):
+                ax.axhline(params["star_number"], 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+            if(params["ext_reduction_method"] == "mean"):
+                ax.axhline(1, 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+        if(params["ext_loss_function"] == "mse_loss"):
+            ax.axhline(0, 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+        ax.set_xlabel('Epochs', fontsize=15)
+        ax.set_ylabel('Loss', fontsize=15)
         ax.set_yscale('log')
         ax.tick_params(axis='both', which='major', labelsize=20)
         ax.legend(fontsize=20)
@@ -454,8 +463,8 @@ class Visualizer:
         line = np.linspace(0, max(dens_network.flatten()), 100)
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
-        ax.set_title('True density vs Network density', fontsize=20)
-        sns.scatterplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
+        ax.set_title('True density vs Network density', fontsize=15)
+        sns.regplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
         sns.lineplot(x=line, y=line, color='red', ax=ax)
         ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=20)
         ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=20)

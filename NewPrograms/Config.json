@@ -14,9 +14,9 @@
     "extinction_plot" : "./Plots/extinction_plot.png",
     "extinction_los_plot" : "./Plots/extinction_los_plot.png",
     "loss_plot" : "./Plots/loss_plot.png",
+    "density_true_vs_network_plot" : "./Plots/density_true_vs_network_plot.png",
+    "density_difference_vs_network_plot" : "./Plots/density_difference_vs_network_plot.png",
     "model_plot" : "model_plot.png",
     "model_historgram_plot" : "model_historgram_plot.png",
-    "model_file" : "2DModel.pickle",
-    "density_true_vs_network_plot" : "./Plots/density_true_vs_network_plot.png",
-    "density_difference_vs_network_plot" : "./Plots/density_difference_vs_network_plot.png"
+    "model_file" : "2DModel.pickle"
 }
