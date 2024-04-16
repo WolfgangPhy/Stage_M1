@@ -1,6 +1,6 @@
 {
     "nu_ext": 1.0,
-    "nu_dens": 1.0,
+    "nu_dens": 0.0,
     "ext_loss_function": "loglike_loss",
     "ext_loss_function_custom": true,
     "dens_loss_function": "mse_loss",
@@ -12,6 +12,6 @@
     "learning_rate": 0.001,
     "batch_size": 500,
     "is_new_network": false,
-    "checkpoint_epoch": 410000,
+    "checkpoint_epoch": 420000,
     "is_new_datafile": false
 }

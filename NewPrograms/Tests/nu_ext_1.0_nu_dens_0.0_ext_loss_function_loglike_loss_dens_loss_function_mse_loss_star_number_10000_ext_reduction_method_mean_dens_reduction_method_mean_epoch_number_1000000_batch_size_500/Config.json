@@ -16,5 +16,7 @@
     "loss_plot": "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_mean_dens_reduction_method_mean_epoch_number_1000000_batch_size_500/Plots/loss_plot.png",
     "model_historgram_plot" : "model_historgram_plot.png",
     "model_plot": "model_plot.png",
-    "model_file": "2DModel.pickle"
+    "model_file": "2DModel.pickle",
+    "density_true_vs_network_plot" : "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_mean_dens_reduction_method_mean_epoch_number_1000000_batch_size_500/Plots/density_true_vs_network_plot.png",
+    "density_difference_vs_network_plot" : "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_mean_dens_reduction_method_mean_epoch_number_1000000_batch_size_500/Plots/density_difference_vs_network_plot.png"
 }

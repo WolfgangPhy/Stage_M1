@@ -283,6 +283,8 @@ class MainProgram:
         if self.is_new_datafile:
             visualizer.model_histogram()
         visualizer.network_density_histogram()
+        visualizer.density_true_vs_network()
+        visualizer.density_difference_vs_network()
         
 
     def execute(self):
