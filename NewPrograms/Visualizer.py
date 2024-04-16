@@ -111,8 +111,9 @@ class Visualizer:
                 dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
                 
         plt.gca().set_aspect('equal', adjustable='box')
-        plt.xlabel('X (kpc)', fontsize=15)
-        plt.ylabel('Y (kpc)', fontsize=15)
+        plt.xlabel('X (kpc)', fontsize=20)
+        plt.ylabel('Y (kpc)', fontsize=20)
+        plt.tick_params(axis='both', which='major', labelsize=20)
         plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
         plt.gca().set_aspect('equal', adjustable='box')
         plt.savefig(file_model_plot)
@@ -126,10 +127,11 @@ class Visualizer:
         fig, ax = plt.subplots(1, 1, figsize=(15, 10))
         sns.lineplot(data=self.lossdatas, x='Epoch', y='TotalLoss', label='Training loss', ax=ax)
         sns.lineplot(data=self.valdatas, x='Epoch', y='TotalValLoss', label='Validation loss', ax=ax)
-        ax.set_xlabel('Epochs', fontsize=15)
-        ax.set_ylabel('Loss', fontsize=15)
+        ax.set_xlabel('Epochs', fontsize=20)
+        ax.set_ylabel('Loss', fontsize=20)
         ax.set_yscale('log')
-        ax.legend()
+        ax.tick_params(axis='both', which='major', labelsize=20)
+        ax.legend(fontsize=20)
         plt.savefig(loss_plot_path)
         # plt.show()
 
@@ -154,25 +156,28 @@ class Visualizer:
         palette = plt.cm.get_cmap("twilight")
         palette = palette.reversed()
         palette = self.truncate_colormap(palette, 0.1, 0.9)
-        cs = ax1.set_title('True density', fontsize=15)
+        cs = ax1.set_title('True density', fontsize=20)
         cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', cmap=palette, norm=divnorm)
-        cs = ax2.set_title('Network density', fontsize=15)
+        cs = ax2.set_title('Network density', fontsize=20)
         cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', cmap=palette, norm=divnorm)
-        cs = ax3.set_title('True-Network', fontsize=15)
+        cs = ax3.set_title('True-Network', fontsize=20)
         cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), shading='auto',
                              cmap='seismic', norm=divnorm)
-        ax1.set_xlabel('X (kpc)', fontsize=15)
-        ax1.set_ylabel('Y (kpc)', fontsize=15)
-        ax2.set_xlabel('X (kpc)', fontsize=15)
-        ax2.set_ylabel('Y (kpc)', fontsize=15)
-        ax3.set_xlabel('X (kpc)', fontsize=15)
-        ax3.set_ylabel('Y (kpc)', fontsize=15)
+        ax1.set_xlabel('X (kpc)', fontsize=20)
+        ax1.set_ylabel('Y (kpc)', fontsize=20)
+        ax2.set_xlabel('X (kpc)', fontsize=20)
+        ax2.set_ylabel('Y (kpc)', fontsize=20)
+        ax3.set_xlabel('X (kpc)', fontsize=20)
+        ax3.set_ylabel('Y (kpc)', fontsize=20)
+        ax1.tick_params(axis='both', which='major', labelsize=20)  
+        ax2.tick_params(axis='both', which='major', labelsize=20)  
+        ax3.tick_params(axis='both', which='major', labelsize=20)  
         cbar1 = fig.colorbar(cs1, ax=ax1)
         cbar2 = fig.colorbar(cs2, ax=ax2)
         cbar3 = fig.colorbar(cs3, ax=ax3)
-        cbar1.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
-        cbar2.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
-        cbar3.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
+        cbar1.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
+        cbar2.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
+        cbar3.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
         
         # Ajouter un cercle de rayon 5.5 centré en (0, 0)
         circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
@@ -198,6 +203,11 @@ class Visualizer:
 
         # Crée un jointplot avec histogrammes marginaux
         g = sns.jointplot(data=df, x='X', y='Y', kind='hist', bins=(len(x), len(y)))
+        
+        g.ax_joint.tick_params(axis='both', which='major', labelsize=20)  
+        g.ax_marg_x.tick_params(axis='both', which='major', labelsize=20)  
+        g.ax_marg_y.tick_params(axis='both', which='major', labelsize=20)  
+
 
         g.ax_marg_y.cla()
         g.ax_marg_x.cla()
@@ -218,10 +228,10 @@ class Visualizer:
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
         
-        g.ax_joint.set_xlabel('X (kpc)', fontsize=15)
-        g.ax_joint.set_ylabel('Y (kpc)', fontsize=15)
-        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
-        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=15)
+        g.ax_joint.set_xlabel('X (kpc)', fontsize=20)
+        g.ax_joint.set_ylabel('Y (kpc)', fontsize=20)
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=20)
 
         plt.savefig(density_plot_path)
         
@@ -231,6 +241,12 @@ class Visualizer:
         dens_network = self.dens_grid_datas['density_network']
         density_plot_path = FileHelper.give_config_value(self.config_file_path, "network_density_histogram_plot")
 
+        distance = np.sqrt(x**2 + y**2)
+        mask = distance <= self.max_distance
+        
+        dens_network = np.where(mask, dens_network, 0)
+        
+
         df = pd.DataFrame({'X': x.flatten(), 'Y': y.flatten(), 'Density': dens_network.flatten()})
         norm = colors.TwoSlopeNorm(vcenter=0)
 
@@ -239,7 +255,7 @@ class Visualizer:
         g.ax_marg_y.cla()
         g.ax_marg_x.cla()
         
-        sns.heatmap(data=dens_network.reshape(len(x), len(y)).T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
+        sns.heatmap(data=dens_network.T, ax=g.ax_joint, cbar=False, cmap='RdBu',xticklabels=10,
                     yticklabels=10, square=True, norm=norm)
         g.ax_joint.set_xticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
         g.ax_joint.set_yticklabels(np.linspace(-5, 5, 11).astype(int), rotation=0)
@@ -253,10 +269,14 @@ class Visualizer:
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
         
-        g.ax_joint.set_xlabel('X (kpc)', fontsize=15)
-        g.ax_joint.set_ylabel('Y (kpc)', fontsize=15)
-        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
-        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=15)
+        g.ax_marg_x.tick_params(axis='both', which='major', labelsize=15)  
+        g.ax_marg_y.tick_params(axis='both', which='major', labelsize=15)  
+
+        
+        g.ax_joint.set_xlabel('X (kpc)', fontsize=20)
+        g.ax_joint.set_ylabel('Y (kpc)', fontsize=20)
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=20)
 
         plt.savefig(density_plot_path)
 
@@ -280,18 +300,20 @@ class Visualizer:
         palette = plt.cm.get_cmap("twilight")
         palette = self.truncate_colormap(palette, 0.0, 0.5)
         palette = palette.reversed()
-        cs = ax1.set_title('True Extinction (mag)', fontsize=15)
+        cs = ax1.set_title('True Extinction (mag)', fontsize=20)
         cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap=palette, vmin=0.)
-        cs = ax2.set_title('Network Extinction (mag)', fontsize=15)
+        cs = ax2.set_title('Network Extinction (mag)', fontsize=20)
         cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap=palette, vmin=0.) 
-        ax1.set_xlabel('X (kpc)', fontsize=15)
-        ax1.set_ylabel('Y (kpc)', fontsize=15)
-        ax2.set_xlabel('X (kpc)', fontsize=15)
-        ax2.set_ylabel('Y (kpc)', fontsize=15)
+        ax1.set_xlabel('X (kpc)', fontsize=20)
+        ax1.set_ylabel('Y (kpc)', fontsize=20)
+        ax2.set_xlabel('X (kpc)', fontsize=20)
+        ax2.set_ylabel('Y (kpc)', fontsize=20)
         cbar1 = fig.colorbar(cs1, ax=ax1)
         cbar2 = fig.colorbar(cs2, ax=ax2)
-        cbar1.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=15, labelpad=15)
-        cbar2.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=15, labelpad=15)
+        cbar1.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=20, labelpad=20)
+        cbar2.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=20, labelpad=20)
+        ax1.tick_params(axis='both', which='major', labelsize=20)
+        ax2.tick_params(axis='both', which='major', labelsize=20)
         plt.savefig(extinction_plot_path)
         # plt.show()
         
@@ -336,10 +358,11 @@ class Visualizer:
                 else:
                     recerr[j] = los_ext_network[i, j] * los_ext_network[i, j]
             ax.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-            ax.set_xlabel('d (kpc)', fontsize=15)
-            ax.set_ylabel('K (mag)', fontsize=15)
+            ax.set_xlabel('Distance (kpc)', fontsize=20)
+            ax.set_ylabel('K (mag)', fontsize=20)
+            ax.tick_params(axis='both', which='major', labelsize=20)
             
-        plt.legend()
+        plt.legend(fontsize=20)
         plt.savefig(extinction_los_plot_path)
         
     def density_vs_distance(self):
@@ -367,10 +390,11 @@ class Visualizer:
             sns.lineplot(x=distance, y=los_dens_true[i, :], ax=ax, label='True density')
             sns.lineplot(x=distance, y=los_dens_network[i, :], ax=ax, label='Network density')
             
-            ax.set_xlabel('d (kpc)', fontsize=15)
-            ax.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
+            ax.set_xlabel('Distance (kpc)', fontsize=20)
+            ax.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
+            ax.tick_params(axis='both', which='major', labelsize=20)
             
-        plt.legend()
+        plt.legend(fontsize=20)
         plt.savefig(density_los_plot_path)
         
     def star_map(self):
@@ -391,9 +415,10 @@ class Visualizer:
         square = patches.Rectangle((-5, -5), 10, 10, linewidth=1, edgecolor='r', facecolor='none')
         ax.add_patch(square)
         ax.set_aspect('equal', adjustable='box')
+        ax.tick_params(axis='both', which='major', labelsize=15)
 
-        plt.xlabel('X (kpc)', fontsize=15)
-        plt.ylabel('Y (kpc)', fontsize=15)
+        plt.xlabel('X (kpc)', fontsize=20)
+        plt.ylabel('Y (kpc)', fontsize=20)
         
         plt.savefig("star_map.png")
 
@@ -429,11 +454,12 @@ class Visualizer:
         line = np.linspace(0, max(dens_network.flatten()), 100)
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
-        ax.set_title('True density vs Network density', fontsize=15)
+        ax.set_title('True density vs Network density', fontsize=20)
         sns.scatterplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
         sns.lineplot(x=line, y=line, color='red', ax=ax)
-        ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=15)
-        ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=15)
+        ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=20)
+        ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=20)
+        ax.tick_params(axis='both', which='major', labelsize=20)
         plt.savefig(density_plot_path)
         
     def density_difference_vs_network(self):
@@ -456,11 +482,12 @@ class Visualizer:
         x_line = np.linspace(0, max(dens_true.flatten()), 100)
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
-        ax.set_title('Difference between True and Network density vs Network density', fontsize=15)
+        ax.set_title('Difference between True and Network density vs Network density', fontsize=20)
         sns.scatterplot(x = dens_true.flatten(), y = dens_true.flatten() - dens_network.flatten(), ax = ax)
         sns.lineplot(x = x_line, y = np.zeros(100), color = 'red', ax = ax)
-        ax.set_xlabel('True density (kpc$^{-2}$)', fontsize=15)
-        ax.set_ylabel('True density - Network density (kpc$^{-2}$)', fontsize=15)
+        ax.set_xlabel('True density (kpc$^{-2}$)', fontsize=20)
+        ax.set_ylabel('True density - Network density (kpc$^{-2}$)', fontsize=20)
+        ax.tick_params(axis='both', which='major', labelsize=20)
         plt.savefig(density_plot_path)
         
     # 
