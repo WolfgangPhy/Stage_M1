@@ -13,9 +13,10 @@
     "extinction_plot": "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/extinction_plot.png",
     "extinction_los_plot": "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/extinction_los_plot.png",
     "loss_plot": "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/loss_plot.png",
-    "network_density_histogram_plot":,
-    "density_true_vs_network_plot",
-    "density_difference_vs_network_plot",
+    "network_density_histogram_plot": "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/network_density_histogram_plot.png",
+    "density_true_vs_network_plot" : "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/density_true_vs_network_plot.png",
+    "density_difference_vs_network_plot" : "./Tests/nu_ext_1.0_nu_dens_0.0_ext_loss_function_loglike_loss_dens_loss_function_mse_loss_star_number_10000_ext_reduction_method_sum_dens_reduction_method_sum_epoch_number_150000_batch_size_500/Plots/density_difference_vs_network_plot.png",
     "model_plot": "model_plot.png",
+    "model_historgram_plot": "model_historgram_plot.png",
     "model_file": "2DModel.pickle"
 }

@@ -137,6 +137,8 @@ class Visualizer:
         
         ax.set_title('Training and Validation Loss', fontsize=25, pad=20)
         ax.set_xlabel('Epochs', fontsize=20, labelpad=20)
+        if(params["ext_loss_function"] == "mse_loss"):
+            ax.set_ylabel('Loss($mag^2.kpc^{-2}$)', fontsize=20, labelpad=20)
         ax.set_ylabel('Loss', fontsize=20, labelpad=20)
         ax.set_yscale('log')
         ax.tick_params(axis='x', which='major', labelsize=15)
@@ -186,9 +188,9 @@ class Visualizer:
         cbar1 = fig.colorbar(cs1, ax=ax1)
         cbar2 = fig.colorbar(cs2, ax=ax2)
         cbar3 = fig.colorbar(cs3, ax=ax3)
-        cbar1.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
-        cbar2.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
-        cbar3.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=20, labelpad=20)
+        cbar1.ax.set_ylabel('Density ($mag.kpc^{-1}$)', rotation=270, fontsize=20, labelpad=20)
+        cbar2.ax.set_ylabel('Density ($mag.kpc^{-1}$)', rotation=270, fontsize=20, labelpad=20)
+        cbar3.ax.set_ylabel('Density ($mag.kpc^{-1}$)', rotation=270, fontsize=20, labelpad=20)
         
         # Ajouter un cercle de rayon 5.5 centré en (0, 0)
         circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
@@ -241,8 +243,8 @@ class Visualizer:
         
         g.ax_joint.set_xlabel('X (kpc)', fontsize=20)
         g.ax_joint.set_ylabel('Y (kpc)', fontsize=20)
-        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
-        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=20)
+        g.ax_marg_x.set_ylabel('Density ($mag.kpc^{-1}$)', fontsize=20)
+        g.ax_marg_y.set_xlabel('Density ($mag.kpc^{-1}$)', fontsize=20)
 
         plt.savefig(density_plot_path)
         
@@ -286,8 +288,8 @@ class Visualizer:
         
         g.ax_joint.set_xlabel('X (kpc)', fontsize=20)
         g.ax_joint.set_ylabel('Y (kpc)', fontsize=20)
-        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
-        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=20)
+        g.ax_marg_x.set_ylabel('Density ($mag.kpc^{-1}$)', fontsize=20)
+        g.ax_marg_y.set_xlabel('Density ($mag.kpc^{-1}$)', fontsize=20)
 
         plt.savefig(density_plot_path)
 
@@ -402,7 +404,7 @@ class Visualizer:
             sns.lineplot(x=distance, y=los_dens_network[i, :], ax=ax, label='Network density')
             
             ax.set_xlabel('Distance (kpc)', fontsize=20)
-            ax.set_ylabel('Density (kpc$^{-2}$)', fontsize=20)
+            ax.set_ylabel('Density ($mag.kpc^{-1}$)', fontsize=20)
             ax.tick_params(axis='both', which='major', labelsize=20)
             
         plt.legend(fontsize=20)
@@ -473,8 +475,8 @@ class Visualizer:
         
         ax.lines[1].set_linestyle("--")
         ax.set_title('True density vs Network density', fontsize=15)
-        ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=20)
-        ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=20)
+        ax.set_xlabel('Network density ($mag.kpc^{-1}$)', fontsize=20)
+        ax.set_ylabel('True density ($mag.kpc^{-1}$)', fontsize=20)
         ax.tick_params(axis='both', which='major', labelsize=20)
         plt.legend(fontsize=20)
         plt.savefig(density_plot_path)
@@ -505,8 +507,8 @@ class Visualizer:
         ax.axhline(0, 0, 1, color='gray', linestyle='dashed', label='Ideal case')
         
         ax.set_title('Difference between True and Network density vs Network density', fontsize=25, pad=20)
-        ax.set_xlabel('True density (kpc$^{-2}$)', fontsize=20, labelpad=20)
-        ax.set_ylabel('True density - Network density (kpc$^{-2}$)', fontsize=20, labelpad=20)
+        ax.set_xlabel('True density ($mag.kpc^{-1}$)', fontsize=20, labelpad=20)
+        ax.set_ylabel('True density - Network density ($mag.kpc^{-1}$)', fontsize=20, labelpad=20)
         ax.tick_params(axis='both', which='major', labelsize=15)
         plt.legend(fontsize=20)
         plt.savefig(density_plot_path)
