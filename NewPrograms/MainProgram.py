@@ -306,7 +306,7 @@ class MainProgram:
         self.get_max_distance()
         if self.is_new_network:
             self.train()
-        # self.calculate_density_extinction()
+        self.calculate_density_extinction()
         self.visualize()  # TODO : Plots files sont écrasés à chaque exécution - Ajouter au README.md
 
 
