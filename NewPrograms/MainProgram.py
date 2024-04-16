@@ -274,15 +274,17 @@ class MainProgram:
         """
         visualizer = Visualizer(self.config_file_path, self.dataset, self.max_distance)
         visualizer.star_map()
-        visualizer.plot_model()
+        if self.is_new_datafile:
+            visualizer.plot_model()
+            visualizer.model_histogram()
         visualizer.compare_densities()
         visualizer.density_vs_distance()
         visualizer.compare_extinctions()
         visualizer.extinction_vs_distance()
         visualizer.loss_function()
-        if self.is_new_datafile:
-            visualizer.model_histogram()
         visualizer.network_density_histogram()
+        visualizer.density_true_vs_network()
+        visualizer.density_difference_vs_network()
         
 
     def execute(self):

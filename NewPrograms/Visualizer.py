@@ -11,6 +11,7 @@ from FileHelper import FileHelper
 from ModelHelper import ModelHelper
 import matplotlib.patches as patches
 from matplotlib.patches import Circle
+import json
 
 
 class Visualizer:
@@ -46,6 +47,9 @@ class Visualizer:
         - `extinction_vs_distance()`: Plot true and network extinction along lines of sight.
         - `density_vs_distance()`: Plot true and network density along lines of sight.	
         - `plot_model()`: Plot the model and save the plot.
+        - `star_map()`: Plot the star map.
+        - `density_true_vs_network()`: Plot true density vs network density.
+        - `density_difference_vs_network()`: Plot the difference between the true and network density.
         
     # Example:
         The following example demonstrates how to use the `Visualizer` class to compare true and network extinction.
@@ -95,32 +99,44 @@ class Visualizer:
         """
         Plot the model (the dataset file) and save the plot in the 'Plots' subdirectory of the current test directory.
         """
-        file_model = FileHelper.give_config_value(self.config_file_path, "model_file")
         file_model_plot = FileHelper.give_config_value(self.config_file_path, "model_plot")
-        with open(file_model, "rb") as file:
-            model = pickle.load(file)
-            file.close()
         
-        x, y = np.mgrid[-5:5.1:0.1, -5:5.1:0.1]
-        dens = x*0.
-        for i in range(len(x[:, 1])):
-            for j in range(len(x[1, :])):
-                dens[i, j] = ModelHelper.compute_extinction_model_density(model, x[i, j], y[i, j], 0.)
+        x = self.dens_grid_datas['X']
+        y = self.dens_grid_datas['Y']
+        dens = self.dens_grid_datas['density_model']
                 
-        plt.pcolormesh(x, y, dens, shading='auto', cmap="inferno")
+        palette = plt.cm.get_cmap("twilight")
+        palette = palette.reversed()
+        palette = self.truncate_colormap(palette, 0.5, 1)
+        fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.pcolormesh(x, y, dens, shading='auto', cmap=palette)
+        ax.invert_yaxis()
+        ax.set_title('Cloud map', fontsize=15)
+        ax.set_xlabel('X (kpc)', fontsize=15)
+        ax.set_ylabel('Y (kpc)', fontsize=15)
+        ax.set_aspect('equal', adjustable='box')
         plt.savefig(file_model_plot)
        
     def loss_function(self):
         """
         Plot the training and validation loss and save the plot in the 'Plots' subdirectory of the current test directory.
         """
+        with open("Parameters.json", "r") as file:
+            params = json.load(file)
         loss_plot_path = FileHelper.give_config_value(self.config_file_path, "loss_plot")
         sns.set_theme()
-        fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
         sns.lineplot(data=self.lossdatas, x='Epoch', y='TotalLoss', label='Training loss', ax=ax)
         sns.lineplot(data=self.valdatas, x='Epoch', y='TotalValLoss', label='Validation loss', ax=ax)
-        ax.set_xlabel('Epochs')
-        ax.set_ylabel('Loss')
+        if(params["ext_loss_function"] == "loglike_loss"):
+            if(params["ext_reduction_method"] == "sum"):
+                ax.axhline(params["star_number"], 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+            if(params["ext_reduction_method"] == "mean"):
+                ax.axhline(1, 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+        if(params["ext_loss_function"] == "mse_loss"):
+            ax.axhline(0, 0, 1, color='gray', linestyle='dashed', label='Early stopping')
+        ax.set_xlabel('Epochs', fontsize=15)
+        ax.set_ylabel('Loss', fontsize=15)
         ax.set_yscale('log')
         ax.legend()
         plt.savefig(loss_plot_path)
@@ -147,22 +163,25 @@ class Visualizer:
         palette = plt.cm.get_cmap("twilight")
         palette = palette.reversed()
         palette = self.truncate_colormap(palette, 0.1, 0.9)
-        cs = ax1.set_title('True density')
+        cs = ax1.set_title('True density', fontsize=15)
         cs1 = ax1.pcolormesh(x, y, dens_true, shading='auto', cmap=palette, norm=divnorm)
-        cs = ax2.set_title('Network density')
+        cs = ax2.set_title('Network density', fontsize=15)
         cs2 = ax2.pcolormesh(x, y, dens_network * 2. / self.max_distance, shading='auto', cmap=palette, norm=divnorm)
-        cs = ax3.set_title('True-Network')
+        cs = ax3.set_title('True-Network', fontsize=15)
         cs3 = ax3.pcolormesh(x, y, (dens_true - dens_network * 2. / self.max_distance), shading='auto',
                              cmap='seismic', norm=divnorm)
-        ax1.set_xlabel('X (kpc)')
-        ax1.set_ylabel('Y (kpc)')
-        ax2.set_xlabel('X (kpc)')
-        ax2.set_ylabel('Y (kpc)')
-        ax3.set_xlabel('X (kpc)')
-        ax3.set_ylabel('Y (kpc)')
-        fig.colorbar(cs1, ax=ax1)
-        fig.colorbar(cs2, ax=ax2)
-        fig.colorbar(cs3, ax=ax3)
+        ax1.set_xlabel('X (kpc)', fontsize=15)
+        ax1.set_ylabel('Y (kpc)', fontsize=15)
+        ax2.set_xlabel('X (kpc)', fontsize=15)
+        ax2.set_ylabel('Y (kpc)', fontsize=15)
+        ax3.set_xlabel('X (kpc)', fontsize=15)
+        ax3.set_ylabel('Y (kpc)', fontsize=15)
+        cbar1 = fig.colorbar(cs1, ax=ax1)
+        cbar2 = fig.colorbar(cs2, ax=ax2)
+        cbar3 = fig.colorbar(cs3, ax=ax3)
+        cbar1.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
+        cbar2.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
+        cbar3.ax.set_ylabel('Density (kpc$^{-2}$)', rotation=270, fontsize=15, labelpad=15)
         
         # Ajouter un cercle de rayon 5.5 centré en (0, 0)
         circle = plt.Circle((0, 0), 5.5, color='white', fill=False)
@@ -207,6 +226,11 @@ class Visualizer:
         g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+        
+        g.ax_joint.set_xlabel('X (kpc)', fontsize=15)
+        g.ax_joint.set_ylabel('Y (kpc)', fontsize=15)
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=15)
 
         plt.savefig(density_plot_path)
         
@@ -237,6 +261,11 @@ class Visualizer:
         g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
         g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+        
+        g.ax_joint.set_xlabel('X (kpc)', fontsize=15)
+        g.ax_joint.set_ylabel('Y (kpc)', fontsize=15)
+        g.ax_marg_x.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
+        g.ax_marg_y.set_xlabel('Density (kpc$^{-2}$)', fontsize=15)
 
         plt.savefig(density_plot_path)
 
@@ -260,16 +289,18 @@ class Visualizer:
         palette = plt.cm.get_cmap("twilight")
         palette = self.truncate_colormap(palette, 0.0, 0.5)
         palette = palette.reversed()
-        cs = ax1.set_title('True Extinction')
+        cs = ax1.set_title('True Extinction (mag)', fontsize=15)
         cs1 = ax1.pcolormesh(x, y, ext_true, shading='auto', cmap=palette, vmin=0.)
-        cs = ax2.set_title('Network Extinction')
+        cs = ax2.set_title('Network Extinction (mag)', fontsize=15)
         cs2 = ax2.pcolormesh(x, y, ext_network, shading='auto', cmap=palette, vmin=0.) 
-        ax1.set_xlabel('X (kpc)')
-        ax1.set_ylabel('Y (kpc)')
-        ax2.set_xlabel('X (kpc)')
-        ax2.set_ylabel('Y (kpc)')
-        fig.colorbar(cs1, ax=ax1)
-        fig.colorbar(cs2, ax=ax2)
+        ax1.set_xlabel('X (kpc)', fontsize=15)
+        ax1.set_ylabel('Y (kpc)', fontsize=15)
+        ax2.set_xlabel('X (kpc)', fontsize=15)
+        ax2.set_ylabel('Y (kpc)', fontsize=15)
+        cbar1 = fig.colorbar(cs1, ax=ax1)
+        cbar2 = fig.colorbar(cs2, ax=ax2)
+        cbar1.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=15, labelpad=15)
+        cbar2.ax.set_ylabel('Extinction (mag)', rotation=270, fontsize=15, labelpad=15)
         plt.savefig(extinction_plot_path)
         # plt.show()
         
@@ -314,8 +345,8 @@ class Visualizer:
                 else:
                     recerr[j] = los_ext_network[i, j] * los_ext_network[i, j]
             ax.errorbar(xdata, ydata, yerr=errdata, fmt='o')
-            ax.set_xlabel('d (kpc)')
-            ax.set_ylabel('K (mag)')
+            ax.set_xlabel('d (kpc)', fontsize=15)
+            ax.set_ylabel('K (mag)', fontsize=15)
             
         plt.legend()
         plt.savefig(extinction_los_plot_path)
@@ -345,8 +376,8 @@ class Visualizer:
             sns.lineplot(x=distance, y=los_dens_true[i, :], ax=ax, label='True density')
             sns.lineplot(x=distance, y=los_dens_network[i, :], ax=ax, label='Network density')
             
-            ax.set_xlabel('d (kpc)')
-            ax.set_ylabel('Density (cm^-3)')
+            ax.set_xlabel('d (kpc)', fontsize=15)
+            ax.set_ylabel('Density (kpc$^{-2}$)', fontsize=15)
             
         plt.legend()
         plt.savefig(density_los_plot_path)
@@ -369,6 +400,9 @@ class Visualizer:
         square = patches.Rectangle((-5, -5), 10, 10, linewidth=1, edgecolor='r', facecolor='none')
         ax.add_patch(square)
         ax.set_aspect('equal', adjustable='box')
+
+        plt.xlabel('X (kpc)', fontsize=15)
+        plt.ylabel('Y (kpc)', fontsize=15)
         
         plt.savefig("star_map.png")
 
@@ -383,3 +417,59 @@ class Visualizer:
             'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
             cmap(np.linspace(minval, maxval, n)))
         return new_cmap
+        
+    def density_true_vs_network(self):
+        """
+        Plot true density vs network density.
+        """
+        dens_true = self.dens_grid_datas['density_model']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_true_vs_network_plot")
+        
+        X = self.dens_grid_datas['X']
+        Y = self.dens_grid_datas['Y']
+        distance = np.sqrt(X**2 + Y**2)
+        
+        mask = np.where(distance <= self.max_distance)
+        
+        dens_true = dens_true[mask]
+        dens_network = dens_network[mask]
+
+        line = np.linspace(0, max(dens_network.flatten()), 100)
+        sns.set_theme()
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.set_title('True density vs Network density', fontsize=15)
+        sns.scatterplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
+        sns.lineplot(x=line, y=line, color='red', ax=ax)
+        ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=15)
+        ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=15)
+        plt.savefig(density_plot_path)
+        
+    def density_difference_vs_network(self):
+        """
+        Plot the difference between the true and network density in function of the network density.
+        """
+        dens_true = self.dens_grid_datas['density_model']
+        dens_network = self.dens_grid_datas['density_network']
+        density_plot_path = FileHelper.give_config_value(self.config_file_path, "density_difference_vs_network_plot")
+        
+        X = self.dens_grid_datas['X']
+        Y = self.dens_grid_datas['Y']
+        distance = np.sqrt(X**2 + Y**2)
+        
+        mask = np.where(distance <= self.max_distance)
+        
+        dens_true = dens_true[mask]
+        dens_network = dens_network[mask]
+        
+        x_line = np.linspace(0, max(dens_true.flatten()), 100)
+        sns.set_theme()
+        _, ax = plt.subplots(1, 1, figsize=(15, 10))
+        ax.set_title('Difference between True and Network density vs Network density', fontsize=15)
+        sns.scatterplot(x = dens_true.flatten(), y = dens_true.flatten() - dens_network.flatten(), ax = ax)
+        sns.lineplot(x = x_line, y = np.zeros(100), color = 'red', ax = ax)
+        ax.set_xlabel('True density (kpc$^{-2}$)', fontsize=15)
+        ax.set_ylabel('True density - Network density (kpc$^{-2}$)', fontsize=15)
+        plt.savefig(density_plot_path)
+        
+    # 
