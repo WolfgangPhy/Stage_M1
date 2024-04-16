@@ -439,8 +439,10 @@ class Visualizer:
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
         ax.set_title('True density vs Network density', fontsize=15)
-        sns.regplot(x = dens_network.flatten(), y = dens_true.flatten(), ax=ax)
-        sns.lineplot(x=line, y=line, color='red', ax=ax)
+        sns.regplot(x=dens_network.flatten(), y=dens_true.flatten(), ax=ax,
+                    scatter_kws={'linewidths': 1, 'edgecolor': 'white'})
+        sns.lineplot(x=line, y=line, color='gray', ax=ax, label="Ideal case")
+        ax.lines[1].set_linestyle("--")
         ax.set_xlabel('Network density (kpc$^{-2}$)', fontsize=15)
         ax.set_ylabel('True density (kpc$^{-2}$)', fontsize=15)
         plt.savefig(density_plot_path)
@@ -462,14 +464,13 @@ class Visualizer:
         dens_true = dens_true[mask]
         dens_network = dens_network[mask]
         
-        x_line = np.linspace(0, max(dens_true.flatten()), 100)
         sns.set_theme()
         _, ax = plt.subplots(1, 1, figsize=(15, 10))
         ax.set_title('Difference between True and Network density vs Network density', fontsize=15)
         sns.scatterplot(x = dens_true.flatten(), y = dens_true.flatten() - dens_network.flatten(), ax = ax)
-        sns.lineplot(x = x_line, y = np.zeros(100), color = 'red', ax = ax)
+        ax.axhline(0, 0, 1, color='gray', linestyle='dashed', label='Ideal case')
         ax.set_xlabel('True density (kpc$^{-2}$)', fontsize=15)
         ax.set_ylabel('True density - Network density (kpc$^{-2}$)', fontsize=15)
+        plt.legend(fontsize=20)
         plt.savefig(density_plot_path)
         
-    # 
