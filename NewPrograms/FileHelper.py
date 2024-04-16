@@ -81,6 +81,15 @@ class FileHelper:
                                                               config_data['extinction_los_plot'][2:]
                                                               )
             config_data['loss_plot'] = os.path.join('./', test_directory, config_data['loss_plot'][2:])
+            config_data['model_historgram_plot'] = os.path.join('./', test_directory,
+                                                               config_data['model_historgram_plot'][2:]
+                                                               )
+            config_data['density_true_vs_network_plot'] = os.path.join('./', test_directory,
+                                                                    config_data['density_true_vs_network_plot'][2:]
+                                                                    )
+            config_data['density_difference_vs_network_plot'] = os.path.join('./', test_directory,
+                                                                         config_data['density_difference_vs_network_plot'][2:]
+                                                                         )
             
             with open(os.path.join(test_directory, 'Config.json'), 'w') as new_config_file:
                 json.dump(config_data, new_config_file, indent=4)
